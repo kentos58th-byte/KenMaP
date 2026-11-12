@@ -16,6 +16,7 @@
   ],
   "shortcuts": [
     { "name": "呼吸ケアマップ", "url": "respiratory/" },
-    { "name": "心電図道場", "url": "ECG-dojo/" }
+    { "name": "心電図道場", "url": "ECG-dojo/" },
+    { "name": "エコー下末梢静脈路確保", "url": "piv-echo/" }
   ]
 }
