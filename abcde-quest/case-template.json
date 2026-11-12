@@ -1,0 +1,174 @@
+{
+  "_使い方": "このファイルをコピーして cases/case02-○○.json のような名前で保存し、中身を書きかえます。「_」で始まる項目は説明なので、消しても残してもかまいません。書けたら cases/index.json にも1件足してください。",
+  "_時間で変わる文章": "[ { \"from\": 0, \"text\": \"…\" }, { \"from\": 20, \"text\": \"…\" } ] のように書くと、0分からは1つ目、20分からは2つ目の文章が使われます。変わらないものは1つだけ書けばOKです。",
+
+  "id": "case02-xxxx",
+  "number": 2,
+  "title": "症例のタイトル（例：食後の息苦しさ）",
+  "summary": "一覧画面に出る1行の説明",
+  "tags": ["年齢 性別", "病名や術後日数", "勤務帯"],
+  "difficulty": 2,
+  "_difficulty": "難しさ 1〜3（一覧に★で出ます）",
+  "reviewed": false,
+  "memo": "監修メモ（画面には出ません）",
+
+  "timeLimit": 40,
+  "_timeLimit": "この時間（分）までに報告できないと、状態が悪化して終了します。",
+
+  "patient": {
+    "name": "〇〇さん",
+    "fullName": "〇〇 〇〇",
+    "profile": "患者の設定。年齢・性別・職業・家族・病名・手術や入院の経過・既往歴・今日の日付など。AI が患者役を演じるときに使います。",
+    "voice": { "gender": "male", "pitch": 0.8, "rate": 0.9 },
+    "_voice": "読み上げの声。gender は male か female、pitch は高さ（0.5〜1.5）、rate は速さ（0.7〜1.2）",
+    "speechRules": [
+      "話し方の特徴（例：高齢女性らしい丁寧な話し言葉。1〜2文まで。）",
+      "医学用語や数値は言わない。",
+      "看護師の質問にだけ答える。"
+    ],
+    "stages": [
+      { "from": 0,  "desc": "0分からの患者の様子・感じていること" },
+      { "from": 15, "desc": "15分からの様子（悪化していく）" },
+      { "from": 30, "desc": "30分からの様子" }
+    ],
+    "_stages": "AI が患者役を演じるときの、時間ごとの状態です。",
+    "orientationMatch": "名前|何月|日付|何日|曜日|どこ|ここ|場所",
+    "_orientationMatch": "この言葉を含む質問をすると「会話で見当識を確認できた」と記録されます。",
+    "replies": [
+      { "match": "名前", "say": [ { "from": 0, "text": "〇〇です。" } ] },
+      { "match": "痛", "say": [ { "from": 0, "text": "最初の痛みの訴え" }, { "from": 15, "text": "悪化したときの訴え" } ] },
+      { "match": "息|苦し|呼吸", "say": [ { "from": 0, "text": "息についての答え" } ] }
+    ],
+    "_replies": "AI が使えないとき（KenMaP 上ではこちら）の返事です。match の言葉（| で区切ると「または」）が質問に入っていると、その返事をします。上から順に調べます。",
+    "defaultReply": [ { "from": 0, "text": "どれにも当てはまらないときの返事" } ]
+  },
+
+  "intro": {
+    "paragraphs": [
+      "始める前の説明文（例：日勤帯、10時の訪室。…）"
+    ],
+    "firstScene": "部屋に入った瞬間の様子。<br>で改行できます。",
+    "openingLine": "患者の最初のひとこと",
+    "enterMessage": "10:00 訪室。〇〇さんの部屋に入った。"
+  },
+
+  "vitals": {
+    "keyframes": [
+      { "t": 0,  "rr": 20, "spo2": 96, "sbp": 120, "dbp": 70, "hr": 90,  "temp": 37.0 },
+      { "t": 20, "rr": 24, "spo2": 94, "sbp": 110, "dbp": 64, "hr": 105, "temp": 37.5 },
+      { "t": 40, "rr": 28, "spo2": 90, "sbp": 95,  "dbp": 55, "hr": 120, "temp": 38.0 }
+    ],
+    "_keyframes": "t 分のときの本当のバイタル。あいだの時間は自動でなめらかにつながります。t は最後を timeLimit と同じにすると自然です。",
+    "consciousness": [ { "from": 0, "v": "A" }, { "from": 25, "v": "C" } ],
+    "_consciousness": "ACVPU（A=清明、C=新たな混乱、V=声に反応、P=痛みに反応、U=反応なし）",
+    "oxygen": { "on": "鼻カニュラ2L/分", "off": "室内気" }
+  },
+
+  "looks": [
+    { "from": 0,  "sweat": 0.3, "face": "#f4bfa0", "mouth": "normal" },
+    { "from": 20, "sweat": 1,   "face": "#e6c6ae", "mouth": "grimace" }
+  ],
+  "_looks": "イラストの見た目。sweat 汗の濃さ（0〜1）、face 顔色（#f4bfa0 ふつう / #e6c6ae 青白い / #f0a890 紅潮）、mouth は normal（ふつう）か grimace（つらそう）",
+
+  "zones": {
+    "head":    [ { "from": 0, "text": "顔・表情をタップしたときの描写" } ],
+    "chest":   [ { "from": 0, "text": "胸・呼吸の見た目" } ],
+    "abdomen": [ { "from": 0, "text": "お腹の見た目" } ],
+    "arm":     [ { "from": 0, "text": "腕・皮膚・点滴の見た目" } ],
+    "legs":    [ { "from": 0, "text": "足・尿バッグの見た目" } ],
+    "bedside": [ { "from": 0, "text": "ベッドサイドにある物" } ]
+  },
+  "_zones": "体の部位をタップしたときの「見た目（視診）」の描写です。",
+
+  "actions": [
+    { "id": "rr", "desc": "呼吸数を数える", "sec": 4, "match": "呼吸数|呼吸を数|RR", "key": "rr", "measure": "rr",
+      "findings": [ { "from": 0, "text": "呼吸数 {rr}回/分。" } ] },
+    { "id": "spo2", "desc": "SpO2の測定", "sec": 2, "match": "SpO2|サチュ|酸素飽和|パルスオキシ", "key": "spo2", "measure": "spo2",
+      "findings": [ { "from": 0, "text": "SpO2 {spo2}%（{o2}）。" } ] },
+    { "id": "hr", "desc": "脈拍の触知", "sec": 3, "match": "脈|心拍|HR", "key": "hr", "measure": "hr",
+      "findings": [ { "from": 0, "text": "脈拍 {hr}回/分。" } ] },
+    { "id": "bp", "desc": "血圧測定", "sec": 5, "match": "血圧|BP", "key": "sbp", "measure": "sbp",
+      "findings": [ { "from": 0, "text": "血圧 {sbp}/{dbp} mmHg。" } ] },
+    { "id": "temp", "desc": "体温測定", "sec": 3, "match": "体温|検温", "key": "temp", "measure": "temp",
+      "findings": [ { "from": 0, "text": "体温 {temp}℃。" } ] },
+    { "id": "cons", "desc": "意識レベルの評価", "sec": 2, "match": "意識|JCS|GCS|ACVPU|AVPU", "key": "cons", "measure": "cons",
+      "findings": [ { "from": 0, "text": "意識清明（A）。" }, { "from": 25, "text": "ぼんやりしている。新たな混乱（C）の可能性。" } ] },
+    { "id": "ausc", "desc": "呼吸音の聴診", "sec": 5, "match": "聴診|呼吸音|肺音",
+      "findings": [ { "from": 0, "text": "この症例の聴診所見" } ] },
+    { "id": "o2", "desc": "【介入】酸素投与を開始する", "sec": 3, "match": "酸素(を|の)?(投与|開始|つけ|流|吸入)|カニュラ|酸素マスク",
+      "oxygen": true, "effect": { "spo2": { "add": 3, "max": 98 } },
+      "findings": [ { "from": 0, "text": "鼻カニュラで酸素2L/分を開始した。" } ],
+      "patientReply": "少し楽になりました…" }
+  ],
+  "_actions": "「観察・ケアをする」で入力できる行動です。id 行動の名前（英数字）、desc 説明、sec かかる秒数、match 反応する言葉（| で区切る）、findings 所見（{rr} {spo2} {sbp} {dbp} {hr} {temp} {o2} はその時点の値に置きかわります）、key 振り返りの「確かめられたこと」に使う名前、measure 測定値の表示に入れるもの（rr / spo2 / hr / sbp / temp / cons）、effect 介入の効果、oxygen 酸素投与なら true、patientReply 実施後の患者のひとこと。",
+
+  "extraFacts": "上の行動にない観察（口腔内・浮腫など）を AI が答えるときの情報。AI が使えるときだけ使われます。",
+
+  "events": [
+    { "t": 10, "patient": "10分に患者が言うこと", "log": "振り返りに残す記録" },
+    { "t": 20, "system": "看護助手：「…」など、まわりからの知らせ", "log": "振り返りに残す記録" }
+  ],
+  "_events": "時間で起こる出来事。patient は患者のセリフ、system は画面に出るお知らせ。どちらか片方だけでもOK。",
+
+  "truth": {
+    "diagnosis": "この症例で本当に起きていること（例：〇〇による△△の初期）",
+    "hiddenFindings": "医師役の AI だけが知っている所見"
+  },
+
+  "keyFindings": [
+    { "key": "rr",   "label": "呼吸数", "hint": "確かめなかったときに出るひとこと" },
+    { "key": "spo2", "label": "SpO2",   "hint": "…" },
+    { "key": "talk", "label": "会話での見当識の確認", "hint": "…" }
+  ],
+  "_keyFindings": "振り返りの「確かめられたこと／次に確かめてみたいこと」。key は actions の key と同じにします（talk は会話での見当識）。",
+
+  "report": {
+    "doctor": "当直医",
+    "maxTries": 4,
+    "placeholder": "報告の書き出しの例",
+    "orders": "医師が出す指示の例（AI 用）",
+    "choices": [
+      { "k": "S", "q": "Situation（状況）", "options": [
+        { "text": "よい選択肢", "ok": true },
+        { "text": "よくない選択肢", "ok": false },
+        { "text": "よくない選択肢", "ok": false } ] },
+      { "k": "B", "q": "Background（背景）", "options": [
+        { "text": "…", "ok": true }, { "text": "…", "ok": false }, { "text": "…", "ok": false } ] },
+      { "k": "A", "q": "Assessment（評価）", "options": [
+        { "text": "…", "ok": false }, { "text": "…", "ok": true }, { "text": "…", "ok": false } ] },
+      { "k": "R", "q": "Recommendation（提案）", "options": [
+        { "text": "…", "ok": true }, { "text": "…", "ok": false }, { "text": "…", "ok": false } ] }
+    ],
+    "_choices": "AI が使えないとき（KenMaP 上ではこちら）の、選んで報告する SBAR です。ok: true が正解。正解の位置はばらばらにしましょう。"
+  },
+
+  "assessment": {
+    "placeholders": { "A": "例：…", "B": "例：…", "C": "例：…", "D": "例：…", "E": "例：…", "X": "例：…" },
+    "expert": {
+      "A": "熟練看護師の A のアセスメント例",
+      "B": "B の例", "C": "C の例", "D": "D の例", "E": "E の例",
+      "X": "総合判断と、どう動くかの例"
+    }
+  },
+
+  "expert": [
+    { "t": "0分", "text": "熟練看護師の動きの一例（時間順）" },
+    { "t": "2分", "text": "…" }
+  ],
+
+  "sbarExample": {
+    "S": "Situation の例", "B": "Background の例", "A": "Assessment の例", "R": "Recommendation の例",
+    "note": "補足（任意）"
+  },
+
+  "points": [
+    "この症例で学んでほしいポイント1",
+    "ポイント2"
+  ],
+
+  "endings": {
+    "success": "すぐに報告できたときのメッセージ",
+    "partial": "何度かやりとりして医師が来たときのメッセージ",
+    "fail": "時間内に報告できなかったときのメッセージ"
+  }
+}

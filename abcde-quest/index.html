@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16324f">
+<title>ABCDEクエスト</title>
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#16324f; --navy2:#1f4870; --bg:#eef2f6; --card:#ffffff; --ink:#1d2733; --sub:#5d6b7a;
+  --line:#d8e0e8; --ok:#1f8a5b; --warn:#d98a00; --bad:#c8372d; --accent:#2f7fd0; --mon:#0b1620; --teal:#0f766e;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans JP",system-ui,sans-serif;font-size:15px;line-height:1.6}
+body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+header{position:sticky;top:0;z-index:20;background:var(--navy);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+header h1{font-size:15px;margin:0;font-weight:700}
+header small{display:block;font-size:11px;opacity:.75;font-weight:400}
+.hright{display:flex;gap:6px;align-items:center}
+.clock{background:rgba(255,255,255,.14);border-radius:999px;padding:4px 12px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ic{background:rgba(255,255,255,.14);border:none;color:#fff;border-radius:999px;width:34px;height:34px;font-size:15px;cursor:pointer}
+main{max-width:560px;margin:0 auto;padding:12px}
+.card{background:var(--card);border-radius:14px;padding:12px;margin-bottom:12px;box-shadow:0 1px 3px rgba(20,40,60,.08)}
+.card h2{font-size:14px;margin:0 0 8px;color:var(--navy);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.hint{font-size:12px;color:var(--sub);font-weight:400}
+svg .zone{cursor:pointer}
+svg .zone .hl{fill:#2f7fd0;opacity:0;transition:opacity .2s}
+svg .zone:hover .hl{opacity:.12}
+#speakRing{transition:opacity .2s}
+.chat{height:300px;overflow:auto;background:#f5f8fb;border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.msg{max-width:84%;padding:8px 11px;border-radius:14px;font-size:14px;line-height:1.5;white-space:pre-wrap}
+.msg.n{align-self:flex-end;background:var(--navy2);color:#fff;border-bottom-right-radius:4px}
+.msg.a{align-self:flex-end;background:#d7efe9;color:#0b4f48;border-bottom-right-radius:4px}
+.msg.a::before{content:"🩺 観察・ケア";display:block;font-size:10px;opacity:.8}
+.msg.p{align-self:flex-start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.p::before{content:attr(data-n);display:block;font-size:10px;color:var(--sub)}
+.msg.f{align-self:stretch;max-width:100%;background:#fff;border-left:4px solid var(--teal);border-radius:8px;font-size:13.5px}
+.msg.f::before{content:"所見";display:block;font-size:10px;color:var(--teal);font-weight:700}
+.msg.s{align-self:center;background:#fff4dd;color:#7a4e00;font-size:12px;max-width:95%}
+.msg.typing{color:var(--sub)}
+.mode{display:flex;gap:6px;margin-top:8px}
+.mode button{flex:1;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:7px 4px;font:inherit;font-size:13px;font-weight:700;color:var(--sub);cursor:pointer}
+.mode button.on.talk{background:var(--navy2);border-color:var(--navy2);color:#fff}
+.mode button.on.obs{background:var(--teal);border-color:var(--teal);color:#fff}
+.cin{display:flex;gap:6px;margin-top:8px}
+.cin input{flex:1;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font:inherit;font-size:16px;min-width:0}
+.cin button{border:none;border-radius:12px;padding:0 14px;font:inherit;font-weight:700;cursor:pointer;background:var(--navy2);color:#fff}
+.cin.obs button[type=submit]{background:var(--teal)}
+.cin .mic{background:#e3ebf3;color:var(--navy);font-size:18px;padding:0 12px}
+.mic.on{background:var(--bad)!important;color:#fff!important}
+.vitals{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:var(--mon);border-radius:12px;padding:8px}
+.vbox{border-radius:8px;padding:6px 8px;background:#122332;min-height:62px}
+.vbox .lab{font-size:10px;color:#8fa5b8;letter-spacing:.05em}
+.vbox .val{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
+.vbox .age{font-size:10px;color:#6f8597}
+.vbox.stale .val{opacity:.5}
+.c-hr{color:#4ade80}.c-sp{color:#38bdf8}.c-bp{color:#f87171}.c-rr{color:#facc15}.c-t{color:#e5e7eb}.c-c{color:#c4b5fd}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:flex;gap:8px;justify-content:center}
+.bar button{flex:1;max-width:220px}
+.btn{border:none;border-radius:12px;padding:12px 10px;font:inherit;font-weight:700;cursor:pointer;background:var(--navy2);color:#fff}
+.btn.sec{background:#e3ebf3;color:var(--navy)}
+.btn.red{background:var(--bad)}
+.btn.wide{width:100%}
+.btn:disabled{opacity:.45}
+.overlay{position:fixed;inset:0;z-index:50;background:rgba(10,20,30,.55);display:none;align-items:flex-end;justify-content:center}
+.overlay.show{display:flex}
+.sheet{background:#fff;width:100%;max-width:560px;max-height:90vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));animation:up .2s ease-out}
+@keyframes up{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}
+.sheet h3{margin:0 0 10px;font-size:17px;color:var(--navy)}
+.sheet h4{margin:18px 0 8px;font-size:15px;color:var(--navy)}
+.scene{background:#f3f7fb;border-radius:12px;padding:12px;margin:8px 0;font-size:15px}
+.prog{height:6px;background:#e3ebf3;border-radius:6px;overflow:hidden;margin:14px 0}
+.prog i{display:block;height:100%;width:0;background:var(--teal);transition:width linear}
+.nrow{display:grid;grid-template-columns:1fr auto;align-items:center;gap:6px;padding:8px 0;border-bottom:1px solid var(--line)}
+.nrow .nm{font-weight:700;font-size:14px}
+.nrow .mv{font-size:12px;color:var(--sub)}
+.pts{display:flex;gap:4px}
+.pt{width:36px;height:36px;border-radius:9px;border:1.5px solid var(--line);background:#fff;font:inherit;font-weight:700;cursor:pointer}
+.pt.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.pt.right{background:var(--ok);color:#fff;border-color:var(--ok)}
+.pt.wrong{background:#f3b2ac;color:#5b1610;border-color:#f3b2ac}
+.result{border-radius:10px;padding:10px 12px;margin:12px 0;font-size:14px}
+.result.ok{background:#e7f6ee;color:#14603f}
+.result.ng{background:#fdecea;color:#8e231b}
+.result.mid{background:#fff4dd;color:#7a4e00}
+.result.info{background:#eaf3fc;color:#174a7c}
+.opt{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:10px 12px;margin-top:6px;font:inherit;font-size:14px;cursor:pointer;color:inherit}
+.opt.on{border-color:var(--accent);background:#eaf3fc}
+.sbar-q{margin-bottom:14px}
+.sbar-q .k{display:inline-flex;width:26px;height:26px;border-radius:7px;background:var(--navy);color:#fff;align-items:center;justify-content:center;font-weight:700;margin-right:6px}
+textarea{width:100%;min-height:130px;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font:inherit;font-size:16px;resize:vertical}
+.thread .me{background:#eaf3fc;border-radius:10px;padding:8px 10px;margin:6px 0 6px 30px;font-size:14px;white-space:pre-wrap}
+.thread .dr{background:#f4f4f4;border-radius:10px;padding:8px 10px;margin:6px 30px 6px 0;font-size:14px}
+.thread .dr::before{content:attr(data-n);display:block;font-size:10px;color:var(--sub)}
+.toast{position:fixed;left:50%;top:calc(70px + env(safe-area-inset-top));transform:translateX(-50%);z-index:60;background:#2b2b2b;color:#fff;padding:10px 14px;border-radius:12px;font-size:13px;max-width:92%;box-shadow:0 6px 20px rgba(0,0,0,.25);display:none}
+.toast.show{display:block;animation:up .25s ease-out}
+.tl{list-style:none;margin:0;padding:0}
+.tl li{position:relative;padding:4px 0 8px 54px;font-size:13.5px;border-left:2px solid var(--line);margin-left:6px}
+.tl li b{position:absolute;left:10px;top:4px;font-size:12px;color:var(--navy);font-variant-numeric:tabular-nums}
+.tl.exp li{border-color:#9fd3c7}
+.tl.exp li b{color:var(--teal)}
+.good{list-style:none;padding:0;margin:0}
+.good li{padding:4px 0;font-size:14px}
+.good li::before{content:"●";color:var(--teal);margin-right:6px;font-size:10px;vertical-align:2px}
+.next li::before{color:var(--warn)}
+.disclaimer{font-size:11px;color:var(--sub);text-align:center;margin:8px 0 0}
+.pill{display:inline-block;font-size:11px;border-radius:999px;padding:1px 9px;background:#e3ebf3;color:var(--navy);margin-right:4px}
+.speed{display:flex;gap:8px;margin:10px 0}
+.speed button{flex:1}
+.speed .on{outline:3px solid var(--accent)}
+.pausedBanner{display:none;background:#fff4dd;color:#7a4e00;text-align:center;font-size:13px;padding:6px;border-radius:10px;margin-bottom:10px}
+.pausedBanner.show{display:block}
+.asrow{margin-bottom:12px}
+.asrow label{display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px;color:var(--navy);margin-bottom:4px;flex-wrap:wrap}
+.asrow .k{display:inline-flex;width:26px;height:26px;border-radius:7px;background:var(--navy);color:#fff;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.asrow textarea{min-height:58px;font-size:15px}
+.asrow .ts{font-size:11px;color:var(--sub);font-weight:400}
+.ascard{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+.ascard .hd{display:flex;align-items:center;gap:6px;font-weight:700;color:var(--navy);margin-bottom:6px;font-size:14px}
+.ascard .hd .k{display:inline-flex;width:24px;height:24px;border-radius:7px;background:var(--navy);color:#fff;align-items:center;justify-content:center;font-size:13px}
+.ascard .mine{background:#f5f8fb;border-radius:8px;padding:6px 9px;font-size:13.5px;white-space:pre-wrap}
+.ascard .seen{font-size:13.5px;margin-top:6px}
+.ascard .seen::before{content:"見えていた思考";display:block;font-size:10px;color:var(--teal);font-weight:700}
+.ascard .nx{font-size:13.5px;margin-top:6px}
+.ascard .nx::before{content:"もう一歩";display:block;font-size:10px;color:var(--warn);font-weight:700}
+.ascard details{margin-top:6px;font-size:13px}
+.ascard summary{color:var(--accent);cursor:pointer;font-size:12px}
+.aifb{background:#f3f7fb;border-radius:12px;padding:12px;font-size:14px;white-space:pre-wrap}
+
+/* ---- 一覧画面 / 画面切り替え ---- */
+body:not(.playing) #game, body:not(.playing) .bar, body:not(.playing) .hright, body:not(.playing) #bList{display:none}
+body.playing #list, body.playing .home-link{display:none}
+body:not(.playing){padding-bottom:24px}
+.hleft{display:flex;align-items:center;gap:8px;min-width:0}
+.hleft h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.home-link{color:#fff;text-decoration:none;font-size:12px;font-weight:700;background:rgba(255,255,255,.14);border-radius:999px;padding:6px 12px;white-space:nowrap}
+.hero{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:16px;padding:18px 16px;margin-bottom:14px}
+.hero h2{margin:0 0 6px;font-size:20px}
+.hero p{margin:0;font-size:13.5px;opacity:.9}
+.hero .abcde{display:flex;gap:6px;margin-top:12px}
+.hero .abcde span{flex:1;text-align:center;background:rgba(255,255,255,.14);border-radius:8px;padding:6px 0;font-weight:700;font-size:15px}
+.hero .abcde small{display:block;font-size:9.5px;font-weight:400;opacity:.85}
+.sec-title{font-size:13px;color:var(--sub);font-weight:700;margin:16px 4px 8px}
+.case-card{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:14px;padding:14px 12px;margin-bottom:10px;box-shadow:0 1px 3px rgba(20,40,60,.08);text-decoration:none;color:inherit;border:1.5px solid transparent}
+.case-card:hover,.case-card:focus-visible{border-color:var(--accent)}
+.case-no{flex:none;width:52px;height:52px;border-radius:12px;background:var(--teal);color:#fff;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.2}
+.case-body{flex:1;min-width:0}
+.case-title{font-weight:700;font-size:15.5px;color:var(--navy)}
+.case-sum{font-size:13px;color:var(--sub);margin:2px 0 6px}
+.case-tags{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.case-tags .pill{margin:0}
+.diff{font-size:12px;color:var(--warn);margin-left:4px;letter-spacing:1px}
+.case-go{font-size:26px;color:var(--sub);flex:none}
+.badge{display:inline-block;font-size:10.5px;border-radius:999px;padding:1px 8px;vertical-align:2px;margin-left:4px;font-weight:700}
+.badge.ok{background:#e7f6ee;color:#14603f}.badge.mid{background:#eaf3fc;color:#174a7c}.badge.try{background:#fff4dd;color:#7a4e00}
+.howto{font-size:13.5px}
+.howto li{margin-bottom:4px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hleft">
+    <button class="ic" id="bList" title="症例の一覧へ" aria-label="症例の一覧へ">☰</button>
+    <h1>ABCDEクエスト <small id="caseTitle">急変の前ぶれに気づく</small></h1>
+  </div>
+  <a class="home-link" href="../">⌂ KenMaP</a>
+  <div class="hright">
+    <div class="clock" id="clock">0分</div>
+    <button class="ic" id="bVoice" title="患者の声">🔊</button>
+    <button class="ic" id="bPause" title="一時停止">⏸</button>
+  </div>
+</header>
+
+<main id="list">
+  <section class="hero">
+    <h2>ABCDEクエスト</h2>
+    <p>病室で患者さんと話し、観察し、「なんか変」の正体を見つけて医師へ報告する、症例シミュレーションです。</p>
+    <div class="abcde"><span>A<small>気道</small></span><span>B<small>呼吸</small></span><span>C<small>循環</small></span><span>D<small>意識</small></span><span>E<small>全身</small></span></div>
+  </section>
+  <div class="sec-title">症例をえらぶ</div>
+  <div id="caseList"><p class="hint">読み込み中…</p></div>
+  <section class="card howto">
+    <h2>遊び方</h2>
+    <ol style="padding-left:20px;margin:0">
+      <li>部屋に入ったら、まず第一印象を選びます。</li>
+      <li>「💬 話しかける」「🩺 観察・ケアをする」に自由に入力。体のイラストをタップすると見た目がわかります。</li>
+      <li>時間とともに患者さんの状態は変わります。必要だと思ったら、いつでも「医師へ報告」。</li>
+      <li>最後に、熟練看護師の動きやSBARの例と見比べて振り返ります。</li>
+    </ol>
+  </section>
+  <p class="disclaimer">試作品（臨床監修前）。症例はすべて架空です。実際の判断は各施設の基準に従ってください。</p>
+</main>
+
+<main id="game">
+  <div class="pausedBanner" id="pausedBanner">⏸ 一時停止中（時間は止まっています）</div>
+
+  <section class="card">
+    <h2>🛏️ <span id="ptName">患者さん</span> <span class="hint">体をタップすると、見た目の様子がわかります</span></h2>
+    <svg id="pt" viewBox="0 0 360 190" width="100%" role="img" aria-label="患者のイラスト">
+      <rect x="10" y="70" width="340" height="96" rx="12" fill="#dfe7ef"/>
+      <rect x="18" y="78" width="324" height="80" rx="10" fill="#f7f9fb"/>
+      <rect x="22" y="84" width="70" height="46" rx="14" fill="#ffffff" stroke="#d3dce5"/>
+      <g class="zone" data-zone="bedside">
+        <rect x="266" y="6" width="84" height="54" rx="8" fill="#e3ebf3" stroke="#c4d0dc"/>
+        <rect x="276" y="16" width="26" height="30" rx="4" fill="#fff" stroke="#9fb0c0"/>
+        <circle cx="289" cy="40" r="3" fill="#9fb0c0"/>
+        <rect x="310" y="16" width="30" height="20" rx="3" fill="#0b1620"/>
+        <text x="308" y="56" fill="#5d6b7a" font-size="8" text-anchor="middle">ベッドサイド</text>
+        <rect class="hl" x="262" y="2" width="92" height="62" rx="10"/>
+      </g>
+      <g class="zone" data-zone="legs">
+        <rect x="236" y="98" width="100" height="36" rx="16" fill="#9fc3e6"/>
+        <path d="M300 150 q10 14 24 12" stroke="#e0b100" stroke-width="3" fill="none"/>
+        <rect x="318" y="150" width="16" height="22" rx="3" fill="#e9c75a" stroke="#c9a43a"/>
+        <rect class="hl" x="232" y="94" width="108" height="80" rx="16"/>
+      </g>
+      <g class="zone" data-zone="abdomen">
+        <rect x="170" y="90" width="70" height="50" rx="16" fill="#b8d4ee"/>
+        <rect class="hl" x="166" y="86" width="78" height="58" rx="14"/>
+      </g>
+      <g class="zone" data-zone="chest">
+        <rect id="chestR" x="96" y="88" width="78" height="56" rx="16" fill="#b8d4ee"><animateTransform attributeName="transform" type="translate" values="0 0;0 -2;0 0" dur="2.7s" repeatCount="indefinite" id="breath"/></rect>
+        <rect class="hl" x="92" y="84" width="86" height="64" rx="16"/>
+      </g>
+      <g class="zone" data-zone="arm">
+        <rect x="104" y="138" width="110" height="16" rx="8" fill="#f2c9a5"/>
+        <circle cx="218" cy="146" r="9" fill="#f2c9a5"/>
+        <rect x="150" y="137" width="14" height="18" rx="3" fill="#ffffff" stroke="#9fb0c0"/>
+        <rect class="hl" x="100" y="132" width="130" height="28" rx="10"/>
+      </g>
+      <g class="zone" data-zone="head">
+        <circle id="speakRing" cx="62" cy="108" r="34" fill="none" stroke="#2f7fd0" stroke-width="3" opacity="0"/>
+        <circle cx="62" cy="108" r="28" id="face" fill="#f4bfa0"/>
+        <path d="M44 92 q18 -18 40 -4" stroke="#8a8a8a" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <circle cx="54" cy="106" r="2.6" fill="#333"/>
+        <circle cx="72" cy="106" r="2.6" fill="#333"/>
+        <path id="mouth" d="M55 121 q8 -4 15 0" stroke="#7a3b2e" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <g id="sweat" opacity=".6">
+          <path d="M84 98 q4 6 0 9 q-4 -3 0 -9z" fill="#7cc4f0"/>
+          <path d="M40 118 q4 6 0 9 q-4 -3 0 -9z" fill="#7cc4f0"/>
+        </g>
+        <rect class="hl" x="30" y="76" width="64" height="64" rx="32"/>
+      </g>
+    </svg>
+
+  </section>
+
+  <section class="card">
+    <h2>💬 そばで <span class="hint" id="aiNote"></span></h2>
+    <div class="chat" id="chat"></div>
+    <div class="mode" id="mode">
+      <button class="talk on" data-m="talk">💬 話しかける</button>
+      <button class="obs" data-m="obs">🩺 観察・ケアをする</button>
+    </div>
+    <form class="cin" id="cform">
+      <input id="cinput" placeholder="話しかける" autocomplete="off">
+      <button type="button" class="mic" id="bMic" hidden>🎤</button>
+      <button type="submit">送信</button>
+    </form>
+    <p class="hint" id="modeHint" style="margin:6px 0 0">スマホではキーボードのマイクボタンで音声入力できます。</p>
+  </section>
+
+  <section class="card">
+    <h2>📟 測定済みの値 <span class="hint">測った時点の値です</span></h2>
+    <div class="vitals" id="vitals"></div>
+  </section>
+  <p class="disclaimer">試作品（臨床監修前）。症例は架空です。</p>
+</main>
+
+<nav class="bar">
+  <button class="btn sec" id="bAs">✍️ アセスメント</button>
+  <button class="btn sec" id="bNews">NEWS2</button>
+  <button class="btn red" id="bRep">医師へ報告</button>
+</nav>
+
+<div class="overlay" id="ov"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<script src="game.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('../sw.js', { scope: '../' }).catch(() => {}));
+}
+</script>
+</body>
+</html>
