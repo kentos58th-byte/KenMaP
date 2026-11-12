@@ -3,244 +3,330 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>KenMaP</title>
-<meta name="description" content="呼吸ケアをはじめとする医療ケアの学習アプリをまとめた KenMaP">
-<meta name="theme-color" content="#0B1620">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icons/icon-192.png" type="image/png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>心電図道場</title>
+<meta name="description" content="急性期の看護師のための、段位制の心電図クイズ道場">
+<meta name="theme-color" content="#F4EEDF">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23F4EEDF'/%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%23C23B22' stroke-width='2.4'/%3E%3Cpolyline points='6,17 11,17 13,10 16,23 18,17 26,17' fill='none' stroke='%231E1B18' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="KenMaP">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0B1620;
-    --panel:#12212C;
-    --panel-alt:#1A2C38;
-    --ink:#EAF2F5;
-    --ink-2:#9FB4C0;
-    --ink-3:#647A87;
-    --line:#223440;
-    --line-strong:#2E4552;
-    --teal:#4FD8C4;
-    --teal-dim:#1F4A44;
-    --amber:#F5B942;
-    --amber-dim:#4A3B1A;
+    color-scheme:light;
+    --washi:#F4EEDF;
+    --washi-2:#EBE2CD;
+    --paper:#FBF7EC;
+    --sumi:#1E1B18;
+    --sumi-2:#4A443D;
+    --sumi-3:#857B6E;
+    --line:#D8CDB6;
+    --shu:#C23B22;
+    --shu-2:#A52F1A;
+    --shu-pale:#F5DCD2;
+    --kin:#9C7A26;
+    --ok:#2F6B4F;
+    --mon-green:#3DFF8E;
+    --radius:14px;
+    --mincho:'Shippori Mincho', 'Hiragino Mincho ProN', 'Yu Mincho', serif;
+    --gothic:'Zen Kaku Gothic New', 'Hiragino Sans', sans-serif;
+    --bar-h:64px;
   }
-  *{box-sizing:border-box;}
-  ::selection{background:var(--teal-dim); color:var(--ink);}
-  html,body{margin:0; background:var(--bg); color:var(--ink);}
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html{background:var(--washi);}
   body{
-    font-family:'Zen Kaku Gothic New', sans-serif;
-    line-height:1.7;
+    margin:0; color:var(--sumi); font-family:var(--gothic); font-size:15px; line-height:1.75;
     -webkit-font-smoothing:antialiased;
+    background-color:var(--washi);
+    /* 和紙の質感 (画像ファイルではなく SVG ノイズで描く) */
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.09' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.47 0 0 0 0 0.33 0 0 0 0.10 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.33 0 0 0 0 0.22 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     min-height:100vh;
-    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    padding-bottom:calc(var(--bar-h) + env(safe-area-inset-bottom));
   }
-  .wrap{max-width:960px; margin:0 auto; padding:0 16px;}
+  button{font:inherit; color:inherit;}
+  .wrap{max-width:560px; margin:0 auto; padding:0 16px;}
+  h1,h2,h3,.mincho{font-family:var(--mincho); font-weight:800; letter-spacing:.04em;}
 
-  /* ---------- header ---------- */
-  .hero{padding:48px 0 32px; border-bottom:1px solid var(--line); position:relative; overflow:hidden;}
-  .brand{display:flex; align-items:center; gap:14px;}
-  .brand img{width:52px; height:52px; border-radius:13px; display:block;}
-  .brand h1{margin:0; font-size:30px; font-weight:700; letter-spacing:.02em; line-height:1.1;}
-  .brand h1 span{color:var(--teal);}
-  .brand p{margin:4px 0 0; font-size:13px; color:var(--ink-3); letter-spacing:.04em;}
-  .lead{margin:24px 0 0; max-width:560px; color:var(--ink-2); font-size:15px;}
-  #pulse{position:absolute; right:-10px; bottom:18px; opacity:.35; pointer-events:none;}
-
-  /* ---------- section ---------- */
-  .section-head{display:flex; align-items:baseline; justify-content:space-between; margin:36px 0 14px;}
-  .section-head h2{margin:0; font-size:15px; font-weight:700; letter-spacing:.06em; color:var(--ink-2);}
-  .section-head .count{font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--ink-3);}
-
-  .grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(270px, 1fr)); gap:14px;}
-
-  .card{
-    display:flex; flex-direction:column; gap:12px;
-    background:var(--panel); border:1px solid var(--line); border-radius:14px;
-    padding:20px; color:inherit; text-decoration:none;
-    transition:border-color .15s, transform .15s, background .15s;
-    min-height:200px;
+  /* ---------- 上部 ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:10;
+    padding:calc(env(safe-area-inset-top) + 10px) 0 10px;
+    background:rgba(244,238,223,.92); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
   }
-  a.card:hover{border-color:var(--teal); background:var(--panel-alt); transform:translateY(-2px);}
-  a.card:focus-visible{outline:2px solid var(--teal); outline-offset:3px;}
-  .card-top{display:flex; align-items:center; gap:12px;}
-  .app-icon{
-    width:44px; height:44px; border-radius:11px; flex-shrink:0;
-    background:var(--bg); border:1px solid var(--line-strong);
-    display:flex; align-items:center; justify-content:center;
+  .topbar .wrap{display:flex; align-items:center; gap:10px; min-height:32px;}
+  .topbar .seal{
+    width:28px; height:28px; border-radius:6px; background:var(--shu); color:#fff;
+    font-family:var(--mincho); font-weight:800; font-size:15px; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
   }
-  .card h3{margin:0; font-size:17px; font-weight:700; line-height:1.3;}
-  .card .sub{font-size:12px; color:var(--ink-3);}
-  .card .desc{margin:0; font-size:13.5px; color:var(--ink-2); flex:1;}
-  .tags{display:flex; flex-wrap:wrap; gap:6px;}
-  .tag{font-size:11px; padding:2px 8px; border-radius:999px; background:var(--teal-dim); color:var(--teal);}
-  .open{font-size:13px; font-weight:500; color:var(--teal); display:flex; align-items:center; gap:4px;}
+  .topbar h1{margin:0; font-size:17px; line-height:1.2;}
+  .topbar .crumb{font-size:11px; color:var(--sumi-3); line-height:1.2;}
 
-  .card.soon{border-style:dashed; background:transparent; justify-content:center; align-items:center; text-align:center; color:var(--ink-3);}
-  .card.soon .plus{
-    width:40px; height:40px; border-radius:50%; border:1px dashed var(--line-strong);
-    display:flex; align-items:center; justify-content:center; font-size:22px; line-height:1;
+  /* ---------- 下部バー (片手操作) ---------- */
+  .bottombar{
+    position:fixed; left:0; right:0; bottom:0; z-index:20;
+    background:var(--sumi); color:var(--washi);
+    padding-bottom:env(safe-area-inset-bottom);
   }
-  .card.soon h3{font-size:14px; font-weight:500; color:var(--ink-2);}
-  .card.soon p{margin:0; font-size:12px;}
+  .bottombar .wrap{display:flex; height:var(--bar-h); padding:0 8px;}
+  .bottombar a, .bottombar button{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    background:none; border:0; color:var(--washi); text-decoration:none; font-size:11px; cursor:pointer;
+    opacity:.85;
+  }
+  .bottombar a:active, .bottombar button:active{opacity:1;}
+  .bottombar svg{width:22px; height:22px;}
+  .bottombar .is-on{color:#FFB4A3; opacity:1;}
 
-  /* ---------- install ---------- */
-  .install{
-    margin-top:28px; padding:16px 18px; border-radius:12px;
-    background:var(--panel); border:1px solid var(--line);
-    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  main{padding:18px 0 28px;}
+  .view-enter{animation:fadeUp .28s ease-out;}
+  @keyframes fadeUp{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;}}
+
+  /* ---------- 看板 ---------- */
+  .hero{display:flex; align-items:center; gap:16px; margin:6px 0 18px;}
+  .hero .kanban{
+    writing-mode:vertical-rl; font-family:var(--mincho); font-weight:800; font-size:28px; letter-spacing:.18em;
+    background:var(--paper); border:2px solid var(--sumi); padding:14px 8px; border-radius:4px;
+    box-shadow:3px 3px 0 var(--sumi); line-height:1;
   }
-  .install p{margin:0; flex:1; min-width:200px; font-size:13px; color:var(--ink-2);}
-  .install strong{color:var(--ink);}
+  .hero p{margin:0; color:var(--sumi-2); font-size:14px;}
+  .hero .kicker{font-family:var(--mincho); color:var(--shu); font-weight:800; letter-spacing:.2em; font-size:13px;}
+
+  /* ---------- モニター ---------- */
+  .monitor{
+    background:#2A2724; border-radius:16px; padding:10px 10px 8px;
+    box-shadow:inset 0 0 0 2px #3B3732, 0 6px 0 #14120F, 0 10px 18px rgba(30,27,24,.25);
+    margin:0 0 16px;
+  }
+  .monitor .screen{position:relative; background:#000; border-radius:8px; overflow:hidden; box-shadow:inset 0 0 18px rgba(0,0,0,.9);}
+  .monitor canvas{display:block; width:100%; height:120px;}
+  .monitor .hud{position:absolute; top:6px; right:10px; text-align:right; color:var(--mon-green); font-family:ui-monospace,'SF Mono',Menlo,monospace; pointer-events:none;}
+  .monitor .hud .lbl{font-size:10px; opacity:.8; letter-spacing:.1em;}
+  .monitor .hud .hr{font-size:30px; line-height:1; font-weight:600;}
+  .monitor .hud .heart{display:inline-block; font-size:13px; margin-right:4px; opacity:.35; transition:opacity .08s;}
+  .monitor .hud .heart.beat{opacity:1;}
+  .monitor .hud.alarm{color:#FF5A4A;}
+  .monitor .lead{position:absolute; top:6px; left:10px; color:var(--mon-green); font:11px ui-monospace,Menlo,monospace; opacity:.85; pointer-events:none;}
+  .monitor .ctrl{display:flex; align-items:center; gap:10px; padding:8px 2px 0; color:#CFC6B8; font-size:12px;}
+  .monitor .ctrl input[type=range]{flex:1;}
+  .icon-btn{
+    width:44px; height:44px; border-radius:12px; border:1px solid #4A453F; background:#1C1A17; color:#CFC6B8;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
+  }
+  .icon-btn.on{color:var(--mon-green); border-color:#2F6B4F;}
+  .icon-btn svg{width:22px; height:22px;}
+
+  input[type=range]{accent-color:var(--shu); height:28px;}
+
+  /* ---------- 帯カード ---------- */
+  .section-title{font-family:var(--mincho); font-weight:800; font-size:15px; margin:22px 0 10px; display:flex; align-items:center; gap:8px;}
+  .section-title::before{content:""; width:4px; height:16px; background:var(--shu); border-radius:2px;}
+  .belts{display:flex; flex-direction:column; gap:10px;}
+  .belt{
+    display:flex; align-items:stretch; gap:0; text-decoration:none; color:inherit;
+    background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;
+    min-height:84px; transition:transform .12s, box-shadow .12s;
+  }
+  a.belt:active{transform:scale(.985);}
+  .belt .obi{width:18px; flex-shrink:0; border-right:1px solid rgba(0,0,0,.08);}
+  .belt .body{flex:1; padding:12px 14px; min-width:0;}
+  .belt .name{font-family:var(--mincho); font-weight:800; font-size:19px; display:flex; align-items:center; gap:8px; line-height:1.3;}
+  .belt .sub{font-size:12px; color:var(--sumi-3);}
+  .belt .topics{font-size:12.5px; color:var(--sumi-2); margin-top:4px; line-height:1.55;}
+  .belt .state{align-self:center; padding:0 14px; font-size:12px; color:var(--sumi-3); text-align:center; flex-shrink:0;}
+  .belt.locked{opacity:.6;}
+  .badge{display:inline-block; font-family:var(--gothic); font-weight:700; font-size:11px; padding:1px 8px; border-radius:999px; background:var(--shu); color:#fff; letter-spacing:.05em;}
+  .badge.ghost{background:transparent; color:var(--sumi-3); border:1px solid var(--line);}
+  .badge.ok{background:var(--ok);}
+
+  /* ---------- モード ---------- */
+  .modes{display:grid; gap:10px;}
+  .mode{
+    display:flex; align-items:center; gap:14px; text-decoration:none; color:inherit;
+    background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px; min-height:76px;
+  }
+  .mode:active{transform:scale(.985);}
+  .mode .kanji{
+    width:48px; height:48px; border-radius:50%; border:2px solid var(--sumi); display:flex; align-items:center; justify-content:center;
+    font-family:var(--mincho); font-weight:800; font-size:22px; flex-shrink:0; background:var(--washi);
+  }
+  .mode.primary .kanji{background:var(--shu); border-color:var(--shu); color:#fff;}
+  .mode h3{margin:0; font-size:17px; line-height:1.3;}
+  .mode p{margin:2px 0 0; font-size:12.5px; color:var(--sumi-2); line-height:1.5;}
+  .mode .arrow{margin-left:auto; color:var(--sumi-3); font-size:18px;}
+
+  .lesson-list{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;}
+  .lesson-list a{
+    background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:12px; text-decoration:none; color:inherit;
+    min-height:64px; display:flex; flex-direction:column; justify-content:center;
+  }
+  .lesson-list .no{font-family:var(--mincho); color:var(--shu); font-weight:800; font-size:12px;}
+  .lesson-list .t{font-weight:700; font-size:14px; line-height:1.4;}
+
+  /* ---------- 稽古 ---------- */
+  .lead-text{font-size:13.5px; color:var(--sumi-2); margin:0 0 12px;}
+  .figure{background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); padding:10px; margin-bottom:12px;}
+  .figure svg{display:block; width:100%; height:auto; touch-action:manipulation;}
+  .figure .part{cursor:pointer;}
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 12px;}
+  .chip{
+    min-height:40px; padding:6px 14px; border-radius:999px; border:1.5px solid var(--sumi); background:var(--paper);
+    font-weight:700; font-size:13.5px; cursor:pointer;
+  }
+  .chip.active{background:var(--sumi); color:var(--washi);}
+  .explain{
+    background:var(--paper); border:1px solid var(--line); border-left:4px solid var(--shu); border-radius:12px;
+    padding:14px 16px; min-height:96px;
+  }
+  .explain h3{margin:0 0 4px; font-size:17px; color:var(--shu-2);}
+  .explain p{margin:0; font-size:14.5px;}
+  .explain.empty{color:var(--sumi-3); font-size:13.5px; display:flex; align-items:center; border-left-color:var(--line);}
+  .pager{display:flex; gap:10px; margin-top:16px;}
+  .pager a{flex:1; text-align:center; padding:12px; border-radius:12px; border:1px solid var(--line); background:var(--paper); color:inherit; text-decoration:none; font-size:13px;}
+  .pager a.next{background:var(--sumi); color:var(--washi); border-color:var(--sumi);}
+  .calc{display:grid; gap:8px; margin:0 0 12px;}
+  .calc .row{display:flex; align-items:baseline; gap:10px; background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:10px 14px;}
+  .calc .k{font-weight:700; font-size:13px; width:64px; flex-shrink:0;}
+  .calc .f{font-size:14px; color:var(--sumi-2); flex:1;}
+  .calc .v{font-family:var(--mincho); font-weight:800; font-size:22px; color:var(--shu-2);}
+  .quick{display:flex; gap:6px; flex-wrap:wrap; margin:0 0 12px;}
+  .quick button{min-height:36px; padding:4px 12px; border-radius:8px; border:1px solid var(--line); background:var(--paper); font-size:13px; cursor:pointer;}
+  .quick button.active{border-color:var(--shu); color:var(--shu-2); font-weight:700;}
+  .slider-row{display:flex; align-items:center; gap:12px; margin:0 0 10px; font-size:13px;}
+  .slider-row input{flex:1;}
+  .slider-row output{font-family:var(--mincho); font-weight:800; font-size:20px; min-width:72px; text-align:right;}
+
+  /* ---------- 試合・試験 ---------- */
+  .q-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; font-size:12.5px; color:var(--sumi-3);}
+  .dots{display:flex; gap:6px;}
+  .dots i{width:10px; height:10px; border-radius:50%; border:1.5px solid var(--sumi-3); display:block;}
+  .dots i.done{background:var(--sumi-3);}
+  .dots i.ok{background:var(--ok); border-color:var(--ok);}
+  .dots i.ng{background:var(--shu); border-color:var(--shu);}
+  .dots i.now{border-color:var(--shu); transform:scale(1.25);}
+  .q-card{background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); padding:16px; margin-bottom:12px;}
+  .q-card .qno{font-family:var(--mincho); font-weight:800; color:var(--shu); font-size:13px; letter-spacing:.1em;}
+  .q-card .qtext{font-size:16px; font-weight:700; margin:4px 0 0; line-height:1.6;}
+  .q-card svg{display:block; width:100%; height:auto; margin-top:12px; border-radius:6px;}
+  .choices{display:grid; gap:10px;}
+  .choice{
+    display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+    min-height:56px; padding:10px 14px; border-radius:12px; border:1.5px solid var(--sumi); background:var(--paper);
+    font-size:15px; font-weight:500; cursor:pointer; transition:transform .1s, background .15s;
+  }
+  .choice:active{transform:scale(.985);}
+  .choice .mark{
+    width:28px; height:28px; border-radius:50%; border:1.5px solid var(--sumi); display:flex; align-items:center; justify-content:center;
+    font-family:var(--mincho); font-weight:800; font-size:14px; flex-shrink:0;
+  }
+  .choice[disabled]{cursor:default;}
+  .choice.correct{background:#E3EFE7; border-color:var(--ok);}
+  .choice.correct .mark{background:var(--ok); border-color:var(--ok); color:#fff;}
+  .choice.wrong{background:var(--shu-pale); border-color:var(--shu);}
+  .choice.wrong .mark{background:var(--shu); border-color:var(--shu); color:#fff;}
+  .choice.dim{opacity:.5;}
+  .feedback{margin-top:12px;}
+  .feedback .verdict{font-family:var(--mincho); font-weight:800; font-size:18px; margin:0 0 6px;}
+  .feedback .verdict.ok{color:var(--ok);}
+  .feedback .verdict.ng{color:var(--shu-2);}
   .btn{
-    font:inherit; font-size:13px; font-weight:700; cursor:pointer;
-    background:var(--teal); color:#062520; border:0; border-radius:8px; padding:9px 16px;
+    display:flex; align-items:center; justify-content:center; width:100%; min-height:54px; margin-top:14px;
+    border:0; border-radius:12px; background:var(--sumi); color:var(--washi); font-weight:700; font-size:15px; cursor:pointer; text-decoration:none;
   }
-  .btn:hover{filter:brightness(1.08);}
+  .btn.shu{background:var(--shu);}
+  .btn.ghost{background:transparent; color:var(--sumi); border:1.5px solid var(--sumi);}
+  .result{text-align:center; padding:18px 0 4px;}
+  .result .score{font-family:var(--mincho); font-weight:800; font-size:56px; line-height:1;}
+  .result .score small{font-size:22px; color:var(--sumi-3);}
+  .result .msg{font-size:14px; color:var(--sumi-2); margin:8px 0 0;}
+  .review{margin-top:18px; display:grid; gap:10px;}
+  .review .item{background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:12px 14px; font-size:13.5px;}
+  .review .item b{display:block; font-size:14px; margin-bottom:4px;}
+  .review .ok{color:var(--ok); font-weight:700;}
+  .review .ng{color:var(--shu-2); font-weight:700;}
 
-  /* ---------- footer ---------- */
-  .notice{
-    margin:36px 0 0; padding:14px 16px; border-radius:10px;
-    background:var(--amber-dim); border:1px solid #6B5524; color:#F3DDA8; font-size:12.5px;
+  /* ---------- 判子 (一本！/合格) ---------- */
+  .stamp-layer{position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; pointer-events:none;}
+  .stamp{
+    width:200px; height:200px; border-radius:50%; border:8px solid var(--shu); color:var(--shu);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    font-family:var(--mincho); font-weight:800; background:rgba(251,247,236,.94);
+    box-shadow:0 0 0 4px rgba(194,59,34,.18);
+    animation:stampIn .55s cubic-bezier(.2,1.6,.4,1) both;
   }
-  footer{padding:24px 0 40px; font-size:12px; color:var(--ink-3); display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;}
-  .net{font-family:'JetBrains Mono', monospace;}
-  .net::before{content:""; display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--teal); margin-right:6px; vertical-align:1px;}
-  .net.off::before{background:var(--amber);}
+  .stamp .big{font-size:64px; line-height:1; letter-spacing:.02em;}
+  .stamp .small{font-size:15px; letter-spacing:.3em; margin-top:6px;}
+  .stamp-layer.out .stamp{animation:stampOut .3s ease-in both;}
+  @keyframes stampIn{0%{transform:scale(2.2) rotate(-18deg); opacity:0;} 60%{opacity:1;} 100%{transform:scale(1) rotate(-8deg); opacity:1;}}
+  @keyframes stampOut{to{transform:scale(.9) rotate(-8deg); opacity:0;}}
+  .result .stamp{position:relative; margin:4px auto 14px; width:150px; height:150px; border-width:6px;}
+  .result .stamp .big{font-size:44px;}
 
-  @media (max-width:520px){
-    .hero{padding:32px 0 24px;}
-    .brand h1{font-size:26px;}
-    .lead{font-size:14px;}
-    #pulse{display:none;}
+  /* ---------- 設定 ---------- */
+  .setting{background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px; margin-bottom:12px;}
+  .setting h3{margin:0 0 4px; font-size:16px;}
+  .setting p{margin:0 0 10px; font-size:13px; color:var(--sumi-2);}
+  .setting .row{display:flex; align-items:center; gap:12px;}
+  .setting .row input{flex:1;}
+  .setting .row output{min-width:70px; text-align:right; font-weight:700;}
+  .small-btn{min-height:44px; padding:0 16px; border-radius:10px; border:1.5px solid var(--sumi); background:var(--paper); font-weight:700; font-size:13.5px; cursor:pointer;}
+  .small-btn.danger{border-color:var(--shu); color:var(--shu-2);}
+
+  .notice{font-size:12px; color:var(--sumi-3); margin-top:22px; line-height:1.7;}
+  .error{background:var(--shu-pale); border:1px solid var(--shu); border-radius:12px; padding:14px; font-size:14px;}
+
+  @media (prefers-reduced-motion: reduce){
+    .view-enter, .stamp, .stamp-layer.out .stamp{animation:none;}
   }
 </style>
 </head>
 <body>
 
-<div class="wrap">
-  <header class="hero">
-    <div class="brand">
-      <img src="icons/icon-192.png" alt="">
-      <div>
-        <h1>Ken<span>MaP</span></h1>
-        <p>医療ケアの学習アプリ集</p>
-      </div>
+<header class="topbar">
+  <div class="wrap">
+    <div class="seal" aria-hidden="true">心</div>
+    <div>
+      <div class="crumb" id="crumb">KenMaP</div>
+      <h1 id="title">心電図道場</h1>
     </div>
-    <p class="lead">知りたい時に、学びたい時に。目的のアプリを選んでください。<br>一度開いたアプリは、電波のない場所でも使えます。</p>
-    <svg id="pulse" width="320" height="60" viewBox="0 0 320 60" aria-hidden="true">
-      <polyline fill="none" stroke="#4FD8C4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-        points="0,30 120,30 135,30 148,8 162,52 174,30 320,30"/>
-    </svg>
-  </header>
-
-  <div class="section-head">
-    <h2>アプリ一覧</h2>
-    <span class="count" id="app-count"></span>
   </div>
-  <div class="grid" id="apps"></div>
+</header>
 
-  <div class="install" id="install" hidden>
-    <p id="install-text"><strong>KenMaP をホーム画面に追加</strong>すると、アプリのように起動でき、オフラインでも使えます。</p>
-    <button class="btn" id="install-btn" hidden>インストール</button>
+<main class="wrap" id="view" aria-live="polite"></main>
+
+<nav class="bottombar" aria-label="操作">
+  <div class="wrap">
+    <button type="button" id="nav-back" aria-label="戻る">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      戻る
+    </button>
+    <a href="#/" id="nav-home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-6 9 6"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>
+      道場
+    </a>
+    <button type="button" id="nav-sound" aria-label="音のオン・オフ">
+      <span id="nav-sound-icon"></span>
+      <span id="nav-sound-label">消音中</span>
+    </button>
+    <a href="#/settings" id="nav-settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>
+      設定
+    </a>
   </div>
+</nav>
 
-  <div class="notice">
-    本アプリ集は学習・参考のためのものです。実際の患者ケアでは、必ず所属施設のプロトコル・マニュアルおよび医師の指示に従ってください。
-  </div>
-
-  <footer>
-    <span>&copy; KenMaP</span>
-    <span class="net" id="net">オンライン</span>
-  </footer>
-</div>
-
+<script src="ecg.js"></script>
+<script src="app.js"></script>
 <script>
-/*
-  アプリを追加するときは、この APPS に1件ずつ足していきます。
-  - path : アプリのフォルダ名 (例: "respiratory/")
-  - status: "ready" (公開中) / "soon" (準備中)
-*/
-const APPS = [
-  {
-    path: "respiratory/",
-    status: "ready",
-    title: "呼吸ケアマップ",
-    sub: "Respiratory Care Map",
-    desc: "酸素療法・人工呼吸器・気道管理・気管切開・アセスメントを網羅。計算ツールと人工呼吸管理シミュレーター付き。",
-    tags: ["酸素療法", "人工呼吸器", "計算ツール", "シミュレーター"],
-    icon: '<svg width="24" height="24" viewBox="0 0 18 18"><polyline points="1,10 4,10 6,4 9,15 11,10 17,10" fill="none" stroke="#4FD8C4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-  }
-];
-
-function esc(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-
-function renderApps(){
-  const ready = APPS.filter(a=>a.status==="ready");
-  let html = '';
-  APPS.forEach(a=>{
-    if(a.status==="ready"){
-      html += '<a class="card" href="'+esc(a.path)+'">'
-        + '<div class="card-top"><div class="app-icon">'+a.icon+'</div>'
-        + '<div><h3>'+esc(a.title)+'</h3><div class="sub">'+esc(a.sub||'')+'</div></div></div>'
-        + '<p class="desc">'+esc(a.desc)+'</p>'
-        + '<div class="tags">'+(a.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join('')+'</div>'
-        + '<span class="open">開く <span aria-hidden="true">&rarr;</span></span>'
-        + '</a>';
-    }else{
-      html += '<div class="card soon"><div class="plus" aria-hidden="true">'+(a.icon||'')+'</div>'
-        + '<h3>'+esc(a.title)+'</h3><p>準備中</p></div>';
-    }
-  });
-  html += '<div class="card soon"><div class="plus" aria-hidden="true">+</div>'
-    + '<h3>新しいアプリを追加予定</h3><p>シミュレーター・クイズなど</p></div>';
-  document.getElementById('apps').innerHTML = html;
-  document.getElementById('app-count').textContent = ready.length + ' apps';
-}
-renderApps();
-
-// オンライン / オフライン表示
-function updateNet(){
-  const el = document.getElementById('net');
-  el.textContent = navigator.onLine ? 'オンライン' : 'オフライン';
-  el.classList.toggle('off', !navigator.onLine);
-}
-window.addEventListener('online', updateNet);
-window.addEventListener('offline', updateNet);
-updateNet();
-
-// インストール案内 (すでにアプリとして開いているときは出さない)
-(function(){
-  const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
-  if(standalone) return;
-  const box = document.getElementById('install');
-  const btn = document.getElementById('install-btn');
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  if(isIOS){
-    document.getElementById('install-text').innerHTML = '<strong>KenMaP をホーム画面に追加</strong>するには、Safari の共有ボタン → 「ホーム画面に追加」を選んでください。';
-    box.hidden = false;
-  }
-  let deferred = null;
-  window.addEventListener('beforeinstallprompt', e=>{
-    e.preventDefault(); deferred = e; box.hidden = false; btn.hidden = false;
-  });
-  btn.addEventListener('click', async ()=>{
-    if(!deferred) return;
-    deferred.prompt();
-    await deferred.userChoice;
-    deferred = null; box.hidden = true;
-  });
-  window.addEventListener('appinstalled', ()=>{ box.hidden = true; });
-})();
-
 if('serviceWorker' in navigator){
-  window.addEventListener('load', ()=>{ navigator.serviceWorker.register('sw.js').catch(e=>console.warn('SW登録失敗', e)); });
+  window.addEventListener('load', ()=>{ navigator.serviceWorker.register('../sw.js', {scope:'../'}).catch(()=>{}); });
 }
 </script>
 </body>
