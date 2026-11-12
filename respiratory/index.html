@@ -1,0 +1,2595 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>呼吸ケアマップ</title>
+<meta name="theme-color" content="#0B1620">
+<meta name="description" content="酸素療法・人工呼吸器・気道管理などの呼吸ケアをまとめた参照ツール">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="KenMaP">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230B1620'/%3E%3Cpolyline points='4,17 9,17 12,8 16,24 19,17 28,17' fill='none' stroke='%234FD8C4' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#0B1620;
+    --panel:#12212C;
+    --panel-alt:#1A2C38;
+    --ink:#EAF2F5;
+    --ink-2:#9FB4C0;
+    --ink-3:#647A87;
+    --line:#223440;
+    --line-strong:#2E4552;
+    --teal:#4FD8C4;
+    --teal-dim:#1F4A44;
+    --amber:#F5B942;
+    --amber-dim:#4A3B1A;
+    --coral:#FF7A6B;
+    --blue:#5B9BD9;
+    --violet:#B79CED;
+    --radius-sm:6px;
+    --radius-md:10px;
+  }
+  *{box-sizing:border-box;}
+  ::selection{background:var(--teal-dim); color:var(--ink);}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:'JetBrains Mono', monospace; font-variant-numeric:tabular-nums;}
+  a{color:var(--teal);}
+
+  header{
+    border-bottom:1px solid var(--line);
+    padding:18px 28px 15px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:24px;
+    position:sticky; top:0;
+    background:rgba(11,22,32,.92);
+    backdrop-filter:blur(6px);
+    z-index:5;
+  }
+  header .title-block{display:flex; align-items:center; gap:12px;}
+  header .brand-mark{
+    width:34px; height:34px; border-radius:9px; background:var(--panel);
+    border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  header .title-block h1{
+    font-size:18px;
+    font-weight:700;
+    margin:0 0 3px;
+    letter-spacing:.01em;
+  }
+  header .title-block p{
+    font-size:12px;
+    color:var(--ink-3);
+    margin:0;
+    letter-spacing:.01em;
+  }
+  #wave{ flex-shrink:0; }
+  header a.brand-mark{text-decoration:none;}
+  header a.brand-mark:hover{border-color:var(--teal);}
+  .hub-back{display:inline-block; font-size:11px; color:var(--ink-3); text-decoration:none; letter-spacing:.04em; margin-bottom:1px;}
+  .hub-back:hover{color:var(--teal);}
+
+  .layout{
+    display:flex;
+    align-items:flex-start;
+  }
+  nav{
+    width:252px;
+    flex-shrink:0;
+    border-right:1px solid var(--line);
+    padding:16px 10px 40px;
+    position:sticky;
+    top:73px;
+    max-height:calc(100vh - 73px);
+    overflow-y:auto;
+  }
+  .cat-label{
+    display:flex; align-items:center; gap:7px;
+    font-size:11.5px;
+    color:var(--ink-2);
+    letter-spacing:.05em;
+    padding:9px 10px;
+    margin-top:4px;
+    text-transform:uppercase;
+    font-weight:500;
+    cursor:pointer;
+    user-select:none;
+    border-radius:var(--radius-sm);
+    transition:background .12s ease;
+  }
+  .cat-label:hover{background:var(--panel-alt); color:var(--ink);}
+  .cat-label:first-of-type{margin-top:10px;}
+  .cat-label svg{width:13px; height:13px; flex-shrink:0;}
+  .cat-label .cat-count{
+    margin-left:auto; font-size:10.5px; color:var(--ink-3); background:var(--panel);
+    border:1px solid var(--line); border-radius:20px; padding:1px 7px; text-transform:none; letter-spacing:0;
+  }
+  .cat-label .chevron{
+    display:flex; color:var(--ink-3); transition:transform .15s ease; flex-shrink:0;
+  }
+  .cat-label.expanded .chevron{transform:rotate(90deg);}
+  .cat-label.expanded{color:var(--ink);}
+  .mod-item{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    width:100%;
+    text-align:left;
+    background:none;
+    border:none;
+    color:var(--ink-2);
+    font-family:inherit;
+    font-size:13.5px;
+    padding:8px 12px;
+    border-radius:var(--radius-sm);
+    cursor:pointer;
+    transition:background .12s ease, color .12s ease;
+  }
+  .mod-item:hover{background:var(--panel-alt); color:var(--ink);}
+  .mod-item.active{background:var(--panel-alt); color:var(--ink); font-weight:500; box-shadow:inset 2px 0 0 var(--teal);}
+  .mod-item-child{padding-left:26px;}
+  .dot{
+    width:7px; height:7px; border-radius:50%; flex-shrink:0;
+    background:var(--ink-3);
+    transition:background .15s ease;
+  }
+  .dot.status-draft{background:var(--amber);}
+  .dot.status-done{background:var(--teal);}
+  .mod-item span.label{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+
+  main{
+    flex:1;
+    padding:30px 40px 60px;
+    min-width:0;
+    max-width:860px;
+  }
+
+  /* overview */
+  .overview-head h2{font-size:19px; margin:0 0 7px; font-weight:700;}
+  .overview-head p{color:var(--ink-2); font-size:13.5px; max-width:600px;}
+  .progress-row{
+    display:flex; gap:12px; margin:24px 0 8px; flex-wrap:wrap;
+  }
+  .stat-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    padding:14px 18px;
+    min-width:128px;
+    flex:1;
+  }
+  .stat-card .num{font-size:25px; font-weight:700; letter-spacing:-.01em;}
+  .stat-card .lab{font-size:11.5px; color:var(--ink-3); margin-top:3px;}
+  .bar-outer{
+    height:7px; background:var(--panel); border-radius:4px; overflow:hidden; margin:18px 0 30px;
+    border:1px solid var(--line);
+    display:flex;
+  }
+  .bar-inner{height:100%; background:var(--teal); width:0%; transition:width .4s ease;}
+
+  .cat-block{margin-bottom:26px;}
+  .cat-block h3{
+    display:flex; align-items:center; gap:8px;
+    font-size:12.5px; color:var(--ink-2); letter-spacing:.05em; margin:0 0 12px; text-transform:uppercase; font-weight:500;
+  }
+  .cat-block h3 svg{width:15px; height:15px;}
+  .cat-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px;}
+  .mini-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-md);
+    padding:13px 14px; cursor:pointer;
+    border-left:3px solid var(--cat-color, var(--line));
+    transition:border-color .15s ease, transform .1s ease;
+  }
+  .mini-card:hover{border-color:var(--line-strong); border-left-color:var(--cat-color, var(--line-strong)); transform:translateY(-1px);}
+  .mini-card .mtitle{font-size:13.5px; font-weight:500; margin-bottom:8px; line-height:1.4;}
+  .mini-card .mstatus{
+    font-size:11px; color:var(--ink-3); display:inline-flex; align-items:center; gap:6px;
+    padding:3px 9px; border-radius:20px; background:var(--panel-alt);
+  }
+
+  /* module detail */
+  .breadcrumb{
+    display:flex; align-items:center; gap:6px;
+    font-size:11.5px; color:var(--ink-3); margin-bottom:8px; letter-spacing:.03em;
+  }
+  .breadcrumb svg{width:13px; height:13px; flex-shrink:0;}
+  .mod-title{font-size:21px; font-weight:700; margin:0 0 5px; letter-spacing:-.005em;}
+  .mod-goal{color:var(--ink-2); font-size:14px; margin:0 0 22px; max-width:620px;}
+
+  .status-row{display:flex; align-items:center; gap:10px; margin-bottom:24px; flex-wrap:wrap;}
+  .status-row .lab{font-size:12px; color:var(--ink-3);}
+  .status-btn{
+    font-family:inherit; font-size:12.5px; padding:6px 13px; border-radius:20px;
+    border:1px solid var(--line); background:var(--panel); color:var(--ink-2); cursor:pointer;
+    transition:all .12s ease;
+  }
+  .status-btn:hover{border-color:var(--line-strong);}
+  .status-btn.st-未着手{border-color:var(--ink-3); color:var(--ink-2);}
+  .status-btn.st-下書き{border-color:var(--amber); background:var(--amber-dim); color:var(--amber);}
+  .status-btn.st-完成{border-color:var(--teal); background:var(--teal-dim); color:var(--teal);}
+
+
+  /* simulator */
+  main.wide{max-width:1180px;}
+  .sim-block{padding:0; border:none; background:none;}
+  .sim-top{margin-bottom:14px;}
+  .sim-grid{display:grid; grid-template-columns:300px minmax(0,1fr); gap:16px; align-items:start;}
+  .sim-controls{display:flex; flex-direction:column; gap:14px;}
+  .sim-panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-md); padding:14px 14px 10px;}
+  .sim-panel-title{font-size:12.5px; color:var(--ink-2); font-weight:500; margin-bottom:10px; letter-spacing:.04em;}
+  .sim-chips{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;}
+  .sim-chip{font-family:inherit; font-size:12px; padding:5px 11px; border-radius:20px; border:1px solid var(--line); background:var(--panel-alt); color:var(--ink-2); cursor:pointer;}
+  .sim-chip:hover{border-color:var(--line-strong); color:var(--ink);}
+  .sim-chip.active{border-color:var(--teal); color:var(--teal); background:var(--teal-dim);}
+  .sim-chip.scn{border-style:dashed;}
+  .sim-hint{margin-top:2px; padding:11px 14px; border-left:3px solid var(--amber); background:var(--amber-dim); border-radius:0 8px 8px 0; font-size:13px; color:var(--ink); line-height:1.75;}
+  .sim-slider{margin-bottom:12px;}
+  .sim-slider-head{display:flex; justify-content:space-between; font-size:12.5px; color:var(--ink-2); margin-bottom:2px;}
+  .sim-slider-head .mono{color:var(--teal); font-size:12px;}
+  .sim-slider input[type=range]{width:100%; accent-color:var(--teal); margin:4px 0; padding:0; border:none; background:none; height:26px;}
+  .sim-row2{display:flex; gap:10px; margin-bottom:8px;}
+  .sim-row2 input, .sim-row2 select{width:100%; min-width:0;}
+  .sim-row2 > div{flex:1;}
+  .sim-note{font-size:11.5px; color:var(--ink-3); line-height:1.7;}
+  .sim-toolbar{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-bottom:10px;}
+  .sim-toolbar .sim-chip{margin:0;}
+  .sim-toolbar-sp{flex:1;}
+  .sim-toolbar-lab{font-size:11.5px; color:var(--ink-3);}
+  .sim-btn{font-family:inherit; font-size:12px; padding:6px 12px; border-radius:6px; border:1px solid var(--line-strong); background:var(--panel); color:var(--ink); cursor:pointer;}
+  .sim-btn:hover{border-color:var(--teal);}
+  .sim-btn:disabled{opacity:.4; cursor:default; border-color:var(--line);}
+  #sim-charts{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-md); padding:6px 4px; width:100%; overflow:hidden;}
+  .sim-svg{display:block; max-width:100%;}
+  .sim-legend{font-size:11.5px; color:var(--ink-3); margin:8px 2px 12px; display:flex; flex-wrap:wrap; align-items:center; gap:6px;}
+  .lg-band{display:inline-block; width:16px; height:10px; background:var(--teal); opacity:.25; border-radius:2px;}
+  .lg-dash{display:inline-block; width:18px; border-top:2px dashed var(--ink-2); margin-left:14px;}
+  .sim-metrics{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px; margin-bottom:16px;}
+  .sim-metric{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:9px 11px;}
+  .sim-metric.warn{border-color:var(--amber);}
+  .sim-metric.danger{border-color:var(--coral);}
+  .sm-label{font-size:11px; color:var(--ink-3); line-height:1.4; min-height:30px;}
+  .sm-val{font-size:19px; font-weight:500;}
+  .sm-unit{font-size:11px; color:var(--ink-3); font-family:'Zen Kaku Gothic New',sans-serif;}
+  .sm-sub{font-size:11px; color:var(--ink-3);}
+  .sm-sub.ghost{color:var(--ink-2);}
+  .sim-comments-title{font-size:12.5px; color:var(--ink-2); font-weight:500; margin-bottom:8px;}
+  .sim-comment{display:flex; gap:10px; font-size:13px; color:var(--ink-2); line-height:1.75; padding:8px 12px; background:var(--panel); border:1px solid var(--line); border-radius:8px; margin-bottom:6px;}
+  .sc-dot{width:8px; height:8px; border-radius:50%; background:var(--blue); flex-shrink:0; margin-top:9px;}
+  .sim-comment.warn .sc-dot{background:var(--amber);}
+  .sim-comment.ok .sc-dot{background:var(--teal);}
+  @media (max-width:900px){ .sim-grid{grid-template-columns:1fr;} }
+  .rdos-item{margin-bottom:16px;}
+  .rdos-label{font-size:13px; color:var(--ink); margin-bottom:7px; line-height:1.5;}
+  .rdos-options{display:flex; gap:8px; flex-wrap:wrap;}
+  .rdos-opt{
+    font-family:inherit; font-size:12.5px; padding:7px 13px; border-radius:20px;
+    border:1px solid var(--line); background:var(--panel-alt); color:var(--ink-2); cursor:pointer;
+    transition:all .12s ease;
+  }
+  .rdos-opt:hover{border-color:var(--line-strong);}
+  .rdos-opt.active{border-color:var(--teal); background:var(--teal-dim); color:var(--teal); font-weight:500;}
+  .rdos-total-row{
+    display:flex; align-items:baseline; gap:10px; margin-top:18px; padding-top:16px; border-top:1px solid var(--line);
+  }
+  .rdos-total-value{font-size:26px; font-weight:700; color:var(--teal);}
+  .ref-cite{
+    font-size:11.5px; color:var(--ink-3); border-top:1px solid var(--line); margin-top:6px; padding-top:14px; line-height:1.7;
+  }
+  .ref-cite a{color:var(--ink-3); text-decoration:underline;}
+
+  .disclaimer{
+    background:var(--amber-dim); border:1px solid var(--amber);
+    border-radius:var(--radius-md); padding:14px 18px; margin-bottom:20px;
+    display:flex; gap:12px; align-items:flex-start;
+  }
+  .disclaimer svg{flex-shrink:0; margin-top:2px;}
+  .disclaimer-text{font-size:12.5px; color:var(--ink-2); line-height:1.75;}
+  .disclaimer-text strong{color:var(--amber); font-weight:600;}
+
+  .section-block{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-md);
+    padding:19px 22px; margin-bottom:14px;
+  }
+  .section-block h4{font-size:12.5px; color:var(--ink-2); margin:0 0 12px; letter-spacing:.04em; text-transform:uppercase; font-weight:500;}
+  .section-block h4.sub-heading{font-size:14.5px; color:var(--ink); text-transform:none; letter-spacing:0; font-weight:500;}
+  .section-block ul{margin:0; padding-left:18px;}
+  .section-block li{font-size:13.5px; margin-bottom:7px; color:var(--ink-2);}
+  .section-block li::marker{color:var(--ink-3);}
+  .placeholder-note{
+    font-size:12.5px; color:var(--ink-3); border:1px dashed var(--line); border-radius:8px;
+    padding:12px 14px; margin-top:4px; line-height:1.6;
+  }
+
+  .wf-svg{
+    width:100%; height:104px; display:block;
+    background:var(--panel-alt); border:1px solid var(--line); border-radius:8px;
+  }
+
+  @keyframes breathe{
+    0%{ transform:scale(0.84); }
+    33.3%{ transform:scale(1.06); }
+    100%{ transform:scale(0.84); }
+  }
+  .lung-hero{
+    display:flex; align-items:center; gap:26px;
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-md);
+    padding:20px 26px; margin:22px 0 26px;
+  }
+  .lung-svg-wrap{width:120px; height:120px; flex-shrink:0;}
+  .lung-anim{
+    animation:breathe 3s cubic-bezier(.4,0,.2,1) infinite;
+    transform-box:fill-box; transform-origin:50% 55%;
+  }
+  .lung-hero-info{flex:1; min-width:0;}
+  .lung-hero-title{font-size:13px; color:var(--ink-2); margin-bottom:2px;}
+  .lung-hero-sub{font-size:11px; color:var(--ink-3); margin-bottom:14px;}
+  .lung-values{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px 22px;}
+  .lung-value-item .lv-label{font-size:11px; color:var(--ink-3); margin-bottom:2px;}
+  .lung-value-item .lv-num{font-size:15px; font-weight:600; color:var(--ink);}
+  @media (max-width:760px){
+    .lung-hero{flex-direction:column; align-items:flex-start; gap:16px;}
+    .lung-svg-wrap{width:96px; height:96px; align-self:center;}
+  }
+  .wf-wrap{position:relative;}
+  .wf-ylabel{
+    position:absolute; top:8px; left:12px; font-size:11px; color:var(--ink-3);
+    pointer-events:none; letter-spacing:.01em;
+  }
+  .wf-xlabel{
+    position:absolute; right:10px; transform:translateY(-50%); font-size:11px; color:var(--ink-3);
+    pointer-events:none; white-space:nowrap; background:var(--panel-alt); padding-left:4px;
+  }
+  .wf-chip-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;}
+  .wf-chip{
+    font-family:inherit; font-size:12.5px; padding:6px 13px; border-radius:20px;
+    border:1px solid var(--line); background:var(--panel-alt); color:var(--ink-2); cursor:pointer;
+    transition:all .12s ease;
+  }
+  .wf-chip:hover{border-color:var(--line-strong);}
+  .wf-chip.active{border-color:var(--teal); background:var(--teal-dim); color:var(--teal);}
+
+  .table-wrap{overflow-x:auto; margin-top:10px; border-radius:8px; border:1px solid var(--line);}
+  table.ref-table{width:100%; border-collapse:collapse; font-size:13px; min-width:420px;}
+  table.ref-table th, table.ref-table td{
+    padding:9px 12px; text-align:left; border-bottom:1px solid var(--line);
+  }
+  table.ref-table th{
+    color:var(--ink-3); font-weight:500; font-size:11px; letter-spacing:.03em;
+    text-transform:uppercase; background:var(--panel-alt);
+  }
+  table.ref-table tbody tr:last-child td{border-bottom:none;}
+  table.ref-table tbody tr:nth-child(even){background:rgba(255,255,255,.015);}
+  table.ref-table tbody tr:hover{background:var(--panel-alt);}
+
+  .field-label{display:block; font-size:11.5px; color:var(--ink-3); margin-bottom:5px;}
+  .calc-row{display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:14px;}
+  .calc-input, .calc-select, select, input[type="number"], input[type="text"]{
+    background:var(--bg); color:var(--ink); border:1px solid var(--line); border-radius:var(--radius-sm);
+    padding:8px 11px; font-family:inherit; font-size:13px; width:100px;
+    transition:border-color .12s ease, box-shadow .12s ease;
+  }
+  .calc-select, select{width:auto; min-width:130px;}
+  .calc-input:hover, .calc-select:hover, select:hover, input:hover{border-color:var(--line-strong);}
+  .calc-input:focus, .calc-select:focus, select:focus, input:focus, textarea:focus{
+    outline:none; border-color:var(--teal); box-shadow:0 0 0 3px rgba(79,216,196,.14);
+  }
+  .calc-result-row{font-size:14px; margin-bottom:6px; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;}
+  .calc-result-label{color:var(--ink-2);}
+  .calc-result-value{font-size:22px; font-weight:500; color:var(--teal);}
+
+  textarea.memo{
+    width:100%; min-height:80px; background:var(--bg); color:var(--ink);
+    border:1px solid var(--line); border-radius:8px; padding:10px 12px;
+    font-family:inherit; font-size:13px; resize:vertical;
+  }
+
+  @media (min-width: 761px) and (max-width: 1024px){
+    nav{width:210px; padding:14px 8px;}
+    main{padding:26px 28px 50px; max-width:none;}
+    header{padding:16px 20px 13px;}
+    .cat-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));}
+  }
+
+  @media (max-width: 760px){
+    header{padding:14px 16px 12px; flex-wrap:wrap;}
+    #wave{width:96px; height:24px;}
+    .layout{flex-direction:column;}
+    nav{
+      width:100%; border-right:none; border-bottom:1px solid var(--line);
+      position:static; max-height:none; padding:10px 12px;
+      display:flex; overflow-x:auto; gap:4px; white-space:nowrap;
+    }
+    .cat-label{padding:8px 8px 4px; flex-shrink:0;}
+    .mod-item{flex-shrink:0; width:auto;}
+    .mod-item .label{max-width:150px;}
+    main{padding:20px 16px 48px; max-width:none;}
+    .cat-grid{grid-template-columns:1fr;}
+    .calc-row{gap:10px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title-block">
+    <a class="brand-mark" href="../" title="KenMaP に戻る" aria-label="KenMaP に戻る">
+      <svg width="18" height="18" viewBox="0 0 18 18"><polyline points="1,10 4,10 6,4 9,15 11,10 17,10" fill="none" stroke="#4FD8C4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <div>
+      <a class="hub-back" href="../">&larr; KenMaP</a>
+      <h1>呼吸ケアマップ</h1>
+      <p>呼吸ケアを、知りたい時に　学びたい時に　学びたいだけ</p>
+    </div>
+  </div>
+  <svg id="wave" width="140" height="34" viewBox="0 0 140 34">
+
+    <polyline id="wave-line" fill="none" stroke="#4FD8C4" stroke-width="2"
+      points="0,17 10,17 16,4 22,30 28,17 140,17"/>
+  </svg>
+</header>
+
+<div class="layout">
+  <nav id="nav"></nav>
+  <main id="main"></main>
+</div>
+
+<script>
+// Claude のアーティファクト用 window.storage を、通常のブラウザでは localStorage で代用する
+if(!window.storage){
+  window.storage = {
+    async get(key){ try{ const v = localStorage.getItem(key); return v === null ? null : {key, value:v}; }catch(e){ return null; } },
+    async set(key, value){ try{ localStorage.setItem(key, value); return {key, value}; }catch(e){ return null; } }
+  };
+}
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{ navigator.serviceWorker.register('../sw.js', {scope:'../'}).catch(e=>console.warn('SW登録失敗', e)); });
+}
+</script>
+<script>
+const MODULES = [
+  {
+    id:"o2-select", cat:"oxygen", title:"酸素デバイス選択ガイド",
+    goal:"患者の換気・酸素化の状態から、低流量/高流量デバイスをどう選ぶかを整理する",
+    sample:true,
+    points:[
+      "患者評価: 分時換気量・吸気努力・SpO2/PaO2の乖離をまず確認する",
+      "低流量デバイスが妥当なケース: 換気は安定し、必要FiO2が比較的低い場合",
+      "高流量デバイスを検討するケース: 頻呼吸・吸気努力増大・必要FiO2が変動しやすい場合",
+      "迷ったときの原則: 患者の吸気流量 > デバイス供給流量 だと室内気を引き込みFiO2が不安定になる"
+    ],
+    table:{
+      head:["デバイス","流量の目安","特徴"],
+      rows:[
+        ["鼻カニュラ","1〜6 L/分","低流量・安価・会話や食事がしやすい"],
+        ["簡易酸素マスク","5〜10 L/分","中等度のFiO2、CO2再呼吸に注意"],
+        ["リザーバー付きマスク","6〜10 L/分","高FiO2が必要な場合、リザーバーの虚脱に注意"],
+        ["ネーザルハイフロー","〜60 L/分","高流量・高FiO2・加温加湿、快適性が高い"]
+      ]
+    }
+  },
+  {
+    id:"o2-lowflow", cat:"oxygen", title:"低流量デバイスの酸素濃度換算",
+    goal:"鼻カニュラ・マスクの流量とFiO2目安の換算、および評価時の注意点",
+    sample:true,
+    calc:"lowflow",
+    points:[
+      "低流量デバイスは室内気を一緒に吸い込むため、FiO2は流量だけでなく患者の分時換気量にも左右される",
+      "同じ流量でも、頻呼吸や大きな一回換気量の患者ほど室内気の混入割合が増え、実際のFiO2は低くなりやすい",
+      "開口呼吸・鼻閉があると鼻カニュラのFiO2はさらに不安定になる(口呼吸では鼻カニュラの効果が落ちる)",
+      "以下の数値はあくまで目安。SpO2の推移や呼吸様式とあわせて評価する"
+    ],
+    table:{
+      head:["デバイス","流量","FiO2の目安"],
+      rows:[
+        ["鼻カニュラ","1 L/分","24%前後"],
+        ["鼻カニュラ","2 L/分","28%前後"],
+        ["鼻カニュラ","3 L/分","32%前後"],
+        ["鼻カニュラ","4 L/分","36%前後"],
+        ["鼻カニュラ","5 L/分","40%前後"],
+        ["鼻カニュラ","6 L/分","44%前後"],
+        ["簡易酸素マスク","5〜6 L/分","40%前後"],
+        ["簡易酸素マスク","6〜7 L/分","50%前後"],
+        ["簡易酸素マスク","7〜8 L/分","60%前後"],
+        ["リザーバー付きマスク","6 L/分","60%前後"],
+        ["リザーバー付きマスク","7 L/分","70%前後"],
+        ["リザーバー付きマスク","8 L/分","80%前後"],
+        ["リザーバー付きマスク","9〜10 L/分","90%以上"]
+      ]
+    },
+    careNotes:[
+      "皮膚粘膜の乾燥: 長時間・高流量ほど鼻腔粘膜や口唇の乾燥が進みやすい。必要に応じて加湿を検討する",
+      "耳介・鼻部の圧迫: チューブやマスクの当たる部分の発赤・びらんを定期的に観察する",
+      "マスク使用時のCO2再呼吸: 流量が低すぎるとマスク内にCO2がたまりやすいため、簡易マスクは5L/分未満で使用しない",
+      "リザーバーバッグの虚脱: 吸気時にバッグが完全にしぼむ場合は流量不足のサイン"
+    ]
+  },
+  {
+    id:"o2-nhf", cat:"oxygen", title:"高流量システム", sample:true,
+    goal:"高流量システムの全体像と、ベンチュリーマスク・ベンチュリーマスク(マルチ)・ネーザルハイフロー(NHF)それぞれの特徴・使い方・注意点を整理する",
+    points:[
+      "高流量システムとは、患者の吸気流量を上回る流量を供給することで、設定したFiO2を安定して届けられる酸素療法の総称",
+      "低流量デバイス(鼻カニュラなど)と違い、室内気の混入が少ないため、頻呼吸や呼吸パターンの変化があってもFiO2が安定しやすい",
+      "代表的なデバイスとして、ベンチュリー効果を利用したベンチュリーマスク、ダイヤル式のベンチュリーマスク(マルチ)、ネーザルハイフロー(NHF)がある"
+    ],
+    subsections:[
+      {
+        title:"ベンチュリーマスク(ベンチュリー効果を利用したシステム)",
+        points:[
+          "特徴: マスク基部の小さな穴(ジェット)から高速で酸素を噴出させ、周囲の空気を巻き込む「ベンチュリー効果」を利用して、一定のFiO2の混合ガスを高流量で供給する",
+          "ベンチュリー効果とは: 気体が細い部分を高速で通過すると、その周囲の圧力が下がり(ベルヌーイの定理)、周囲の空気を引き込む現象。この原理を利用して、ダイリューター(酸素と空気を一定比率で混合させる部品)を通じて狙った濃度の混合ガスを作り出している",
+          "使い方: 処方されたFiO2に対応した色のダイリューターをマスクに装着し、ダイリューターの表示に従って酸素流量を設定する",
+          "ダイリューターは色ごとにFiO2が決まっており、色を見れば設定濃度が一目で分かるようになっている(下表は代表的な配色の一例。製品によって差があるため、必ず実物の表示・数値を確認する)"
+        ],
+        table:{
+          head:["色","FiO2の目安"],
+          rows:[
+            [colorDot('#3B82F6')+"青(ブルー)","24%"],
+            [colorDot('#FFFFFF')+"白(ホワイト)","28%"],
+            [colorDot('#FACC15')+"黄(イエロー)","31%"],
+            [colorDot('#22C55E')+"緑(グリーン)","35%"],
+            [colorDot('#F0648C')+"桃/赤(ピンク)","40%"],
+            [colorDot('#F97316')+"橙(オレンジ)","50%"]
+          ]
+        },
+        careNotes:[
+          "ダイリューターの色と、指示されているFiO2が一致しているかを装着時に必ず確認する",
+          "マスクと顔の間に隙間があると室内気が混入し、設定したFiO2からずれるため、フィット状態を確認する",
+          "ダイリューターの穴が痰や結露で塞がれていないか、定期的に確認する"
+        ]
+      },
+      {
+        title:"ベンチュリーマスク(マルチタイプ)",
+        points:[
+          "特徴: ダイリューターを交換する代わりに、マスク本体のダイヤル(つまみ)を回すだけでFiO2を切り替えられるタイプ",
+          "使い方: ダイヤルを処方されたFiO2の目盛りに合わせ、機種の表示に従って酸素流量を設定する",
+          "メリット: ダイリューターの在庫管理や交換の手間が減り、FiO2の変更がすばやく行える"
+        ],
+        careNotes:[
+          "ダイヤルの目盛りがずれていないか、指示されたFiO2と実際の設定が一致しているかを都度確認する",
+          "ベンチュリーマスクと同様、マスクのフィット不良があると設定FiO2からずれるため注意する"
+        ]
+      },
+      {
+        title:"ネーザルハイフロー(NHF)",
+        points:[
+          "特徴①: 高流量のガスが解剖学的死腔のガスを洗い流す効果(死腔の洗い出し)により、有効換気が改善する",
+          "特徴②: 加温加湿された高流量ガスにより、気道粘膜の線毛機能を保ちやすく、分泌物の粘稠化を防ぐ",
+          "特徴③: 患者の吸気流量を上回る流量供給により、開口呼吸などがあっても安定したFiO2を届けられる",
+          "特徴④: 口を閉じた状態を保てれば、呼気時にわずかな抵抗が生まれ、軽度のPEEP様効果が得られる(開口時や口呼吸の場合はこの効果は得られにくい)",
+          "適応: 中等度〜重度の低酸素血症、抜管後の呼吸サポート、会話や経口摂取をしながら酸素療法を続けたい場合(マスクより快適性・忍容性が高い)",
+          "使い方: 流量とFiO2をそれぞれ独立して設定する。加温加湿の温度設定を確認する。患者の鼻腔に合ったサイズのカニューレを選択する"
+        ],
+        careNotes:[
+          "基本的な注意: 回路のリークや結露の有無、加温加湿器の水位を定期的に確認する",
+          "加湿水切れに注意: 加温加湿器の滅菌水(もしくは生理食塩水)がなくなると、加湿されないまま高温のガスが送られ続け、気道の熱傷につながるリスクがある。水位は定期的に確認し、早めに補充・交換する",
+          "粘膜損傷: 高流量・長期間の使用により、鼻腔粘膜の乾燥や損傷が起こりうるため、鼻腔内の状態を定期的に観察する",
+          "MDRPU(医療関連機器褥瘡): カニューレの固定部や耳介にかかる圧迫により褥瘡が生じるリスクがある。圧迫部位の観察・除圧・固定位置の調整を定期的に行う"
+        ]
+      }
+    ]
+  },
+  {
+    id:"o2-cylinder", cat:"oxygen", title:"酸素ボンベ計算機",
+    goal:"ボンベの内容積・圧力・流量から使用可能時間を計算し、移動や検査搬送時の残量切れを防ぐ",
+    sample:true,
+    calc:"cylinder",
+    points:[
+      "検査搬送や院内移動中の酸素切れは、少人数体制ほど発見が遅れやすく重大なリスクになる",
+      "計算のもとになるのは「内容積(L)」で、これはボンベ本体に刻印されている数値(例: 500L型は内容積3.4L前後)",
+      "圧力計の値(MPa)は現在ボンベにどれだけ酸素が残っているかを示す目安",
+      "計算値はあくまで理論値。安全のため、計算した時間の8割程度を目安に行動計画を立てる"
+    ],
+    formula:{
+      steps:[
+        "① 酸素残量(L) = 内容積(L) × 現在の圧力(MPa) × 10",
+        "② 使用可能時間(分) = 酸素残量(L) ÷ 酸素流量(L/分)"
+      ],
+      example:"例: 内容積3.4L・圧力10MPa・流量3L/分の場合\n残量 = 3.4 × 10 × 10 = 340L\n使用可能時間 = 340 ÷ 3 = 約113分"
+    },
+    careNotes:[
+      "移動前に必ず圧力計の値を目視で確認し、流量とあわせて使用可能時間を見積もる",
+      "計算値の8割程度を安全域の目安とし、それを超える移動・検査には予備ボンベを携行する",
+      "圧力計の針が0に近づくと流量が不安定になることがあるため、早めの交換を判断する",
+      "同時に、患者の呼吸状態(SpO2・呼吸様式)の観察も並行して行う"
+    ]
+  },
+  {
+    id:"o2-totalflow", cat:"oxygen", title:"トータルフロー計算機",
+    goal:"高流量システムにおけるtotal flowの計算と、患者吸気流量とのミスマッチを理解する",
+    points:[
+      "total flowの計算式(酸素流量+室内気流量)",
+      "FiO2設定と流量からの計算ツール",
+      "吸気流量とのミスマッチが起きるリスクとサイン"
+    ]
+  },
+  {
+    id:"vent-purpose", cat:"vent", title:"人工呼吸器の目的とモード", sample:true,
+    goal:"病態別の適応と主要モード(A/C・SIMV・PSVなど)の特徴を比較する",
+    points:[
+      "目的は主に3つ: ①ガス交換(酸素化・換気)の維持 ②呼吸仕事量の軽減 ③肺・全身の保護(肺保護換気)",
+      "モードは大きく「強制換気(器械が主導)」と「自発呼吸を活かす換気」に分けて考えると理解しやすい",
+      "自発呼吸の有無・鎮静深度・病態の安定性によって適切なモードは変わる",
+      "同じモード名でも人工呼吸器メーカーによって呼び方や細かい挙動が異なることがある"
+    ],
+    table:{
+      head:["モード","特徴","主な適応"],
+      rows:[
+        ["A/C(補助/調節換気)","設定した回数は強制換気、自発呼吸もすべて設定Vt/Pで補助","導入初期・鎮静下・呼吸仕事量を最大限軽減したい場面"],
+        ["SIMV","設定回数は強制換気、それ以外は自発呼吸(PSなどで補助可)","強制換気から自発呼吸への移行期"],
+        ["PSV(プレッシャーサポート)","自発呼吸のみを設定圧で補助、回数・タイミングは患者依存","ウィーニング期、自発呼吸が安定している場面"],
+        ["CPAP","一定の陽圧のみ、換気自体は完全に自発呼吸","抜管前の評価、軽度の呼吸補助"]
+      ]
+    },
+    subsections:[
+      {
+        title:"PCとVC、どんな患者に向いているか(一般的な考え方)",
+        table:{
+          head:["","向いている患者","注意点"],
+          rows:[
+            ["PC(従圧式)","気道抵抗やコンプライアンスが変化しやすい患者。肺保護のため気道内圧を確実に上限内に収めたい場合(ARDSなど)。漸減波が自然な呼吸に近く、患者-人工呼吸器の同調性を重視したい場合","換気量が保証されないため、コンプライアンスや抵抗が変化すると1回換気量が変動しやすい。継続的な換気量のモニタリングが必要"],
+            ["VC(従量式)","1回換気量を確実に一定させたい場合。頭蓋内圧亢進など換気量の変動を避けたい病態。病態が比較的安定し、気道抵抗・コンプライアンスの変動が少ない患者","気道抵抗上昇やコンプライアンス低下が起こると気道内圧が上昇しやすく、圧損傷のリスクが上がる。気道内圧のモニタリングが必要"]
+          ]
+        }
+      },
+      {
+        title:"特殊モード: ASV(Adaptive Support Ventilation)",
+        points:[
+          "Hamilton社の人工呼吸器に搭載されている、閉ループ制御(クローズドループ)の特殊モード",
+          "患者の呼吸努力の有無や強さに応じて、強制換気(調節換気)寄りの動作から自発呼吸メインの動作まで、機械が自動的に連続的に調整する",
+          "設定は主に「%分時換気量(%MV)」と予測体重(PBW)で、そこから機械が呼吸仕事量が最小になるように、1回換気量と呼吸回数の組み合わせを自動で計算・調整する(最小呼吸仕事量の考え方に基づくアルゴリズム)",
+          "自発呼吸が強くなればPSVに近い動き、弱ければA/Cに近い動きへと、モードを手動で切り替えなくても自動的に移行していく",
+          "導入から自発呼吸の回復・ウィーニングまで、同じモードのまま経過を追えることが特徴"
+        ],
+        careNotes:[
+          "自動調整に任せきりにせず、実際の1回換気量・呼吸回数・気道内圧が妥当な範囲に収まっているかは看護師の目でも確認する",
+          "重症ARDSなど、プラトー圧やドライビングプレッシャーを厳密にコントロールしたい病態では、自動調整だけに頼らず慎重な評価が必要とされる",
+          "閉塞性換気障害(COPDなど)がある患者では、自動設定される呼吸回数・吸気時間が病態に合っているか、オートPEEPの有無とあわせて確認する",
+          "院内採用機種(Hamilton)特有のモードのため、他院や他機種の人工呼吸器では搭載されていないことがある点も理解しておく"
+        ]
+      }
+    ],
+    careNotes:[
+      "モード変更時は、変更直後の呼吸様式(頻呼吸・努力呼吸の有無)とバイタルサインの変化を必ず確認する",
+      "自発呼吸を活かすモードほど患者の呼吸仕事量が増えるため、疲労のサインを見逃さない"
+    ]
+  },
+  {
+    id:"vent-settings", cat:"vent", title:"各種設定の考え方", sample:true,
+    goal:"PEEP・サポート圧・トリガー・吸気時間・I:E比・FiO2など、各設定の目的と考え方を整理する",
+    points:[
+      "1回換気量(Vt)は実体重ではなく予測体重(PBW)を基準に6〜8mL/kgを目安に設定する(PBW計算機を参照)",
+      "呼吸回数は目標分時換気量とVtから逆算されることが多いが、頻呼吸・呼吸性アシドーシスの有無もあわせて評価する",
+      "どの設定も「なぜその値なのか」を理解したうえで観察すると、異常への気づきが早くなる"
+    ],
+    subsections:[
+      {
+        title:"PEEP(呼気終末陽圧)",
+        points:[
+          "目的: 呼気時に肺胞が虚脱(無気肺)するのを防ぎ、酸素化を改善する",
+          "健常な人でも声門の働きにより、生理的PEEPと呼ばれるおよそ3〜5cmH2O程度の陽圧がかかっているとされる。挿管中はこれが失われるため、最低限のPEEPを設定することが多い",
+          "PEEPを上げすぎると、肺胞の過膨張・静脈還流の減少による血圧低下・心拍出量低下のリスクが上がる",
+          "PEEP変更後は、血圧・SpO2・気道内圧の変化を数分以内に確認する"
+        ]
+      },
+      {
+        title:"サポート圧(プレッシャーサポート, PS)",
+        points:[
+          "目的: 自発呼吸に上乗せする形で吸気を補助し、呼吸仕事量を軽減する",
+          "PSVでは、吸気努力に応じて設定した圧まで補助され、吸気から呼気への切り替えは患者の吸気流量が低下した時点(目安としてピーク流量の概ね25%程度まで低下した時点)で決まる",
+          "PSレベルを段階的に下げていくことで、自発呼吸の耐性を見るウィーニング評価としても使われる",
+          "PSが高すぎると1回換気量が過大になりやすく、低すぎると頻呼吸や呼吸仕事量増大につながる"
+        ]
+      },
+      {
+        title:"トリガー(フロー・プレッシャー)",
+        points:[
+          "トリガーとは、患者の吸気努力を人工呼吸器が感知して換気を開始する仕組み",
+          "プレッシャートリガー: 回路内の圧低下を感知する方式。感度設定が鈍いとミストリガーの原因になる",
+          "フロートリガー: 回路内の流量変化を感知する方式。一般にプレッシャートリガーより感度がよく反応が速いとされる",
+          "感度を敏感にしすぎると、結露やリークなどによる誤作動(オートトリガー)の原因になる"
+        ]
+      },
+      {
+        title:"吸気時間",
+        points:[
+          "吸気時間は、1回換気量やガス交換に必要な時間、患者の快適性に影響する",
+          "短すぎると十分なガス交換が得られず、長すぎると呼気時間が短縮しオートPEEPのリスクが高まる",
+          "従圧式(PC)では特に重要: 設定圧に到達したあと、その圧を保つ時間(プラトー)が確保されているかを意識する"
+        ]
+      },
+      {
+        title:"I:E比(吸気呼気比)",
+        points:[
+          "健常な人の安静時の自発呼吸では、I:E比はおよそ1:2程度が目安とされる(吸気より呼気の方が長い)",
+          "人工呼吸器設定でも1:2前後を基本とすることが多いが、病態によって調整する",
+          "閉塞性換気障害(COPDなど)では呼気時間を長く取る(例: 1:3〜1:4程度)ことで、呼気が不十分になることによるオートPEEPを防ぐ",
+          "酸素化を優先したい病態(重症ARDSなど)では吸気時間を延長することがあり、専門的な判断のもとで逆比換気(吸気時間が呼気時間と同じか長い設定)が用いられる場合もある",
+          "呼気時間が極端に短くなっている場合は、オートPEEPや呼気不十分のサインとして注意する"
+        ]
+      },
+      {
+        title:"FiO2(吸入酸素濃度)",
+        points:[
+          "目的: 必要な酸素化を得るために設定するが、原則として「酸素化に必要な最低限」に留める",
+          "高濃度酸素(目安としてFiO2 0.6を超える濃度)を長期間投与すると、酸素中毒(肺胞上皮の障害、吸収性無気肺、活性酸素による組織障害)のリスクが上がるとされる",
+          "一般的な目標SpO2の目安は94〜98%程度。CO2貯留のリスクがある患者(COPDなど)では、より低めの88〜92%程度を目標とすることがある(施設プロトコルに準じる)",
+          "酸素化が改善してきたら、漫然と高いFiO2を維持せず、優先的にFiO2を下げていく視点を持つ(PEEPとFiO2のどちらを先に下げるかは病態による)"
+        ]
+      }
+    ],
+    ref:"生理的PEEPの目安: 3〜5cmH2O / 健常な自発呼吸のI:E比の目安: 1:2 / 高濃度酸素の注意ライン: FiO2 0.6超の長期投与 / 目標SpO2の目安: 94〜98%(CO2貯留リスクがある場合は88〜92%程度)",
+    careNotes:[
+      "設定変更後は数分以内に波形とバイタルサイン、患者の表情や呼吸様式を確認する",
+      "設定の意図が分からない場合は、思い込みで判断せず担当医や臨床工学技士に確認する"
+    ]
+  },
+  {
+    id:"vent-waveform", cat:"vent", title:"波形の見方", sample:true,
+    goal:"圧・流量・量波形の基本パターンと、従圧式(PC)・従量式(VC)による違いを整理する",
+    points:[
+      "従圧式(PC): 設定した圧まで素早く到達し、その圧を保つため、圧波形は矩形(台形)になる。流量は吸気開始直後が最大で、その後なだらかに減っていく(漸減波)",
+      "従量式(VC): 流量を一定(矩形波)に保つ設定が基本のため、流量波形は矩形になる。圧は吸気の間じゅう上昇し続け、吸気終末に最高値となり、呼気開始で急に低下する山型になる",
+      "流量波形は圧・量波形と違い双方向のグラフ: 吸気は基線より上、呼気は基線より下に振れる。呼気の波形が次の吸気開始までに基線(ゼロ)まで戻りきらない場合はAuto-PEEPを疑う",
+      "量(換気量)波形: 吸気で立ち上がり、呼気でベースラインに戻る(PC・VCで概形は共通)",
+      "同じ設定でも波形の形が変化した場合は、気道抵抗やコンプライアンスなど患者側の状態変化のサインになる"
+    ],
+    diagramGroups:[
+      {key:"pc", label:"PC(従圧式)", diagrams:[
+        {label:"圧波形(矩形/台形): 設定圧まで素早く到達し保持", yLabel:"圧", cycle:"0,60 4,60 8,12 30,12 34,58 50,60"},
+        {label:"流量波形(漸減波): 吸気は基線より上、呼気は基線より下に振れる", yLabel:"流量", cycle:"0,38 2,38 6,8 12,18 17,32 19,38 21,64 28,53 36,45 44,40 50,38"},
+        {label:"量波形: 立ち上がりが早く、後半はゆるやかに増加", yLabel:"容量", cycle:"0,60 4,60 22,15 40,60 50,60"}
+      ]},
+      {key:"vc", label:"VC(従量式)", diagrams:[
+        {label:"圧波形(山型): 吸気の間じゅう上昇し、吸気終末で最高値", yLabel:"圧", cycle:"0,60 4,60 10,40 20,25 30,16 34,12 36,60 50,60"},
+        {label:"流量波形(矩形波): 吸気は一定流量、呼気は基線より下で減衰", yLabel:"流量", cycle:"0,38 2,38 5,8 17,8 19,38 21,64 28,53 36,45 44,40 50,38"},
+        {label:"量波形: 一定流量のため、ほぼ直線的に増加", yLabel:"容量", cycle:"0,60 4,60 30,14 34,60 50,60"}
+      ]}
+    ],
+    careNotes:[
+      "波形は「形が変わったこと」に気づくことが第一歩。正常な形を普段から見慣れておくことが判読の近道",
+      "PCとVCでは正常波形の形そのものが違うため、設定モードを確認したうえで波形を評価する",
+      "波形単独で判断せず、SpO2・呼吸様式・気道内圧の実測値とあわせて評価する"
+    ]
+  },
+  {
+    id:"vent-asynchrony", cat:"vent", title:"非同調波形とそのリスク", sample:true,
+    goal:"トリガー・サギング・サイクル・Auto-PEEP(オートピープ)など、非同調の種類ごとの波形パターンとポイントを整理する",
+    points:[
+      "トリガー非同調: 患者の吸気努力があるのに人工呼吸器が感知できない(ミストリガー)、または努力なしに作動する(オートトリガー)",
+      "サギング: 人工呼吸器が供給する流量が患者の要求に対して不足している状態(フロースタベーション)。圧波形が内側にへこむ",
+      "ダブルトリガー: 吸気要求に対して設定された吸気時間や換気量が不足している状態。1回の呼吸努力に対して2回換気が送られる",
+      "プレッシャースパイク: 患者の吸気タイミングと吸気終了タイミングがずれている状態(サイクル非同調と同じ現象)",
+      "Auto-PEEP(オートPEEP、内因性PEEP): 呼気時間が不十分で、次の吸気が始まる前に肺内のガスが十分に排出されず、肺が過膨張したまま次の呼吸が始まる状態"
+    ],
+    waveformPlayer:{
+      yLabel:"気道内圧",
+      items:[
+        {id:"normal", label:"正常", yLabel:"気道内圧", cycle:"0,60 4,60 8,12 30,12 34,58 50,60",
+          desc:"設定通りのタイミングで規則的に換気が送られている状態。まずこの形を基準として覚えておく。"},
+        {id:"miss", label:"ミストリガー", yLabel:"気道内圧", cycle:"0,60 10,60 14,67 18,60 32,60 36,67 40,60 50,60",
+          desc:"波形上のサイン: 吸気努力がトリガーとして感知されていない。Auto-PEEPやトリガー感度不適切が原因となる。ポイント: 感度を過度に鋭敏化するとオートトリガーを助長してしまう。"},
+        {id:"autotrigger", label:"オートトリガー", yLabel:"気道内圧", cycle:"0,60 3,60 7,12 11,12 13,60 16,60 20,12 24,12 26,60 50,60",
+          desc:"波形上のサイン: 患者の呼吸努力がないのに換気が開始されてしまう。ポイント: 回路リークや結露、心拍動による誤作動に注意する。"},
+        {id:"sagging", label:"サギング", yLabel:"気道内圧", cycle:"0,60 4,60 8,15 16,35 24,15 34,12 38,55 50,60",
+          desc:"波形上のサイン: 吸気の圧波形が内側にへこむ(スクーピング)。ポイント: 人工呼吸器の供給流量が患者の吸気要求に対して不足しているサイン。フロー設定の見直しを検討する。"},
+        {id:"double", label:"ダブルトリガー", yLabel:"気道内圧", cycle:"0,60 3,60 7,12 15,12 17,45 20,12 28,12 30,55 50,60",
+          desc:"波形上のサイン: 吸気要求に対して、設定された吸気時間や換気量が不足している。ポイント: ブレススタッキング(呼気が完了する前に次の吸気が重なる現象)により肺過伸展や駆動圧の上昇を招く可能性がある。"},
+        {id:"spike", label:"プレッシャースパイク", yLabel:"気道内圧", cycle:"0,60 4,60 8,12 26,12 28,6 30,12 34,58 50,60",
+          desc:"波形上のサイン: 患者の吸気タイミングと吸気終了タイミングがずれている。ポイント: 吸気時間過長やサイクルオフ不適切を疑う。"},
+        {id:"autopeep", label:"Auto-PEEP", yLabel:"呼気流量", baseline:38, cycle:"0,52 3,10 6,14 9,64 20,52 23,10 26,14 29,64 50,52",
+          desc:"波形上のサイン: 呼気流量がゼロラインへ戻る前に次の吸気が開始される。ポイント: エアトラッピングにより内因性PEEPが形成され、呼吸仕事量の増大につながる。"}
+      ]
+    },
+    table:{
+      head:["非同調の種類","波形上のサイン","ポイント"],
+      rows:[
+        ["ミストリガー","吸気努力がトリガーとして感知されていない。Auto-PEEPやトリガー感度不適切が原因となる","感度を過度に鋭敏化するとオートトリガーを助長してしまう"],
+        ["オートトリガー","患者の呼吸努力がないのに換気が開始されてしまう","回路リークや結露、心拍動による誤作動に注意する"],
+        ["サギング","吸気の圧波形が内側にへこむ(スクーピング)","人工呼吸器の供給流量が患者の吸気要求に対して不足しているサイン。フロー設定の見直しを検討する"],
+        ["ダブルトリガー","吸気要求に対して、設定された吸気時間や換気量が不足している","ブレススタッキング(呼気が完了する前に次の吸気が重なる現象)により肺過伸展や駆動圧の上昇を招く可能性がある"],
+        ["プレッシャースパイク","患者の吸気タイミングと吸気終了タイミングがずれている","吸気時間過長やサイクルオフ不適切を疑う"],
+        ["Auto-PEEP","呼気流量がゼロラインへ戻る前に次の吸気が開始される","エアトラッピングにより内因性PEEPが形成され、呼吸仕事量の増大につながる"]
+      ]
+    },
+    careNotes:[
+      "非同調が疑われたら、まず患者側の要因(痛み・不安・分泌物・体位)を確認する",
+      "設定の問題が疑われる場合は、自己判断で大きく設定変更せず医師・臨床工学技士と情報共有する",
+      "非同調が続くと努力呼吸の増大や人工呼吸器誘発性肺傷害(VILI)のリスクが高まる"
+    ]
+  },
+  {
+    id:"vent-simulator", cat:"vent", title:"人工呼吸管理シミュレーター", simulator:true, sample:true,
+    goal:"設定(モード・換気量・吸気圧・呼吸数・吸気時間・PEEP)と肺の状態(気道抵抗・コンプライアンス)を自分で動かし、波形と指標がどう変わるかを体験する",
+    points:[
+      "スライダーを動かすと、気道内圧・流量・換気量の波形と各種指標(ピーク圧・プラトー圧・ドライビングプレッシャー・Auto-PEEPなど)が即座に変わります",
+      "「この設定を基準として固定」を押すと、基準の波形が破線で残り、設定を変えた前後を重ねて比べられます",
+      "上の「シナリオ」から、Auto-PEEP・プラトー圧高値・気道抵抗上昇などの場面を呼び出せます",
+      "今後、非同調(ミストリガーなど)を加え、何をどう調整すると改善するかを可視化する予定です"
+    ]
+  },
+  {
+    id:"vent-weaning", cat:"vent", title:"ウィーニング評価(SAT/SBT・再挿管リスク)", sample:true,
+    goal:"SAT/SBTの実施基準と再挿管リスク評価の考え方を整理する",
+    points:[
+      "SAT(自発覚醒トライアル)は鎮静薬を中止・減量し、意識状態を評価するステップ",
+      "SBT(自発呼吸トライアル)はSAT通過後に、人工呼吸器のサポートを最小限にして自発呼吸のみで耐えられるか評価するステップ",
+      "SAT/SBTはセットで、毎日決まった時間に評価するプロトコル化が推奨されている(施設プロトコルに準じる)",
+      "SBT成功=即抜管ではなく、気道保護能力(咳嗽力・意識状態)や分泌物量もあわせて総合的に判断する"
+    ],
+    table:{
+      head:["評価","主な実施基準・成功の目安"],
+      rows:[
+        ["SATの実施基準","循環動態が安定・活動性の痙攣なし・鎮静薬を増量していない・筋弛緩薬を使用していない"],
+        ["SBTの実施基準","P/F比がおおむね150〜200以上・PEEP 5〜8cmH2O以下・FiO2 40〜50%以下・循環動態が安定"],
+        ["SBT成功の目安","呼吸数35回/分未満・SpO2 90%以上・著明な努力呼吸なし・血圧/心拍数が安定・RSBI(f/Vt) 105未満"]
+      ]
+    },
+    careNotes:[
+      "再挿管リスクが高い患者の特徴: 高齢、心不全の既往、長期人工呼吸管理後、喀痰量が多い、咳嗽力が弱い、複数の併存疾患",
+      "抜管後は数時間、呼吸様式・SpO2・意識状態を継続的に観察する(再挿管の多くは抜管後早期に起こる)",
+      "上気道浮腫が疑われる場合はカフリークテストなどで評価することがある(施設プロトコルに準じる)"
+    ]
+  },
+  {
+    id:"vent-vap", cat:"vent", title:"VAP(人工呼吸器関連肺炎)の予防", sample:true,
+    goal:"VAPとは何かを理解したうえで、状況に応じて実施できるケアのポイントとして予防策を整理する",
+    points:[
+      "VAP(Ventilator-Associated Pneumonia)は、気管挿管による人工呼吸を開始してから48時間以降に新たに発症する肺炎",
+      "気管チューブが声門・喉頭の防御機構(咳嗽反射・線毛運動)を通過することで、口腔内やカフ上部にたまった分泌物が気道内に垂れ込みやすくなることが主な発生機序",
+      "人工呼吸期間が長くなるほど発症リスクは高くなる",
+      "発症すると人工呼吸期間や在室日数の延長、死亡リスクの上昇につながりうる",
+      "本来は複数の対策を同時に行う「ケアバンドル」としての実施が最も効果的とされているが、患者の状態や病棟の人員体制によって、すべてを同時に行えないこともある",
+      "「全部できないから何もしない」のではなく、その時にできる対策を選び積み重ねる、という考え方が現実的で大切"
+    ],
+    table:{
+      head:["ケアのポイント","具体的な内容"],
+      rows:[
+        ["頭部挙上","禁忌がなければ30〜45度程度の頭部挙上を保つ。仰臥位の時間をできるだけ減らす"],
+        ["口腔ケア","口腔内を定期的に清拭・吸引し、口腔内細菌数を減らす(使用薬剤・頻度は施設プロトコルに準じる)"],
+        ["カフ上部吸引","カフ上部にたまった分泌物を定期的に吸引する(専用ルートがあれば活用)"],
+        ["カフ圧管理","適正なカフ圧(目安20〜30cmH2O)を保ち、分泌物の垂れ込みと気道粘膜損傷の両方を防ぐ"],
+        ["回路・吸引の管理","人工呼吸回路の不必要な開放を避ける。閉鎖式吸引の活用や、汚染時のみの回路交換を基本とする"],
+        ["鎮静の最小化","過鎮静を避け、可能な範囲で意識レベルを保つ(SATの考え方とも関連)"],
+        ["早期離床・体位変換","可能な範囲でのリハビリや体位変換により、無気肺や分泌物停滞を防ぐ"]
+      ]
+    },
+    careNotes:[
+      "自発呼吸が出ない、あるいは療養病院への転院を見据えているなど、人工呼吸器離脱を目標としない患者でも、VAP予防そのものには変わらず価値がある",
+      "離脱を目指すかどうかにかかわらず、頭部挙上や口腔ケアなど日常的に継続できるケアを意識することが、患者の安楽と合併症予防につながる",
+      "忙しく全項目に手が回らない日は、その日実施できた項目を意識的に選び、翌日以降につなげる視点を持つ",
+      "少人数体制では『誰か一人が頑張る』のではなく、その勤務帯でできることをチームで共有しておくと継続しやすい"
+    ],
+    ref:"VAPの定義: 気管挿管下の人工呼吸開始後48時間以降に新たに発症した肺炎。カフ圧の目安は20〜30cmH2O(施設プロトコルに準じる)"
+  },
+  {
+    id:"vent-nppv", cat:"vent", title:"NPPV(非侵襲的陽圧換気)", sample:true,
+    goal:"NPPVの効果・適応・評価、NIV/NIV-STの設定の考え方、MDRPU予防とリーク対応を整理する",
+    points:[
+      "NPPV(Non-Invasive Positive Pressure Ventilation)は、気管挿管をせずマスクを介して陽圧換気を行う方法",
+      "効果: 呼吸仕事量の軽減、酸素化・換気の改善、挿管の回避や抜管後の呼吸補助",
+      "適応: COPD増悪、心原性肺水腫、免疫不全患者の呼吸不全、抜管後の呼吸サポートなど(病態によりエビデンスの強さは異なる)",
+      "禁忌・慎重投与: 意識障害、気道確保困難、血行動態が不安定、嘔吐リスクが高い、顔面の外傷や術後でマスクフィットが難しい場合など"
+    ],
+    subsections:[
+      {
+        title:"評価(導入後の効果判定)",
+        points:[
+          "導入後1〜2時間以内をめやすに、呼吸状態・血液ガス・意識レベルの変化を評価する",
+          "改善のサイン: 呼吸数の減少、努力呼吸の軽減、SpO2/PaO2の改善、意識レベルの改善",
+          "悪化のサイン(NPPV失敗を疑うサイン): 呼吸状態の改善が乏しい、意識レベルの低下、血行動態の不安定化。早期に気管挿管の検討につなげる"
+        ]
+      },
+      {
+        title:"設定(NIV・NIV-ST)の考え方",
+        points:[
+          "NIV: 自発呼吸を活かすモード(S/Tモードなど)",
+          "NIV-ST: 自発呼吸に加え、一定時間呼吸がない場合にバックアップ換気が入るモード",
+          "IPAP(吸気気道陽圧)とEPAP(呼気気道陽圧)を設定し、その差が実質的なプレッシャーサポートとして働く",
+          "バックアップ呼吸回数を設定することで、無呼吸時にも最低限の換気を保証できる(NIV-ST)",
+          "設定の意図が分からない場合は、思い込みで判断せず担当医に確認する"
+        ]
+      },
+      {
+        title:"MDRPU(医療関連機器褥瘡)の予防",
+        points:[
+          "マスクのフィッティング部位(鼻根部・頬部など)は圧迫を受けやすく、MDRPUが生じやすい部位",
+          "装着直後だけでなく、経時的に皮膚状態を観察する",
+          "皮膚保護材の使用、マスクの当たる位置を定期的に少しずらす、可能であれば一時的にマスクを外す時間を作るなどの工夫を行う",
+          "マスクの締めすぎに注意し、指1〜2本入る程度の余裕を目安にする"
+        ]
+      },
+      {
+        title:"リークへの対応",
+        points:[
+          "リーク(ガス漏れ)があると、設定した圧やFiO2が患者に届きにくくなり、治療効果が下がる",
+          "マスクのフィット不良、開口によるリーク(経口リーク)、皮膚のしわなどが原因になりやすい",
+          "リークが多い場合は、マスクのサイズ・種類の見直しや装着位置の調整を行う",
+          "経口リークが多い場合は、フルフェイスマスクへの変更を検討することもある(医師と相談)"
+        ]
+      }
+    ],
+    careNotes:[
+      "NPPV導入中は、マスクを外さずに会話や排痰ができるよう工夫し、患者の不安や不快感にも配慮する",
+      "装着に対する不耐性(不安感・閉塞感)が強い場合は、無理に継続せず医師と対応を相談する"
+    ]
+  },
+  {
+    id:"vent-troubleshoot", cat:"vent", title:"トラブルシューティング", sample:true,
+    goal:"事故抜管発生時の対応と、急変時にDOPE法で原因を検索する考え方を整理する",
+    points:[
+      "人工呼吸管理中のトラブルは患者の急変に直結しやすいため、初期対応の型をあらかじめ身につけておくことが重要"
+    ],
+    subsections:[
+      {
+        title:"事故抜管発生時の対応",
+        points:[
+          "まず患者の安全確保: 気道の状態・自発呼吸の有無・SpO2・意識レベルを即座に評価する",
+          "応援要請: 一人で抱え込まず、速やかに医師・他スタッフへ応援を要請する",
+          "用手換気の準備: 自発呼吸が不十分な場合は、バッグバルブマスクなどで用手換気を行いながら医師の到着を待つ",
+          "再挿管の準備: 挿管セット・吸引・モニターなど必要な物品をすぐ使える状態にしておく",
+          "記録: 発生時刻・発生状況・対応内容を正確に記録し、再発防止の振り返りにつなげる"
+        ]
+      },
+      {
+        title:"DOPE法(急変時の原因検索)",
+        points:[
+          "DOPEは、人工呼吸中に急激な状態悪化が起きた際、原因を素早く鑑別するための語呂合わせ",
+          "D: Displacement(チューブの位置異常。事故抜管や片肺挿管など)",
+          "O: Obstruction(チューブや気道の閉塞。分泌物・屈曲・咬み込みなど)",
+          "P: Pneumothorax(気胸。特に緊張性気胸は致死的になりうる)",
+          "E: Equipment failure(機器トラブル。回路の外れ・リーク・酸素供給の途絶など)",
+          "急変時はこの4つを順に、あるいは同時並行で素早く評価し、原因に応じた対応につなげる"
+        ],
+        careNotes:[
+          "迷ったら、まず人工呼吸器から外してバッグバルブマスクによる用手換気に切り替え、機器要因かどうかを切り分けるという考え方もある",
+          "DOPEでの評価と並行して、応援要請・バイタルサイン測定も同時に進める"
+        ]
+      }
+    ]
+  },
+  {
+    id:"calc-pf", cat:"calc", title:"P/F比(PaO2/FiO2)", sample:true, calc:"pf",
+    goal:"酸素化能を評価する指標。人工呼吸器管理やARDSの重症度評価に使われる",
+    points:[
+      "PaO2(動脈血酸素分圧)をFiO2(吸入酸素濃度、小数)で割った値",
+      "換気状態に関わらず酸素化障害の程度を数値化できる",
+      "ARDSのBerlin定義における重症度分類にも使われる(PEEP/CPAP 5cmH2O以上が前提条件)",
+      "FiO2は%ではなく小数(例: 40%→0.4)に変換して計算する点に注意"
+    ],
+    ref:"正常400以上 / ARDS(Berlin定義): 軽症300以下・中等症200以下・重症100以下(PEEP/CPAP 5cmH2O以上が前提)"
+  },
+  {
+    id:"calc-sf", cat:"calc", title:"S/F比(SpO2/FiO2)", sample:true, calc:"sf",
+    goal:"動脈血液ガスが取れない場面でP/F比の代わりに酸素化を評価する非侵襲的指標",
+    points:[
+      "SpO2をFiO2(%換算)で割った値",
+      "動脈ラインがない患者やSpO2モニタのみの場面で有用",
+      "目安: S/F比235でP/F比200相当、S/F比315でP/F比300相当(Riceらの報告に基づく)",
+      "SpO2が97〜100%になると酸素解離曲線の特性上、精度が落ちるため注意"
+    ],
+    ref:"目安としてS/F比315以下でP/F比300以下相当、235以下でP/F比200以下相当"
+  },
+  {
+    id:"calc-aado2", cat:"calc", title:"A-aDO2(肺胞気動脈血酸素分圧較差)", sample:true, calc:"aado2",
+    goal:"肺胞から血液への酸素の受け渡しがどの程度障害されているかを評価する",
+    points:[
+      "肺胞気酸素分圧(PAO2)と動脈血酸素分圧(PaO2)の差",
+      "拡散障害・換気血流比不均衡・シャントなど、ガス交換障害の指標になる",
+      "加齢とともに正常上限は上昇する((年齢/4)+4が目安という考え方もある)",
+      "計算にはPaO2・PaCO2・FiO2の値が必要"
+    ],
+    ref:"室内気吸入時の正常値はおおよそ5〜15mmHg程度(加齢で上昇)"
+  },
+  {
+    id:"calc-raw", cat:"calc", title:"気道抵抗(Raw)", sample:true, calc:"raw",
+    goal:"気道(気管チューブ・気管支)の狭窄や分泌物貯留の程度を評価する",
+    points:[
+      "最高気道内圧(Ppeak)とプラトー圧(Pplateau)の差を吸気流量で割って求める",
+      "気管チューブ自体にも一定の抵抗があるため、挿管患者では正常でもある程度の値になる",
+      "上昇時は気管支攣縮・分泌物貯留・チューブ閉塞・回路の屈曲などを疑う",
+      "プラトー圧を得るには吸気終末ポーズ(吸気ホールド)が必要"
+    ],
+    ref:"挿管患者ではおおむね4〜10 cmH2O/L/秒程度が目安(施設・個体差あり)。急な上昇は要注意"
+  },
+  {
+    id:"calc-compliance", cat:"calc", title:"静的・動的コンプライアンス", sample:true, calc:"compliance",
+    goal:"肺と胸郭の膨らみやすさ(硬さ)を評価する",
+    points:[
+      "静的コンプライアンス(Cstat)は肺・胸郭そのものの硬さを反映(プラトー圧を使用)",
+      "動的コンプライアンス(Cdyn)は気道抵抗の影響も含む(最高気道内圧を使用)",
+      "低下時は肺水腫・ARDS・無気肺・胸水・腹部膨満などを疑う",
+      "1回換気量をコンプライアンスに応じて調整する視点にもつながる"
+    ],
+    ref:"目安として健常な人工呼吸中で50〜80mL/cmH2O程度。ARDSでは低下し重症ほど顕著(<40、重症で<25程度)"
+  },
+  {
+    id:"calc-drivingpressure", cat:"calc", title:"ドライビングプレッシャー", sample:true, calc:"drivingpressure",
+    goal:"1回換気量が実際に機能している肺にどれだけの負担をかけているかを表す、肺保護換気の指標",
+    points:[
+      "プラトー圧からPEEPを引いた値(Vt/Cstatと同義)",
+      "肺保護換気(ARDSnetプロトコルなど)において重視される指標",
+      "高いほど人工呼吸器誘発性肺傷害(VILI)のリスクが上がるとされる",
+      "1回換気量を下げてもドライビングプレッシャーが下がらない場合は他の要因も検討する"
+    ],
+    ref:"15cmH2O以下を目安とする報告が多い(Amatoらの研究など)。あくまで目安であり施設プロトコルに従う"
+  },
+  {
+    id:"calc-humidity", cat:"calc", title:"湿度計算(加温加湿の目安)", sample:true, calc:"humidity",
+    goal:"NHFや人工呼吸器の加温加湿設定を考える際の、絶対湿度の目安を計算する",
+    points:[
+      "気道粘膜の線毛機能を保つには十分な加湿が必要",
+      "絶対湿度(mg/L)は温度と相対湿度から計算できる",
+      "体温付近(37℃・相対湿度100%)で絶対湿度は約44mg/L",
+      "挿管患者は最低30mg/L程度、NHF/NIVでは37℃相当の加湿が推奨されることが多い(機種・ガイドラインにより異なる)"
+    ],
+    ref:"目安: 挿管患者で30mg/L以上、NHFで37℃相当(約44mg/L)を目標とすることが多い"
+  },
+  {
+    id:"calc-ri", cat:"calc", title:"Respiratory Index(R-I)", sample:true, calc:"ri",
+    goal:"A-aDO2をPaO2で割ることで、酸素化障害の重症度をさらに評価する指標",
+    points:[
+      "A-aDO2 ÷ PaO2 で計算される",
+      "P/F比と似た目的で使われるが、A-aDO2をベースにする点が異なる",
+      "値が大きいほど酸素化障害が重度であることを示す",
+      "人工呼吸導入検討の材料の一つとして使われることがある(位置づけは施設・ガイドラインにより異なる)"
+    ],
+    ref:"目安として1未満が正常範囲、2以上で人工呼吸管理の検討対象となることがある(施設プロトコルに準じる)"
+  },
+  {
+    id:"calc-pbw", cat:"calc", title:"予測(理想)体重(PBW)と1回換気量の目安", sample:true, calc:"pbw",
+    goal:"肺保護換気を行う際の1回換気量は、実体重ではなく予測体重(理想体重)を基準に設定する",
+    points:[
+      "実体重で設定すると過大な換気量になりやすく、肺損傷のリスクが上がる",
+      "Devineの式で予測体重を算出する",
+      "1回換気量の目安は予測体重あたり6〜8mL/kg(肺保護換気では6mL/kg前後を用いることが多い)",
+      "身長は仰臥位での実測、または申告値を用いる"
+    ],
+    ref:"1回換気量の目安 = 予測体重(kg) × 6〜8 mL/kg"
+  },
+  {
+    id:"airway-device", cat:"airway", title:"気道管理デバイスの使い方", sample:true,
+    goal:"経口・経鼻エアウェイ、バッグバルブマスク、ジャクソンリースの適応・使用法・注意点を整理する",
+    points:[
+      "気道確保デバイスは「気道の開通を助けるもの」と「換気を行うもの」に分けて考えると整理しやすい",
+      "どのデバイスを使う場合も、まず気道が開通しているか(頭部後屈顎先挙上・下顎挙上)を確認したうえで使用する"
+    ],
+    subsections:[
+      {
+        title:"経口・経鼻エアウェイ(OPA/NPA)",
+        points:[
+          "目的: 舌根沈下による気道閉塞を防ぎ、気道の開通を保つ",
+          "経口エアウェイ(OPA)のサイズ目安: 口角から下顎角までの距離",
+          "経口エアウェイの挿入: 凹面を上にして挿入し口蓋付近で180度回転させる方法、または舌圧子で舌を圧排しながら直視下で挿入する方法",
+          "経鼻エアウェイ(NPA)のサイズ目安: 鼻孔から耳朶までの距離、太さは患者の小指程度が目安",
+          "経鼻エアウェイの挿入: 潤滑剤を使用し、鼻腔底に沿ってまっすぐ後方へ挿入する(上方に向けない)"
+        ],
+        table:{
+          head:["デバイス","禁忌・注意"],
+          rows:[
+            ["経口エアウェイ(OPA)","意識のある患者、咽頭反射が残っている患者(嘔吐・誤嚥のリスク)"],
+            ["経鼻エアウェイ(NPA)","頭蓋底骨折疑い、高度な鼻出血傾向・凝固異常がある場合"]
+          ]
+        }
+      },
+      {
+        title:"バッグバルブマスク(BVM)",
+        points:[
+          "用途: 自発呼吸がない、または不十分な場合の換気の代行・補助",
+          "換気のペース: 成人ではおおむね6秒に1回(約10回/分)、1回の送気に約1秒かける",
+          "強く押しすぎない: 胸郭が軽く上がる程度を目安にする。過大な換気量・圧は胃膨満・誤嚥・気胸のリスクを高める",
+          "マスクの当て方: 母指と示指でマスクをC字に保持し、残り3指で下顎をE字に保持する(EC法)ことでリークを防ぐ",
+          "バッグを押した時の抵抗感も重要な情報: 普段より硬く感じる場合は気道閉塞・気管支攣縮・肺コンプライアンス低下などを疑うきっかけになる"
+        ],
+        careNotes:[
+          "2人法(1人がマスクを保持、1人がバッグを押す)の方がマスクフィットが安定しやすい",
+          "換気のたびに胸郭挙上の左右差・抵抗感の変化を観察する"
+        ]
+      },
+      {
+        title:"ジャクソンリース回路",
+        points:[
+          "用途: 主に麻酔導入時や新生児・小児領域、より繊細な気道内圧調整が必要な場面で使用される",
+          "特徴: 自己膨張式ではないため、酸素源(酸素の供給)がないと使用できない",
+          "テールバッグ(呼気弁)の開閉度を調整することで気道内圧をコントロールする",
+          "自発呼吸がある患者では、バッグの動きから自発呼吸の有無や強さを感じ取ることができる"
+        ],
+        careNotes:[
+          "酸素流量とテールの開閉調整に慣れが必要なため、使用経験の浅いスタッフは事前にトレーニングしておくことが望ましい",
+          "テールを閉じすぎると過度な陽圧がかかり、気胸などのリスクにつながるため注意する"
+        ]
+      }
+    ]
+  },
+  {
+    id:"airway-fixation", cat:"airway", title:"挿管チューブの基本的な固定方法", sample:true,
+    goal:"固定方法(4点・3点・2点・アンカーファストなど)の特徴と、事故抜去防止のポイントを整理する",
+    points:[
+      "固定の目的は、チューブの位置を保つことと、皮膚・粘膜へのダメージを最小限にすることの両立",
+      "施設や患者の状態(発汗・皮膚状態・体動の多さなど)によって、適した固定方法や資材は異なる"
+    ],
+    subsections:[
+      {
+        title:"固定方法の種類と比較",
+        table:{
+          head:["固定方法","特徴","メリット / デメリット"],
+          rows:[
+            ["4点固定","絆創膏を頬部上下・チューブに複数貼付する伝統的な方法","固定力が強い / 皮膚への負担が大きくなりやすく貼り直しの手間も大きい"],
+            ["3点固定","4点固定より貼付箇所を減らした方法","4点よりは皮膚負担が少ない / 固定力はやや落ちる可能性がある"],
+            ["2点固定","最小限の貼付箇所で固定する方法","皮膚への負担が少なく貼り直しがしやすい / 体動が多い患者では固定力が不足しうる"],
+            ["アンカーファスト等の専用固定具","専用のテープ・ホルダーを用いる方法","固定力と皮膚保護のバランスが取りやすい / 皮膚状態によっては使用しにくい場合がある"]
+          ]
+        }
+      },
+      {
+        title:"アンカーファストの使用方法と注意点",
+        points:[
+          "貼付前に皮膚を清拭し、必要に応じて皮膚保護剤(スキンプレップなど)を使用する",
+          "頬部・鼻下の皮膚状態を確認してから貼付位置を決める",
+          "チューブの固定具部分がねじれたり、圧迫しすぎたりしないように装着する",
+          "発汗が多い・皮膚が脆弱・顔面に創傷や熱傷がある場合は使用を慎重に検討する",
+          "定期的に皮膚を観察し、発赤やびらんがあれば貼付位置の変更や固定方法の見直しを検討する"
+        ]
+      },
+      {
+        title:"固定後の確認・事故抜去防止のポイント",
+        points:[
+          "挿管チューブの深さ(cm表示)を記録し、勤務交代時に必ず申し送る",
+          "固定後は聴診で左右差がないかを確認する",
+          "体位変換・清潔ケアなど体動を伴うケアの際は、必ず1人がチューブを保持する役割を担う",
+          "患者の体動が多い場合は、鎮静・鎮痛の評価や身体抑制の必要性についてもチームで検討する",
+          "固定テープの汚染・剥がれかけを見つけたら早めに交換し、剥がれたまま様子を見ない"
+        ]
+      }
+    ]
+  },
+  {
+    id:"tracheo-acute", cat:"tracheo", title:"気管切開術後の急性期ケア",
+    goal:"気管切開術直後の観察ポイントと急性期のケアを整理する",
+    points:[
+      "術後出血・皮下気腫の観察ポイント",
+      "カニューレの固定・位置確認の方法",
+      "初回カニューレ交換のタイミングと注意点"
+    ]
+  },
+  {
+    id:"tracheo-devices", cat:"tracheo", title:"デバイスの種類",
+    goal:"気管切開カニューレの種類と特徴、選択の考え方を整理する",
+    points:[
+      "単管・複管、カフ付き・カフなし、スピーチカニューレなどの種類と特徴",
+      "サイズ選択の考え方",
+      "施設で採用している主な製品"
+    ]
+  },
+  {
+    id:"tracheo-trouble", cat:"tracheo", title:"トラブルシューティング",
+    goal:"気管切開カニューレに関するトラブルへの対応を整理する",
+    points:[
+      "事故抜去時の対応",
+      "閉塞時の対応",
+      "出血・肉芽形成などのトラブルへの対応"
+    ]
+  },
+  {
+    id:"care-rehab", cat:"care", title:"呼吸リハビリ",
+    goal:"呼吸リハビリの目的・手技・実施時の注意点を整理する",
+    points:[
+      "呼吸リハビリの目的と適応",
+      "具体的な手技(排痰法、呼吸練習など)",
+      "実施時の注意点"
+    ]
+  },
+  {
+    id:"care-suction", cat:"care", title:"吸引", sample:true,
+    goal:"気管吸引の目的と、実施前に押さえておくべき注意点を整理する",
+    points:[
+      "吸引には口腔・鼻腔からの吸引、気管(気管切開・気管挿管チューブ内)からの吸引などがある。ここではまず気管吸引について整理する"
+    ],
+    subsections:[
+      {
+        title:"気管吸引の目的",
+        points:[
+          "気道の開放性を維持・改善することで、呼吸仕事量や呼吸困難を軽減し、肺胞でのガス交換能を維持・改善すること"
+        ]
+      },
+      {
+        title:"気管吸引前の注意点",
+        points:[
+          "気管吸引は患者にとって侵襲的で苦痛を伴い、強い痛みを引き起こすことがある。事前に患者へ説明を行い、客観的スケールを用いた痛みの評価を行う",
+          "特に開胸手術後などは、胸郭サポート(創部を手で支えるなど)を行い、疼痛の増強を予防する",
+          "口腔・鼻腔やカフ上部に貯留した分泌物には病原菌が含まれる可能性があるため、気管吸引の前にあらかじめ吸引・除去し、下気道への垂れ込みを予防する",
+          "気管吸引は分泌物だけでなく空気も同時に吸引するため、低酸素血症を助長するおそれがある。人工呼吸器を使用している場合は、O2フラッシュ等を活用して前酸素化(高濃度の酸素を一定時間吸入し、肺内の空気を酸素に置き換えて体内の酸素貯蔵量を増やし、低酸素状態の発生を遅らせること)を行う",
+          "ただし、十分な自発呼吸があり、室内気で酸素飽和度が保たれている患者には、高濃度酸素投与による弊害もあるため、前酸素化を全例に実施する必要はない"
+        ]
+      },
+      {
+        title:"今後追加予定の内容",
+        points:[
+          "吸引の適応とタイミング",
+          "手順と吸引圧設定の考え方",
+          "合併症とその予防"
+        ]
+      }
+    ]
+  },
+  {
+    id:"care-expectorant", cat:"care", title:"去痰薬の特徴",
+    goal:"主な去痰薬の種類・作用機序・使用時の注意点を整理する",
+    points:[
+      "去痰薬の種類と作用機序",
+      "主な薬剤の特徴",
+      "使用時の注意点"
+    ]
+  },
+  {
+    id:"assess-dyspnea", cat:"assess", title:"呼吸困難の評価", sample:true,
+    goal:"呼吸困難を評価することが何に役立つのかを理解し、mMRC・修正Borgスケール・日本語版RDOSを使い分けられるようにする",
+    points:[
+      "呼吸困難は主観的な症状だが、評価スケールを用いることで重症度を数値化し、他者と共有できる情報にできる",
+      "評価に役立つこと: 治療・ケア介入(酸素投与量の調整、体位変換、薬剤など)の効果判定、重症度の経時的な変化の把握、緩和ケアの必要性の判断、多職種間での情報共有",
+      "自己報告できる患者には、mMRCや修正Borgスケールなど本人が答える主観的スケールを用いる",
+      "意識障害・鎮静下・人工呼吸中など自己報告が難しい患者には、RDOSのような他者評価(観察)スケールを用いる"
+    ],
+    subsections:[
+      {
+        title:"mMRC(修正MRC息切れスケール)",
+        points:[
+          "労作時の息切れの程度を、日常生活動作と結びつけてGrade 0〜4の5段階で評価するスケール",
+          "COPDなど慢性呼吸器疾患の重症度評価としても広く使われる"
+        ],
+        table:{
+          head:["Grade","内容"],
+          rows:[
+            ["0","激しい運動をした時だけ息切れがある"],
+            ["1","平坦な道を早足で歩く、または緩やかな坂を歩いて登る時に息切れがある"],
+            ["2","息切れがあるため同年代の人より平坦な道を歩くのが遅い、または自分のペースで平坦な道を歩いている時に息切れのため立ち止まることがある"],
+            ["3","平坦な道を約100m、あるいは数分歩くと息切れのため立ち止まる"],
+            ["4","息切れがひどく外出できない、または衣服の着替えをする時にも息切れがある"]
+          ]
+        }
+      },
+      {
+        title:"修正Borgスケール",
+        points:[
+          "運動時などの呼吸困難の強さを、患者自身に0〜10の数値で申告してもらうスケール",
+          "数字の間隔が均等でない(0.5刻みがある)のが特徴で、感覚の変化に対応しやすい設計になっている",
+          "リハビリテーションの負荷調整や、労作前後の比較にもよく使われる"
+        ],
+        table:{
+          head:["点数","感覚"],
+          rows:[
+            ["0","感じない"],
+            ["0.5","非常に弱い(やっと感じる程度)"],
+            ["1","やや弱い"],
+            ["2","弱い"],
+            ["3","中等度"],
+            ["4","ややきつい"],
+            ["5","きつい"],
+            ["7","とてもきつい"],
+            ["9","非常にきつい"],
+            ["10","最大"]
+          ]
+        }
+      }
+    ],
+    rdos:true,
+    ref:"日本語版RDOS: 合計0〜16点。3点以上で呼吸困難ありと判断される目安(点数が高いほど症状が強いことが示唆される)",
+    careNotes:[
+      "自己報告が可能な場面ではできるだけ本人の言葉・数値を優先し、RDOSは自己報告が困難な場面の補助として位置づける",
+      "評価は一度きりでなく、介入前後や経時的な変化を追うことで初めて意味を持つ"
+    ],
+    reference:"日本語版RDOSの項目・判定基準は下記を参考に作成しています。<br>日本赤十字九州国際看護大学 クリティカルケア・災害看護領域「日本語版RDOS」 <a href=\"https://gongehead5.wixsite.com/jrckicn-ccdn/%E6%97%A5%E6%9C%AC%E8%AA%9E%E7%89%88%E5%AE%A2%E8%A6%B3%E7%9A%84%E5%91%BC%E5%90%B8%E5%9B%B0%E9%9B%A3%E8%A9%95%E4%BE%A1%E3%82%B9%E3%82%B1%E3%83%BC%E3%83%ABrdos\" target=\"_blank\" rel=\"noopener\">https://gongehead5.wixsite.com/jrckicn-ccdn/日本語版客観的呼吸困難評価スケールrdos</a><br>Sakuramoto H, Hatozaki C, Unoki T, Aikawa G, Kobayashi S, Okamoto S, Shimomura S, Kawasaki A, Fukui M. Translation, reliability, and validity of Japanese version of the Respiratory Distress Observation Scale. PLoS One. 2021 Aug 11;16(8):e0255991."
+  },
+  {
+    id:"assess-airway", cat:"assess", title:"気道の評価",
+    goal:"気道の開通性や気道確保の必要性を評価する視点を整理する",
+    points:[
+      "気道閉塞を示唆する所見(いびき様呼吸、シーソー呼吸など)",
+      "気道確保が必要かどうかの判断基準",
+      "評価の手順(視診・聴診とあわせた確認)"
+    ]
+  },
+  {
+    id:"assess-auscultation", cat:"assess", title:"聴診",
+    goal:"呼吸音の聴診方法と、代表的な副雑音の聞き分け方を整理する",
+    points:[
+      "聴診の基本的な手順と聴診部位",
+      "正常呼吸音と副雑音(断続性・連続性ラ音など)の分類",
+      "副雑音から考えられる病態"
+    ]
+  },
+  {
+    id:"assess-effort", cat:"assess", title:"努力呼吸",
+    goal:"努力呼吸の所見とその評価のポイントを整理する",
+    points:[
+      "努力呼吸を示す身体所見(陥没呼吸、鼻翼呼吸、下顎呼吸など)",
+      "呼吸補助筋の使用の見極め方",
+      "重症度評価につながる観察ポイント"
+    ]
+  },
+  {
+    id:"assess-palpation", cat:"assess", title:"触診",
+    goal:"胸郭の触診で確認するポイントを整理する",
+    points:[
+      "胸郭の動きの左右差の確認方法",
+      "皮下気腫・握雪感の触知",
+      "触診から考えられる病態"
+    ]
+  }
+];
+
+const CAT_LABELS = {oxygen:"酸素療法", vent:"人工呼吸器", calc:"呼吸生理計算・指標", airway:"気道管理", tracheo:"気管切開", care:"呼吸ケア", assess:"呼吸の評価"};
+const CAT_COLORS = {oxygen:"#4FD8C4", vent:"#5B9BD9", calc:"#B79CED", airway:"#FF7A6B", tracheo:"#E0A458", care:"#7BC67E", assess:"#E37199"};
+const CAT_ICONS = {
+  oxygen:'<path d="M9 1.5S3 8.5 3 12.5a6 6 0 0 0 12 0C15 8.5 9 1.5 9 1.5z"/>',
+  vent:'<path d="M9 2v6M6.5 8c-1.6 0-3 1.8-3 4.2S4.3 16 6 16s1.6-1.6 1.6-3.4V8M11.5 8c1.6 0 3 1.8 3 4.2S13.7 16 12 16s-1.6-1.6-1.6-3.4V8"/>',
+  calc:'<path d="M3.5 15V9M9 15V3M14.5 15v-5"/>',
+  airway:'<path d="M2 5h8a2 2 0 1 0-2-2M2 9.5h9.5a2 2 0 1 1-2 2M2 14h6"/>',
+  tracheo:'<circle cx="9" cy="8" r="3"/><path d="M9 11v4M6.5 14.5h5"/>',
+  care:'<circle cx="9" cy="9" r="7"/><path d="M9 5.5v7M5.5 9h7"/>',
+  assess:'<circle cx="7.5" cy="7.5" r="5"/><path d="M11.2 11.2l4 4"/>'
+};
+const RDOS_ITEMS = [
+  {id:"hr", label:"心拍数(回/分)", options:[{label:"90未満", score:0},{label:"90〜109", score:1},{label:"110以上", score:2}]},
+  {id:"rr", label:"呼吸数(回/分)", options:[{label:"18以下", score:0},{label:"19〜30", score:1},{label:"31以上", score:2}]},
+  {id:"restless", label:"落ち着きのなさ(不必要な体動)", options:[{label:"なし", score:0},{label:"時々・軽度の体動", score:1},{label:"頻回の体動", score:2}]},
+  {id:"accessory", label:"呼吸補助筋の使用(吸気時の鎖骨挙上)", options:[{label:"なし", score:0},{label:"軽度の挙上", score:1},{label:"著明な挙上", score:2}]},
+  {id:"paradox", label:"奇異呼吸(吸気時に腹部が陥凹する)", options:[{label:"なし", score:0},{label:"あり", score:2}]},
+  {id:"grunt", label:"呼気終末のうめき声(guttural sound)", options:[{label:"なし", score:0},{label:"あり", score:2}]},
+  {id:"nasal", label:"鼻翼呼吸", options:[{label:"なし", score:0},{label:"あり", score:2}]},
+  {id:"fear", label:"恐怖の表情(開眼・顔面の緊張・眉間のしわ・開口・歯を食いしばる)", options:[{label:"なし", score:0},{label:"あり", score:2}]}
+];
+
+function rdosBlock(){
+  let html = '<div id="rdos-widget">';
+  RDOS_ITEMS.forEach(item=>{
+    html += '<div class="rdos-item"><div class="rdos-label">'+item.label+'</div><div class="rdos-options">';
+    item.options.forEach((opt,i)=>{
+      html += '<button class="rdos-opt" data-item="'+item.id+'" data-score="'+opt.score+'">'+opt.label+' ('+opt.score+'点)</button>';
+    });
+    html += '</div></div>';
+  });
+  html += '<div class="rdos-total-row"><span style="color:var(--ink-2); font-size:13px;">合計スコア</span>'
+    + '<span class="rdos-total-value mono" id="rdos-total">0</span><span style="color:var(--ink-3); font-size:12px;">/ 16点</span></div>';
+  html += '<div class="placeholder-note" id="rdos-interp" style="margin-top:10px;">各項目を選択するとスコアが表示されます。</div>';
+  html += '</div>';
+  return html;
+}
+
+function colorDot(hex){
+  return '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:'+hex+';margin-right:7px;vertical-align:middle;border:1px solid rgba(255,255,255,.3);"></span>';
+}
+function catIcon(cat){
+  return '<svg width="14" height="14" viewBox="0 0 18 18" fill="none" stroke="'+CAT_COLORS[cat]+'" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">'+CAT_ICONS[cat]+'</svg>';
+}
+
+function cycleBaseline(cycle){
+  const first = cycle.trim().split(' ')[0];
+  return parseFloat(first.split(',')[1]);
+}
+
+function waveformSvg(id, cycle, width, height, baseline){
+  const L=8, R=8, T=8, B=6;
+  const vbX = -L, vbY = -T, vbW = width*2 + L + R, vbH = height + T + B;
+  const axis = '<line x1="0" y1="'+(-T+3)+'" x2="0" y2="'+(baseline+5)+'" stroke="var(--ink-3)" stroke-width="0.7" vector-effect="non-scaling-stroke"/>'
+    + '<line id="wf-xaxis-'+id+'" x1="0" y1="'+baseline+'" x2="'+(width*2+4)+'" y2="'+baseline+'" stroke="var(--ink-3)" stroke-width="0.7" vector-effect="non-scaling-stroke"/>';
+  const tileCount = 6;
+  let tiles = '<polyline id="wf-cycle-'+id+'" points="'+cycle+'" fill="none" style="stroke:var(--teal); stroke-width:1.6;" vector-effect="non-scaling-stroke"/>';
+  for(let i=1;i<tileCount;i++){
+    tiles += '<use href="#wf-cycle-'+id+'" xlink:href="#wf-cycle-'+id+'" x="'+(width*i)+'" y="0"/>';
+  }
+  return '<svg class="wf-svg" viewBox="'+vbX+' '+vbY+' '+vbW+' '+vbH+'" preserveAspectRatio="none" xmlns:xlink="http://www.w3.org/1999/xlink">'
+    + axis
+    + '<g id="wf-group-'+id+'" data-wf-group data-width="'+width+'">'
+    + tiles
+    + '</g></svg>';
+}
+
+function waveformBlock(id, cycle, width, height, meta){
+  meta = meta || {};
+  const yLabel = meta.yLabel || '';
+  const baseline = (meta.baseline!==undefined) ? meta.baseline : cycleBaseline(cycle);
+  const T=8, B=6;
+  const vbH = height + T + B;
+  const pct = Math.min(92, Math.max(8, ((baseline+T)/vbH)*100));
+  return '<div class="wf-wrap">'
+    + waveformSvg(id, cycle, width, height, baseline)
+    + '<span class="wf-ylabel" id="wf-ylabel-'+id+'">'+yLabel+' \u2191</span>'
+    + '<span class="wf-xlabel" id="wf-xlabel-'+id+'" style="top:'+pct.toFixed(1)+'%;">\u6642\u9593 \u2192</span>'
+    + '</div>';
+}
+
+let wfRafId = null;
+function stopWaveformAnimation(){
+  if(wfRafId!==null){ cancelAnimationFrame(wfRafId); wfRafId = null; }
+}
+function startWaveformAnimation(){
+  stopWaveformAnimation();
+  const groups = Array.from(document.querySelectorAll('[data-wf-group]'));
+  if(groups.length===0) return;
+  const speed = 16;
+  const start = performance.now();
+  function frame(now){
+    const elapsed = (now-start)/1000;
+    groups.forEach(g=>{
+      const w = Number(g.getAttribute('data-width'));
+      const offset = (elapsed*speed) % w;
+      g.setAttribute('transform','translate('+(-offset)+',0)');
+    });
+    wfRafId = requestAnimationFrame(frame);
+  }
+  wfRafId = requestAnimationFrame(frame);
+}
+
+function satAH(tempC){
+  const es = 6.112 * Math.exp(17.67*tempC/(tempC+243.5));
+  return 216.7 * es / (273.15+tempC);
+}
+
+const CALC_DEFS = {
+  pf:{
+    inputs:[
+      {id:"pao2", label:"PaO2", unit:"mmHg", type:"number", default:80, step:1},
+      {id:"fio2", label:"FiO2", unit:"%", type:"number", default:40, step:1}
+    ],
+    compute:(v)=>{
+      const ratio = v.pao2/(v.fio2/100);
+      let interp;
+      if(ratio>=400) interp="正常範囲";
+      else if(ratio>=300) interp="軽度の酸素化障害の可能性";
+      else if(ratio>=200) interp="ARDS 軽症相当の目安(200〜300)";
+      else if(ratio>=100) interp="ARDS 中等症相当の目安(100〜200)";
+      else interp="ARDS 重症相当の目安(100未満)";
+      return {main:{label:"P/F比", value:Math.round(ratio), unit:""}, interp};
+    }
+  },
+  sf:{
+    inputs:[
+      {id:"spo2", label:"SpO2", unit:"%", type:"number", default:96, step:1},
+      {id:"fio2", label:"FiO2", unit:"%", type:"number", default:40, step:1}
+    ],
+    compute:(v)=>{
+      const ratio = v.spo2/(v.fio2/100);
+      let interp;
+      if(ratio>=315) interp="P/F比300以上に相当する目安";
+      else if(ratio>=235) interp="P/F比200〜300程度に相当する目安";
+      else interp="P/F比200未満に相当する可能性";
+      return {main:{label:"S/F比", value:Math.round(ratio), unit:""}, interp};
+    }
+  },
+  aado2:{
+    inputs:[
+      {id:"pao2", label:"PaO2", unit:"mmHg", type:"number", default:80, step:1},
+      {id:"paco2", label:"PaCO2", unit:"mmHg", type:"number", default:40, step:1},
+      {id:"fio2", label:"FiO2", unit:"%", type:"number", default:21, step:1}
+    ],
+    compute:(v)=>{
+      const pao2Alv = (v.fio2/100)*(760-47) - v.paco2/0.8;
+      const aado2 = pao2Alv - v.pao2;
+      let interp = aado2<=15 ? "室内気吸入時としては目安の正常範囲内" : "開大あり(拡散障害・換気血流比不均衡・シャントなどを考慮)";
+      return {main:{label:"A-aDO2", value:Math.round(aado2), unit:"mmHg"}, interp,
+        sub:[{label:"肺胞気酸素分圧(PAO2)", value:Math.round(pao2Alv), unit:"mmHg"}]};
+    }
+  },
+  raw:{
+    inputs:[
+      {id:"ppeak", label:"最高気道内圧(Ppeak)", unit:"cmH2O", type:"number", default:25, step:1},
+      {id:"pplat", label:"プラトー圧(Pplateau)", unit:"cmH2O", type:"number", default:20, step:1},
+      {id:"flow", label:"吸気流量", unit:"L/分", type:"number", default:60, step:1}
+    ],
+    compute:(v)=>{
+      const flowLs = v.flow/60;
+      const raw = (v.ppeak - v.pplat)/flowLs;
+      let interp = raw<=10 ? "挿管患者としてはおおむね目安の範囲内" : "上昇あり(気管支攣縮・分泌物貯留・チューブ閉塞・回路屈曲などを考慮)";
+      return {main:{label:"気道抵抗(Raw)", value:Math.round(raw*10)/10, unit:"cmH2O/L/秒"}, interp};
+    }
+  },
+  compliance:{
+    inputs:[
+      {id:"vt", label:"1回換気量(Vt)", unit:"mL", type:"number", default:450, step:10},
+      {id:"ppeak", label:"最高気道内圧(Ppeak)", unit:"cmH2O", type:"number", default:25, step:1},
+      {id:"pplat", label:"プラトー圧(Pplateau)", unit:"cmH2O", type:"number", default:20, step:1},
+      {id:"peep", label:"PEEP", unit:"cmH2O", type:"number", default:5, step:1}
+    ],
+    compute:(v)=>{
+      const cstat = v.vt/(v.pplat - v.peep);
+      const cdyn = v.vt/(v.ppeak - v.peep);
+      let interp = cstat>=50 ? "静的コンプライアンスはおおむね目安の範囲内" : "低下あり(肺水腫・ARDS・無気肺・胸水・腹部膨満などを考慮)";
+      return {main:{label:"静的コンプライアンス(Cstat)", value:Math.round(cstat), unit:"mL/cmH2O"}, interp,
+        sub:[{label:"動的コンプライアンス(Cdyn)", value:Math.round(cdyn), unit:"mL/cmH2O"}]};
+    }
+  },
+  drivingpressure:{
+    inputs:[
+      {id:"pplat", label:"プラトー圧(Pplateau)", unit:"cmH2O", type:"number", default:20, step:1},
+      {id:"peep", label:"PEEP", unit:"cmH2O", type:"number", default:5, step:1}
+    ],
+    compute:(v)=>{
+      const dp = v.pplat - v.peep;
+      let interp = dp<=15 ? "15cmH2O以下の目安の範囲内" : "15cmH2Oを超えている(肺保護換気の観点から要検討)";
+      return {main:{label:"ドライビングプレッシャー", value:Math.round(dp), unit:"cmH2O"}, interp};
+    }
+  },
+  humidity:{
+    inputs:[
+      {id:"temp", label:"温度", unit:"℃", type:"number", default:37, step:1},
+      {id:"rh", label:"相対湿度", unit:"%", type:"number", default:100, step:1}
+    ],
+    compute:(v)=>{
+      const ah = satAH(v.temp) * (v.rh/100);
+      let interp = ah>=30 ? "挿管患者の目安(30mg/L以上)を満たす水準" : "目安(30mg/L)を下回る可能性、加温加湿設定の見直しを検討";
+      return {main:{label:"絶対湿度", value:Math.round(ah*10)/10, unit:"mg/L"}, interp};
+    }
+  },
+  ri:{
+    inputs:[
+      {id:"pao2", label:"PaO2", unit:"mmHg", type:"number", default:80, step:1},
+      {id:"paco2", label:"PaCO2", unit:"mmHg", type:"number", default:40, step:1},
+      {id:"fio2", label:"FiO2", unit:"%", type:"number", default:21, step:1}
+    ],
+    compute:(v)=>{
+      const pao2Alv = (v.fio2/100)*(760-47) - v.paco2/0.8;
+      const aado2 = pao2Alv - v.pao2;
+      const ri = aado2 / v.pao2;
+      let interp = ri<1 ? "目安の正常範囲(1未満)" : (ri<2 ? "軽度〜中等度の酸素化障害の目安" : "重度の酸素化障害の目安(人工呼吸管理の検討対象になりうる)");
+      return {main:{label:"Respiratory Index(R-I)", value:Math.round(ri*100)/100, unit:""}, interp};
+    }
+  },
+  pbw:{
+    inputs:[
+      {id:"sex", label:"性別", type:"select", options:[{value:"male",label:"男性"},{value:"female",label:"女性"}], default:"male"},
+      {id:"height", label:"身長", unit:"cm", type:"number", default:165, step:1}
+    ],
+    compute:(v)=>{
+      const base = v.sex==="male" ? 50 : 45.5;
+      const pbw = base + 0.91*(v.height-152.4);
+      const vtLow = pbw*6, vtHigh = pbw*8;
+      return {main:{label:"予測(理想)体重(PBW)", value:Math.round(pbw*10)/10, unit:"kg"},
+        interp:"1回換気量の目安: "+Math.round(vtLow)+"〜"+Math.round(vtHigh)+" mL(6〜8mL/kg換算)"};
+    }
+  }
+};
+const STATUS_ORDER = ["未着手","下書き","完成"];
+
+let moduleData = {};
+let currentId = null;
+let expandedCats = new Set();
+
+function selectModule(id){
+  currentId = id;
+  const m = MODULES.find(x=>x.id===id);
+  if(m) expandedCats.add(m.cat);
+  render();
+}
+function selectOverview(){
+  currentId = null;
+  render();
+}
+function toggleCat(cat){
+  if(expandedCats.has(cat)) expandedCats.delete(cat);
+  else expandedCats.add(cat);
+  renderNav();
+}
+
+async function loadData(){
+  try{
+    const res = await window.storage.get('resp-app-module-data');
+    moduleData = res ? JSON.parse(res.value) : {};
+  }catch(e){
+    moduleData = {};
+  }
+  MODULES.forEach(m=>{ if(!moduleData[m.id]) moduleData[m.id] = {status:"未着手", memo:""}; });
+}
+
+async function saveData(){
+  try{
+    await window.storage.set('resp-app-module-data', JSON.stringify(moduleData));
+  }catch(e){
+    console.error('保存に失敗しました', e);
+  }
+}
+
+function statusClass(s){
+  if(s==="下書き") return "status-draft";
+  if(s==="完成") return "status-done";
+  return "";
+}
+
+function renderNav(){
+  const nav = document.getElementById('nav');
+  nav.innerHTML = '';
+  const overviewBtn = document.createElement('button');
+  overviewBtn.className = 'mod-item' + (currentId===null ? ' active':'');
+  overviewBtn.innerHTML = '<span class="dot" style="background:var(--blue)"></span><span class="label">全体の進捗</span>';
+  overviewBtn.onclick = selectOverview;
+  nav.appendChild(overviewBtn);
+
+  Object.keys(CAT_LABELS).forEach(cat=>{
+    const catMods = MODULES.filter(m=>m.cat===cat);
+    const isOpen = expandedCats.has(cat);
+    const lab = document.createElement('div');
+    lab.className = 'cat-label' + (isOpen ? ' expanded' : '');
+    lab.innerHTML = catIcon(cat) + '<span>'+CAT_LABELS[cat]+'</span>'
+      + '<span class="cat-count mono">'+catMods.length+'</span>'
+      + '<span class="chevron"><svg viewBox="0 0 10 10" width="10" height="10"><path d="M3 2l4 3-4 3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+    lab.onclick = ()=> toggleCat(cat);
+    nav.appendChild(lab);
+    if(isOpen){
+      catMods.forEach(m=>{
+        const btn = document.createElement('button');
+        const st = moduleData[m.id].status;
+        btn.className = 'mod-item mod-item-child' + (currentId===m.id ? ' active':'');
+        btn.innerHTML = '<span class="dot '+statusClass(st)+'"></span><span class="label">'+m.title+'</span>';
+        btn.onclick = ()=> selectModule(m.id);
+        nav.appendChild(btn);
+      });
+    }
+  });
+}
+
+function lungIllustration(){
+  return '<svg viewBox="0 0 100 100" width="100%" height="100%">'
+    + '<line x1="50" y1="6" x2="50" y2="26" stroke="var(--ink-3)" stroke-width="2.5" stroke-linecap="round"/>'
+    + '<line x1="50" y1="26" x2="36" y2="37" stroke="var(--ink-3)" stroke-width="2.2" stroke-linecap="round"/>'
+    + '<line x1="50" y1="26" x2="64" y2="37" stroke="var(--ink-3)" stroke-width="2.2" stroke-linecap="round"/>'
+    + '<g class="lung-anim">'
+    + '<path d="M36,37 C16,42 9,66 19,83 C27,94 41,90 43,73 C45,56 41,42 36,37 Z" fill="var(--teal)" fill-opacity="0.22" stroke="var(--teal)" stroke-width="1.6"/>'
+    + '<path d="M64,37 C84,42 91,66 81,83 C73,94 59,90 57,73 C55,56 59,42 64,37 Z" fill="var(--teal)" fill-opacity="0.22" stroke="var(--teal)" stroke-width="1.6"/>'
+    + '</g></svg>';
+}
+
+function renderOverview(){
+  const main = document.getElementById('main');
+  const total = MODULES.length;
+  const done = MODULES.filter(m=>moduleData[m.id].status==="完成").length;
+  const draft = MODULES.filter(m=>moduleData[m.id].status==="下書き").length;
+  const todo = total - done - draft;
+  const pct = Math.round((done/total)*100);
+
+  let html = '';
+  html += '<div class="disclaimer">';
+  html += '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2.5L1.5 15h15L9 2.5z"/><path d="M9 7v4"/><circle cx="9" cy="13.2" r="0.4" fill="var(--amber)" stroke="none"/></svg>';
+  html += '<div class="disclaimer-text"><strong>ご利用にあたっての注意</strong><br>本アプリの内容は、学習・参考のための一般的な情報として作成したものであり、特定の患者への臨床判断や治療方針を保証するものではありません。数値・基準値は教科書的な目安を含みます。実際のケア・治療にあたっては、必ず<strong>所属施設のプロトコル・マニュアル、および担当医の指示を優先</strong>してください。内容は今後も更新・見直しを行っていきます。</div>';
+  html += '</div>';
+
+  html += '<div class="overview-head">';
+  html += '<h2>呼吸ケアマップ</h2>';
+  html += '<p>酸素療法・人工呼吸器・気道管理に関する内容をモジュール単位で整理しています。左のメニューから各モジュールを選ぶと、扱う予定の内容とステータスを確認・編集できます。</p>';
+  html += '</div>';
+
+  html += '<div class="lung-hero">';
+  html += '<div class="lung-svg-wrap">'+lungIllustration()+'</div>';
+  html += '<div class="lung-hero-info">';
+  html += '<div class="lung-hero-title">安静時の呼吸(吸気1秒:呼気2秒)</div>';
+  html += '<div class="lung-hero-sub">成人の主な正常値の目安</div>';
+  html += '<div class="lung-values">';
+  html += '<div class="lung-value-item"><div class="lv-label">呼吸数</div><div class="lv-num mono">12〜20 回/分</div></div>';
+  html += '<div class="lung-value-item"><div class="lv-label">1回換気量(TV)・男性目安</div><div class="lv-num mono">約400〜500 mL</div></div>';
+  html += '<div class="lung-value-item"><div class="lv-label">1回換気量(TV)・女性目安</div><div class="lv-num mono">約300〜400 mL</div></div>';
+  html += '<div class="lung-value-item"><div class="lv-label">生理的PEEP</div><div class="lv-num mono">約3〜5 cmH2O</div></div>';
+  html += '</div></div></div>';
+
+  html += '<div class="progress-row">';
+  html += '<div class="stat-card"><div class="num mono">'+total+'</div><div class="lab">モジュール数</div></div>';
+  html += '<div class="stat-card"><div class="num mono" style="color:var(--teal)">'+done+'</div><div class="lab">完成</div></div>';
+  html += '<div class="stat-card"><div class="num mono" style="color:var(--amber)">'+draft+'</div><div class="lab">下書き</div></div>';
+  html += '<div class="stat-card"><div class="num mono" style="color:var(--ink-3)">'+todo+'</div><div class="lab">未着手</div></div>';
+  html += '</div>';
+  html += '<div class="bar-outer"><div class="bar-inner" style="width:'+pct+'%"></div></div>';
+
+  Object.keys(CAT_LABELS).forEach(cat=>{
+    const catMods = MODULES.filter(m=>m.cat===cat);
+    html += '<div class="cat-block"><h3>'+catIcon(cat)+'<span>'+CAT_LABELS[cat]+'</span><span class="mono" style="color:var(--ink-3); font-size:11px; font-weight:400; text-transform:none;">&nbsp;'+catMods.length+'項目</span></h3><div class="cat-grid">';
+    catMods.forEach(m=>{
+      const st = moduleData[m.id].status;
+      html += '<div class="mini-card" data-id="'+m.id+'" style="--cat-color:'+CAT_COLORS[cat]+'">';
+      html += '<div class="mtitle">'+m.title+'</div>';
+      html += '<div class="mstatus"><span class="dot '+statusClass(st)+'"></span>'+st+'</div>';
+      html += '</div>';
+    });
+    html += '</div></div>';
+  });
+
+  main.innerHTML = html;
+  main.querySelectorAll('.mini-card').forEach(el=>{
+    el.onclick = ()=> selectModule(el.getAttribute('data-id'));
+  });
+}
+
+function renderModule(){
+  const main = document.getElementById('main');
+  const m = MODULES.find(x=>x.id===currentId);
+  const data = moduleData[m.id];
+
+  let html = '';
+  html += '<div class="breadcrumb">'+catIcon(m.cat)+'<span>'+CAT_LABELS[m.cat]+'</span></div>';
+  html += '<h2 class="mod-title">'+m.title+'</h2>';
+  html += '<p class="mod-goal">'+m.goal+'</p>';
+
+  html += '<div class="status-row"><span class="lab">ステータス:</span>';
+  STATUS_ORDER.forEach(s=>{
+    const active = s===data.status ? ' st-'+s : '';
+    html += '<button class="status-btn'+active+'" data-status="'+s+'">'+s+'</button>';
+  });
+  html += '</div>';
+
+  if(m.simulator){ html += '<div class="section-block sim-block" id="sim-root"></div>'; }
+  html += '<div class="section-block"><h4>'+(m.simulator?'使い方':'この項目で扱う予定の内容')+'</h4><ul>';
+  m.points.forEach(p=>{ html += '<li>'+p+'</li>'; });
+  html += '</ul></div>';
+
+  if(m.subsections){
+    m.subsections.forEach(sub=>{
+      html += '<div class="section-block"><h4 class="sub-heading">'+sub.title+'</h4>';
+      if(sub.points){
+        html += '<ul>';
+        sub.points.forEach(p=>{ html += '<li>'+p+'</li>'; });
+        html += '</ul>';
+      }
+      if(sub.table){
+        html += '<div class="table-wrap"><table class="ref-table"><thead><tr>';
+        sub.table.head.forEach(h=>{ html += '<th>'+h+'</th>'; });
+        html += '</tr></thead><tbody>';
+        sub.table.rows.forEach(r=>{
+          html += '<tr>'; r.forEach(c=>{ html += '<td>'+c+'</td>'; }); html += '</tr>';
+        });
+        html += '</tbody></table></div>';
+      }
+      if(sub.careNotes){
+        html += '<div style="margin-top:14px; padding-top:12px; border-top:1px solid var(--line);"><div style="color:var(--ink-3); font-weight:500; font-size:11px; letter-spacing:.04em; text-transform:uppercase;">ケアのポイント</div><ul style="margin-top:8px;">';
+        sub.careNotes.forEach(p=>{ html += '<li>'+p+'</li>'; });
+        html += '</ul></div>';
+      }
+      html += '</div>';
+    });
+  }
+
+  if(m.table){
+    html += '<div class="section-block"><h4>参考: '+m.table.head[0]+'別の目安</h4>';
+    html += '<div class="table-wrap"><table class="ref-table"><thead><tr>';
+    m.table.head.forEach(h=>{ html += '<th>'+h+'</th>'; });
+    html += '</tr></thead><tbody>';
+    m.table.rows.forEach(r=>{
+      html += '<tr>'; r.forEach(c=>{ html += '<td>'+c+'</td>'; }); html += '</tr>';
+    });
+    html += '</tbody></table></div></div>';
+  }
+
+  if(m.formula){
+    html += '<div class="section-block"><h4>計算方法</h4>';
+    html += '<ul>';
+    m.formula.steps.forEach(s=>{ html += '<li class="mono" style="font-size:13px;">'+s+'</li>'; });
+    html += '</ul>';
+    html += '<div class="placeholder-note" style="white-space:pre-line; margin-top:10px;">'+m.formula.example+'</div>';
+    html += '</div>';
+  }
+
+  if(m.careNotes){
+    html += '<div class="section-block"><h4>ケアのポイント・注意点</h4><ul>';
+    m.careNotes.forEach(p=>{ html += '<li>'+p+'</li>'; });
+    html += '</ul></div>';
+  }
+
+  if(m.diagrams){
+    html += '<div class="section-block"><h4>波形イメージ(自動でスクロールします)</h4>';
+    html += '<div style="display:flex; flex-direction:column; gap:18px;">';
+    m.diagrams.forEach((d,i)=>{
+      const gid = 'wf-'+m.id+'-'+i;
+      html += '<div>';
+      html += waveformBlock(gid, d.cycle, 50, 70, {yLabel: d.yLabel});
+      html += '<div style="font-size:12px; color:var(--ink-3); margin-top:6px;">'+d.label+'</div>';
+      html += '</div>';
+    });
+    html += '</div></div>';
+  }
+
+  if(m.diagramGroups){
+    html += '<div class="section-block"><h4>波形イメージ(モードを選択)</h4>';
+    html += '<div class="wf-chip-row">';
+    m.diagramGroups.forEach((g,i)=>{
+      html += '<button class="wf-chip'+(i===0?' active':'')+'" data-gkey="'+g.key+'">'+g.label+'</button>';
+    });
+    html += '</div>';
+    html += '<div id="diagram-group-container" style="display:flex; flex-direction:column; gap:18px;"></div>';
+    html += '</div>';
+  }
+
+  if(m.waveformPlayer){
+    const items = m.waveformPlayer.items;
+    const gid = 'wf-'+m.id+'-player';
+    html += '<div class="section-block"><h4>波形イメージ(選択して確認)</h4>';
+    html += '<div class="wf-chip-row">';
+    items.forEach((it,i)=>{
+      html += '<button class="wf-chip'+(i===0?' active':'')+'" data-idx="'+i+'">'+it.label+'</button>';
+    });
+    html += '</div>';
+    html += waveformBlock(gid, items[0].cycle, 50, 70, {yLabel: m.waveformPlayer.yLabel});
+    html += '<div class="placeholder-note" id="'+gid+'-desc" style="margin-top:12px;">'+items[0].desc+'</div>';
+    html += '</div>';
+  }
+
+  if(m.rdos){
+    html += '<div class="section-block"><h4>日本語版RDOS 判定ツール</h4>' + rdosBlock() + '</div>';
+  }
+
+  if(m.reference){
+    html += '<div class="section-block"><h4>参考文献</h4><div class="ref-cite">'+m.reference+'</div></div>';
+  }
+
+  if(m.ref){
+    html += '<div class="section-block"><h4>基準値・目安</h4><div style="font-size:13.5px; color:var(--ink-2);">'+m.ref+'</div></div>';
+  }
+
+  if(m.calc && CALC_DEFS[m.calc]){
+    const def = CALC_DEFS[m.calc];
+    html += '<div class="section-block" id="generic-calc"><h4>計算機</h4>';
+    html += '<div class="calc-row">';
+    def.inputs.forEach(inp=>{
+      html += '<div><label class="field-label">'+inp.label+(inp.unit?' ('+inp.unit+')':'')+'</label>';
+      if(inp.type==="select"){
+        html += '<select class="calc-select" id="gc-'+inp.id+'" data-id="'+inp.id+'">';
+        inp.options.forEach(o=>{ html += '<option value="'+o.value+'"'+(o.value===inp.default?' selected':'')+'>'+o.label+'</option>'; });
+        html += '</select></div>';
+      } else {
+        html += '<input class="calc-input" id="gc-'+inp.id+'" data-id="'+inp.id+'" type="number" step="'+(inp.step||1)+'" value="'+inp.default+'"></div>';
+      }
+    });
+    html += '</div>';
+    html += '<div class="calc-result-row"><span id="gc-main-label" class="calc-result-label"></span><span id="gc-main-value" class="mono calc-result-value">--</span></div>';
+    html += '<div id="gc-sub" style="font-size:13px; color:var(--ink-2); margin-bottom:8px;"></div>';
+    html += '<div id="gc-interp" class="placeholder-note"></div>';
+    html += '</div>';
+  }
+
+  if(m.calc==="lowflow"){
+    html += '<div class="section-block"><h4>FiO2換算計算機</h4>';
+    html += '<div class="calc-row">';
+    html += '<div><label class="field-label">デバイス</label>';
+    html += '<select id="calc-device" class="calc-select">';
+    html += '<option value="cannula">鼻カニュラ</option>';
+    html += '<option value="simple">簡易酸素マスク</option>';
+    html += '<option value="reservoir">リザーバー付きマスク</option>';
+    html += '</select></div>';
+    html += '<div><label class="field-label">流量(L/分)</label>';
+    html += '<input id="calc-flow" class="calc-input" type="number" min="1" max="15" step="1" value="3"></div>';
+    html += '</div>';
+    html += '<div class="calc-result-row"><span class="calc-result-label">FiO2の目安:</span><span id="calc-result" class="mono calc-result-value" style="font-size:20px;">--</span></div>';
+    html += '<div class="placeholder-note" style="margin-top:12px;">この数値は一般的な目安であり、患者の呼吸様式によって実際の値は変動します。SpO2の推移とあわせて評価してください。</div>';
+    html += '</div>';
+  }
+
+  if(m.calc==="cylinder"){
+    html += '<div class="section-block"><h4>使用可能時間 計算機</h4>';
+    html += '<div class="calc-row">';
+    html += '<div><label class="field-label">内容積(L)</label>';
+    html += '<input id="cyl-capacity" class="calc-input" type="number" min="0.1" step="0.1" value="3.4"></div>';
+    html += '<div><label class="field-label">現在の圧力(MPa)</label>';
+    html += '<input id="cyl-pressure" class="calc-input" type="number" min="0" step="0.1" value="10"></div>';
+    html += '<div><label class="field-label">酸素流量(L/分)</label>';
+    html += '<input id="cyl-flow" class="calc-input" type="number" min="0.5" step="0.5" value="3"></div>';
+    html += '</div>';
+    html += '<div class="calc-result-row"><span class="calc-result-label">酸素残量:</span><span id="cyl-remain" class="mono" style="font-size:16px; font-weight:500;">--</span><span class="calc-result-label">L</span></div>';
+    html += '<div class="calc-result-row"><span class="calc-result-label">使用可能時間:</span><span id="cyl-time" class="mono calc-result-value">--</span></div>';
+    html += '<div style="font-size:13px; color:var(--amber); margin-top:8px;">安全域の目安(計算値の80%): <span id="cyl-safe" class="mono">--</span></div>';
+    html += '</div>';
+  }
+
+  if(!m.sample){
+    html += '<div class="placeholder-note">この項目はまだ骨組みの段階です。具体的な文章・図表・計算ツールは今後追加していきます。</div>';
+  }
+
+  html += '<div class="section-block"><h4>メモ</h4><textarea class="memo" id="memo-input" placeholder="この項目についてのメモや参考文献リンクなどを記録できます">'+ (data.memo||'') +'</textarea></div>';
+
+  main.innerHTML = html;
+
+  main.querySelectorAll('.status-btn').forEach(btn=>{
+    btn.onclick = async ()=>{
+      moduleData[m.id].status = btn.getAttribute('data-status');
+      await saveData();
+      render();
+    };
+  });
+
+  const memoEl = document.getElementById('memo-input');
+  memoEl.addEventListener('blur', async ()=>{
+    moduleData[m.id].memo = memoEl.value;
+    await saveData();
+    renderNav();
+  });
+
+  const calcDevice = document.getElementById('calc-device');
+  if(calcDevice){
+    const calcFlow = document.getElementById('calc-flow');
+    const calcResult = document.getElementById('calc-result');
+    const update = ()=>{
+      calcResult.textContent = estimateFiO2(calcDevice.value, Number(calcFlow.value));
+    };
+    calcDevice.addEventListener('change', update);
+    calcFlow.addEventListener('input', update);
+    update();
+  }
+
+  const cylCapacity = document.getElementById('cyl-capacity');
+  if(cylCapacity){
+    const cylPressure = document.getElementById('cyl-pressure');
+    const cylFlow = document.getElementById('cyl-flow');
+    const cylRemain = document.getElementById('cyl-remain');
+    const cylTime = document.getElementById('cyl-time');
+    const cylSafe = document.getElementById('cyl-safe');
+    const update = ()=>{
+      const cap = Number(cylCapacity.value);
+      const pres = Number(cylPressure.value);
+      const flow = Number(cylFlow.value);
+      if(!cap || !pres || !flow){
+        cylRemain.textContent='--'; cylTime.textContent='--'; cylSafe.textContent='--';
+        return;
+      }
+      const remain = cap * pres * 10;
+      const minutes = remain / flow;
+      const safeMinutes = minutes * 0.8;
+      cylRemain.textContent = Math.round(remain);
+      cylTime.textContent = formatMinutes(minutes);
+      cylSafe.textContent = formatMinutes(safeMinutes);
+    };
+    [cylCapacity, cylPressure, cylFlow].forEach(el=> el.addEventListener('input', update));
+    update();
+  }
+
+  if(m.calc && CALC_DEFS[m.calc]){
+    const def = CALC_DEFS[m.calc];
+    const els = def.inputs.map(inp=> document.getElementById('gc-'+inp.id));
+    const update = ()=>{
+      const values = {};
+      let valid = true;
+      def.inputs.forEach((inp, i)=>{
+        const raw = els[i].value;
+        if(inp.type==="select"){ values[inp.id] = raw; }
+        else{
+          const num = Number(raw);
+          values[inp.id] = num;
+          if(raw==='' || isNaN(num)) valid = false;
+        }
+      });
+      const mainLabel = document.getElementById('gc-main-label');
+      const mainValue = document.getElementById('gc-main-value');
+      const subEl = document.getElementById('gc-sub');
+      const interpEl = document.getElementById('gc-interp');
+      if(!valid){
+        mainLabel.textContent=''; mainValue.textContent='--'; subEl.textContent=''; interpEl.textContent='';
+        return;
+      }
+      const result = def.compute(values);
+      mainLabel.textContent = result.main.label + ':';
+      mainValue.textContent = result.main.value + (result.main.unit? ' '+result.main.unit : '');
+      subEl.textContent = (result.sub||[]).map(s=> s.label+': '+s.value+(s.unit?' '+s.unit:'')).join(' / ');
+      interpEl.textContent = result.interp || '';
+    };
+    els.forEach(el=> el.addEventListener('input', update));
+    els.forEach(el=> el.addEventListener('change', update));
+    update();
+  }
+
+  if(m.waveformPlayer){
+    const items = m.waveformPlayer.items;
+    const gid = 'wf-'+m.id+'-player';
+    const cyclePoly = document.getElementById('wf-cycle-'+gid);
+    const descEl = document.getElementById(gid+'-desc');
+    const xaxisLine = document.getElementById('wf-xaxis-'+gid);
+    const ylabelEl = document.getElementById('wf-ylabel-'+gid);
+    const xlabelEl = document.getElementById('wf-xlabel-'+gid);
+    main.querySelectorAll('.wf-chip').forEach(chip=>{
+      chip.onclick = ()=>{
+        const idx = Number(chip.getAttribute('data-idx'));
+        const item = items[idx];
+        cyclePoly.setAttribute('points', item.cycle);
+        descEl.textContent = item.desc;
+        const baseline = (item.baseline!==undefined) ? item.baseline : cycleBaseline(item.cycle);
+        if(xaxisLine) xaxisLine.setAttribute('y1', baseline), xaxisLine.setAttribute('y2', baseline);
+        if(ylabelEl) ylabelEl.textContent = (item.yLabel || m.waveformPlayer.yLabel || '') + ' \u2191';
+        if(xlabelEl){
+          const T=8, B=6, vbH=70+T+B;
+          const pct = Math.min(92, Math.max(8, ((baseline+T)/vbH)*100));
+          xlabelEl.style.top = pct.toFixed(1)+'%';
+        }
+        main.querySelectorAll('.wf-chip').forEach(c=> c.classList.remove('active'));
+        chip.classList.add('active');
+      };
+    });
+  }
+
+  if(m.diagramGroups){
+    const container = document.getElementById('diagram-group-container');
+    const renderGroup = (key)=>{
+      const g = m.diagramGroups.find(x=>x.key===key);
+      let inner = '';
+      g.diagrams.forEach((d,i)=>{
+        const gid = 'wf-'+m.id+'-'+key+'-'+i;
+        inner += '<div>'+waveformBlock(gid, d.cycle, 50, 70, {yLabel:d.yLabel})
+          + '<div style="font-size:12px; color:var(--ink-3); margin-top:6px;">'+d.label+'</div></div>';
+      });
+      container.innerHTML = inner;
+      main.querySelectorAll('[data-gkey]').forEach(c=> c.classList.toggle('active', c.getAttribute('data-gkey')===key));
+      startWaveformAnimation();
+    };
+    main.querySelectorAll('[data-gkey]').forEach(chip=>{
+      chip.onclick = ()=> renderGroup(chip.getAttribute('data-gkey'));
+    });
+    renderGroup(m.diagramGroups[0].key);
+  }
+
+  if(m.rdos){
+    const selections = {};
+    const totalEl = document.getElementById('rdos-total');
+    const interpEl = document.getElementById('rdos-interp');
+    const update = ()=>{
+      const total = Object.values(selections).reduce((a,b)=>a+b,0);
+      totalEl.textContent = total;
+      if(Object.keys(selections).length < RDOS_ITEMS.length){
+        interpEl.textContent = 'すべての項目を選択すると判定が表示されます(現在 '+Object.keys(selections).length+' / '+RDOS_ITEMS.length+' 項目選択済み)';
+      } else if(total >= 3){
+        interpEl.textContent = 'スコア '+total+' 点: 3点以上のため、呼吸困難ありと判断される目安です。スコアが高いほど症状が強いことが示唆されます。';
+      } else {
+        interpEl.textContent = 'スコア '+total+' 点: 3点未満のため、呼吸困難なしと判断される目安です。';
+      }
+    };
+    main.querySelectorAll('.rdos-opt').forEach(btn=>{
+      btn.onclick = ()=>{
+        const itemId = btn.getAttribute('data-item');
+        const score = Number(btn.getAttribute('data-score'));
+        selections[itemId] = score;
+        main.querySelectorAll('.rdos-opt[data-item="'+itemId+'"]').forEach(b=> b.classList.remove('active'));
+        btn.classList.add('active');
+        update();
+      };
+    });
+  }
+
+  startWaveformAnimation();
+  if(m.simulator && typeof simBuildUI==='function'){ simBuildUI(); }
+}
+
+function formatMinutes(min){
+  if(min<60) return Math.round(min)+'分';
+  const h = Math.floor(min/60);
+  const m = Math.round(min%60);
+  return h+'時間'+m+'分';
+}
+
+function estimateFiO2(device, flow){
+  if(!flow || flow<=0) return '--';
+  if(device==="cannula"){
+    if(flow>6) return '鼻カニュラは通常6L/分までが目安です';
+    return Math.round(21 + 4*flow) + '%前後';
+  }
+  if(device==="simple"){
+    if(flow<5) return '5L/分未満は非推奨(CO2再呼吸のおそれ)';
+    if(flow<6) return '40%前後';
+    if(flow<7) return '50%前後';
+    if(flow<=8) return '60%前後';
+    return '60%以上(上限の目安)';
+  }
+  if(device==="reservoir"){
+    if(flow<6) return '6L/分以上での使用が基本です';
+    const table = {6:60,7:70,8:80,9:90,10:95};
+    const f = Math.min(Math.round(flow),10);
+    return (table[f] || 95) + '%前後';
+  }
+  return '--';
+}
+
+function render(){
+  stopWaveformAnimation();
+  renderNav();
+  const cm = currentId===null ? null : MODULES.find(x=>x.id===currentId);
+  document.getElementById('main').classList.toggle('wide', !!(cm && cm.simulator));
+  if(currentId===null){ renderOverview(); } else { renderModule(); }
+}
+
+function animateWave(){
+  const line = document.getElementById('wave-line');
+  let t = 0;
+  setInterval(()=>{
+    t += 0.12;
+    const pts = [];
+    for(let x=0; x<=140; x+=4){
+      let y = 17;
+      const px = x - (t*20 % 140);
+      const rel = ((px % 140)+140)%140;
+      if(rel>28 && rel<40){
+        const local = rel-28;
+        y = 17 - Math.sin(local/12*Math.PI)*13;
+      }
+      pts.push(x+','+y);
+    }
+    line.setAttribute('points', pts.join(' '));
+  }, 60);
+}
+
+// ===== 人工呼吸管理シミュレーター: 計算モデル(1コンパートメント) =====
+// V: 緩和容量(大気圧で肺が落ち着く容量)からの上乗せ容量(mL)
+// Paw = V/C + R*Flow   (吸気側の気道内圧)
+// 呼気は受動的: 流量 = -(V/C - PEEP)/R
+const SIM_DEFAULT = {mode:'VC', vt:450, pins:8, pattern:'square', rr:14, ti:1.0, peep:5, R:8, C:60, sex:'male', height:170};
+
+function simPBW(sex, height){
+  return (sex==='male' ? 50 : 45.5) + 0.91*(height-152.4);
+}
+
+function simulateVent(p){
+  const T = 60/p.rr;
+  const tiClamped = p.ti > T - 0.2;
+  const Ti = Math.max(0.2, Math.min(p.ti, T - 0.2));
+  const Te = T - Ti;
+  const C = p.C, R = p.R, PEEP = p.peep;
+  const tau = R*C/1000;
+  const QMAX = 3.5;            // 最大流量の上限(L/秒) = 210 L/分
+  const FEND = 0.25;           // 漸減波: 吸気終末の流量がピークの何割か
+  const nI = Math.max(10, Math.round(Ti/0.01));
+  const nE = Math.max(10, Math.round(Te/0.01));
+  const dtI = Ti/nI, dtE = Te/nE;
+  const isVC = p.mode === 'VC';
+  const qpk = isVC ? (p.pattern === 'decel' ? 2*p.vt/(1000*Ti*(1+FEND)) : p.vt/(1000*Ti)) : 0;
+  const rise = Math.min(0.1, Ti/3);   // PCの圧立ち上がり時間(秒)
+  let V = PEEP*C;
+
+  function runCycle(){
+    const t = [], paw = [], flow = [], vol = [];
+    const V0 = V;
+    let ppeak = -Infinity, qPeakI = 0, qEndI = 0;
+    for(let i=0; i<nI; i++){
+      const tm = (i + 0.5)*dtI;
+      let q, pw, Vn;
+      if(isVC){
+        q = p.pattern === 'decel' ? qpk*(1 - (1 - FEND)*tm/Ti) : qpk;
+        Vn = V + q*1000*dtI;
+        pw = ((V + Vn)/2)/C + R*q;
+      } else {
+        const tgt = PEEP + p.pins*Math.min(1, tm/rise);
+        const k = Math.exp(-dtI*1000/(R*C));
+        Vn = C*tgt + (V - C*tgt)*k;
+        q = (Vn - V)/dtI/1000;
+        if(q < 0){ Vn = V; q = 0; }
+        if(q > QMAX){ q = QMAX; Vn = V + q*1000*dtI; pw = ((V + Vn)/2)/C + R*q; }
+        else { pw = tgt; }
+      }
+      V = Vn;
+      t.push((i + 1)*dtI); paw.push(pw); flow.push(q*60); vol.push(V - V0);
+      if(pw > ppeak) ppeak = pw;
+      if(q*60 > qPeakI) qPeakI = q*60;
+      qEndI = q*60;
+    }
+    const Vei = V;
+    let qPeakE = 0, qEndE = 0;
+    const kE = Math.exp(-dtE*1000/(R*C));
+    for(let i=0; i<nE; i++){
+      const Vn = C*PEEP + (V - C*PEEP)*kE;
+      const q = (Vn - V)/dtE/1000;
+      V = Vn;
+      t.push(Ti + (i + 1)*dtE); paw.push(PEEP); flow.push(q*60); vol.push(V - V0);
+      if(q*60 < qPeakE) qPeakE = q*60;
+      qEndE = q*60;
+    }
+    return {t, paw, flow, vol, V0, Vei, ppeak, qPeakI, qEndI, qPeakE, qEndE};
+  }
+
+  let prevV0 = null, cyc = null;
+  for(let n=0; n<150; n++){
+    const V0 = V;
+    cyc = runCycle();
+    if(prevV0 !== null && Math.abs(V0 - prevV0) < 0.02 && n >= 3) break;
+    prevV0 = V0;
+  }
+  const Vt = cyc.Vei - cyc.V0;
+  const Pplat = cyc.Vei/C;
+  const PEEPtot = cyc.V0/C;
+  return {
+    T, Ti, Te, tau, tiClamped,
+    t:cyc.t, paw:cyc.paw, flow:cyc.flow, vol:cyc.vol,
+    Vt, Pplat, PEEPtot, autoPEEP: Math.max(0, PEEPtot - PEEP),
+    Ppeak: cyc.ppeak, qPeakI: cyc.qPeakI, qEndI: cyc.qEndI, qPeakE: cyc.qPeakE, qEndE: cyc.qEndE,
+    MV: Vt*p.rr/1000, teTau: Te/tau
+  };
+}
+
+function simBuildSeries(sim, W){
+  const pts = {paw:[], flow:[], vol:[], bands:[]};
+  const T = sim.T;
+  const last = sim.t.length - 1;
+  pts.paw.push([0, sim.paw[last]]); pts.flow.push([0, sim.flow[last]]); pts.vol.push([0, sim.vol[last]]);
+  const n = Math.ceil(W/T) + 1;
+  for(let k=0; k<n; k++){
+    const s = k*T;
+    if(s < W) pts.bands.push([s, Math.min(W, s + sim.Ti)]);
+  }
+  outer: for(let k=0; k<n; k++){
+    for(let i=0; i<sim.t.length; i++){
+      const tt = k*T + sim.t[i];
+      if(tt > W) break outer;
+      pts.paw.push([tt, sim.paw[i]]); pts.flow.push([tt, sim.flow[i]]); pts.vol.push([tt, sim.vol[i]]);
+    }
+  }
+  return pts;
+}
+
+// ===== 人工呼吸管理シミュレーター: 画面 =====
+let simState = null;
+function simClone(o){ return JSON.parse(JSON.stringify(o)); }
+function simGet(){
+  if(!simState) simState = {p: simClone(SIM_DEFAULT), ghost: null, win: 10, playing: !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches), hint: '', hintTitle: ''};
+  return simState;
+}
+
+const SIM_PRESETS = [
+  {key:'normal',    label:'正常に近い肺',               R:8,  C:60},
+  {key:'ards',      label:'硬い肺(ARDSなど)',          R:10, C:25},
+  {key:'obstruct',  label:'閉塞性(COPD・喘息など)',    R:25, C:70},
+  {key:'secretion', label:'気道抵抗↑(分泌物・屈曲)',   R:20, C:55}
+];
+
+const SIM_SCENARIOS = [
+  {label:'Auto-PEEPができる(閉塞性の肺)', over:{R:25, C:70, rr:24, ti:1.0},
+    hint:'閉塞性の肺は息を吐くのに時間がかかります(時定数が長い)。呼気流量がゼロに戻る前に次の吸気が始まり、Auto-PEEP(オートピープ)が生じています。呼吸数を下げる、吸気時間を短くする(呼気時間を延ばす)とどうなるか試してみましょう。吸気時間を短くすると吸気流量が増えてピーク圧が上がる点にも注目してください。'},
+  {label:'プラトー圧が高い(硬い肺)', over:{R:10, C:25, vt:650},
+    hint:'1回換気量が予測体重あたり約10mL/kgと大きく、プラトー圧が30cmH2Oを超えています。1回換気量を6mL/kg前後(約400mL)まで下げると、プラトー圧とドライビングプレッシャーがどう変わるか試してみましょう。換気量を下げた分、分時換気量も下がる点にも注目してください。'},
+  {label:'気道抵抗が上がった(分泌物など)', over:{R:30, C:60},
+    hint:'気道抵抗が高いと、ピーク圧とプラトー圧の差が大きくなります。吸引や回路の屈曲解除で気道抵抗が改善した想定で、「気道抵抗」スライダーを下げてみましょう。ピーク圧やAuto-PEEPがどう変わるか確認できます。'},
+  {label:'PCで吸気時間が短い', over:{mode:'PC', pins:15, R:15, C:50, ti:0.4},
+    hint:'従圧式(PC)で吸気時間が短く、吸気の終わりでも流量がゼロに戻らないまま呼気に移っています。その結果、1回換気量が小さくなっています。吸気時間を延ばすと1回換気量がどう変わるか試してみましょう。'}
+];
+
+const SIM_UNITS = {R:'cmH2O/L/秒', C:'mL/cmH2O', vt:'mL', pins:'cmH2O', rr:'回/分', ti:'秒', peep:'cmH2O'};
+
+function simFmtVal(v, step){ return step < 1 ? Number(v).toFixed(1) : String(Math.round(v)); }
+
+function simSliderHtml(key, label, min, max, step, value){
+  return '<div class="sim-slider"><div class="sim-slider-head"><span>'+label+'</span>'
+    + '<span class="mono" id="sv-'+key+'">'+simFmtVal(value, step)+' '+SIM_UNITS[key]+'</span></div>'
+    + '<input type="range" data-key="'+key+'" data-step="'+step+'" min="'+min+'" max="'+max+'" step="'+step+'" value="'+value+'"></div>';
+}
+
+function simChip(attr, val, label, active){
+  return '<button class="sim-chip'+(active?' active':'')+'" '+attr+'="'+val+'">'+label+'</button>';
+}
+
+function simBuildUI(){
+  const root = document.getElementById('sim-root');
+  if(!root) return;
+  const st = simGet(), p = st.p;
+  const isVC = p.mode === 'VC';
+  let h = '';
+
+  h += '<div class="sim-top"><div class="sim-panel-title">試してみよう(シナリオ)</div><div class="sim-chips">';
+  SIM_SCENARIOS.forEach((s,i)=>{ h += '<button class="sim-chip scn" data-scn="'+i+'">'+s.label+'</button>'; });
+  h += '</div>';
+  if(st.hint){
+    h += '<div class="sim-hint"><strong>'+st.hintTitle+'</strong><br>'+st.hint+'</div>';
+  }
+  h += '</div>';
+
+  h += '<div class="sim-grid">';
+
+  // ---- 左: 設定 ----
+  h += '<div class="sim-controls">';
+  h += '<div class="sim-panel"><div class="sim-panel-title">患者の肺モデル</div><div class="sim-chips">';
+  SIM_PRESETS.forEach(pr=>{
+    h += simChip('data-preset', pr.key, pr.label, p.R === pr.R && p.C === pr.C);
+  });
+  h += '</div>';
+  h += simSliderHtml('R', '気道抵抗(R)', 2, 50, 1, p.R);
+  h += simSliderHtml('C', 'コンプライアンス(C)', 10, 100, 1, p.C);
+  h += '<div class="sim-row2"><div><label class="field-label">性別</label>'
+    + '<select id="sim-sex"><option value="male"'+(p.sex==='male'?' selected':'')+'>男性</option><option value="female"'+(p.sex==='female'?' selected':'')+'>女性</option></select></div>'
+    + '<div><label class="field-label">身長(cm)</label><input id="sim-height" type="number" min="130" max="200" step="1" value="'+p.height+'"></div></div>';
+  h += '<div class="sim-note" id="sim-pbw"></div>';
+  h += '</div>';
+
+  h += '<div class="sim-panel"><div class="sim-panel-title">人工呼吸器の設定</div>';
+  h += '<div class="sim-chips">' + simChip('data-mode', 'VC', 'VC(従量式)', isVC) + simChip('data-mode', 'PC', 'PC(従圧式)', !isVC) + '</div>';
+  if(isVC){
+    h += simSliderHtml('vt', '1回換気量(Vt)', 200, 800, 10, p.vt);
+    h += '<div class="sim-slider-head" style="margin-bottom:6px;"><span>吸気流量パターン</span></div>';
+    h += '<div class="sim-chips">' + simChip('data-pattern', 'square', '矩形波(一定)', p.pattern==='square') + simChip('data-pattern', 'decel', '漸減波', p.pattern==='decel') + '</div>';
+  } else {
+    h += simSliderHtml('pins', '吸気圧(PEEPに上乗せ)', 5, 35, 1, p.pins);
+  }
+  h += simSliderHtml('rr', '呼吸数', 8, 40, 1, p.rr);
+  h += simSliderHtml('ti', '吸気時間(Ti)', 0.3, 3.0, 0.1, p.ti);
+  h += simSliderHtml('peep', 'PEEP', 0, 20, 1, p.peep);
+  h += '</div>';
+  h += '</div>';
+
+  // ---- 右: 波形・指標 ----
+  h += '<div class="sim-right">';
+  h += '<div class="sim-toolbar">';
+  h += '<button class="sim-btn" data-act="play">'+(st.playing ? '一時停止' : '再生')+'</button>';
+  h += '<button class="sim-btn" data-act="pin">この設定を基準として固定</button>';
+  h += '<button class="sim-btn" data-act="unpin"'+(st.ghost?'':' disabled')+'>比較を解除</button>';
+  h += '<button class="sim-btn" data-act="reset">初期設定に戻す</button>';
+  h += '<span class="sim-toolbar-sp"></span><span class="sim-toolbar-lab">表示時間</span>';
+  [6,10,20].forEach(w=>{ h += simChip('data-win', w, w+'秒', st.win === w); });
+  h += '</div>';
+  h += '<div id="sim-charts"></div>';
+  h += '<div class="sim-legend" id="sim-legend"></div>';
+  h += '<div class="sim-metrics" id="sim-metrics"></div>';
+  h += '<div class="sim-comments-title">気づきポイント(一般論)</div>';
+  h += '<div id="sim-comments"></div>';
+  h += '<div class="sim-note" style="margin-top:12px;">学習用に単純化した肺モデル(気道抵抗Rとコンプライアンスだけで表す1コンパートメントモデル・自発呼吸なし)による計算です。実際の患者・人工呼吸器の挙動とは異なります。設定の変更は医師の指示・施設のプロトコルに従ってください。</div>';
+  h += '</div>';
+
+  h += '</div>';
+  root.innerHTML = h;
+  simBind(root);
+  simUpdate();
+}
+
+function simBind(root){
+  const st = simGet();
+
+  root.querySelectorAll('input[type=range]').forEach(inp=>{
+    inp.addEventListener('input', ()=>{
+      const key = inp.getAttribute('data-key');
+      const step = Number(inp.getAttribute('data-step'));
+      const v = Number(inp.value);
+      st.p[key] = v;
+      const lab = document.getElementById('sv-'+key);
+      if(lab) lab.textContent = simFmtVal(v, step) + ' ' + SIM_UNITS[key];
+      if(key === 'R' || key === 'C'){
+        root.querySelectorAll('[data-preset]').forEach(b=>{
+          const pr = SIM_PRESETS.find(x=> x.key === b.getAttribute('data-preset'));
+          b.classList.toggle('active', pr.R === st.p.R && pr.C === st.p.C);
+        });
+      }
+      simUpdate();
+    });
+  });
+
+  const sexEl = document.getElementById('sim-sex');
+  const hEl = document.getElementById('sim-height');
+  const onBody = ()=>{
+    st.p.sex = sexEl.value;
+    const hv = Number(hEl.value);
+    if(hv >= 100 && hv <= 220) st.p.height = hv;
+    simUpdate();
+  };
+  sexEl.addEventListener('change', onBody);
+  hEl.addEventListener('input', onBody);
+
+  root.querySelectorAll('[data-preset]').forEach(b=>{
+    b.onclick = ()=>{
+      const pr = SIM_PRESETS.find(x=> x.key === b.getAttribute('data-preset'));
+      st.p.R = pr.R; st.p.C = pr.C;
+      simBuildUI();
+    };
+  });
+  root.querySelectorAll('[data-mode]').forEach(b=>{
+    b.onclick = ()=>{ st.p.mode = b.getAttribute('data-mode'); simBuildUI(); };
+  });
+  root.querySelectorAll('[data-pattern]').forEach(b=>{
+    b.onclick = ()=>{ st.p.pattern = b.getAttribute('data-pattern'); simBuildUI(); };
+  });
+  root.querySelectorAll('[data-win]').forEach(b=>{
+    b.onclick = ()=>{ st.win = Number(b.getAttribute('data-win')); simBuildUI(); };
+  });
+  root.querySelectorAll('[data-scn]').forEach(b=>{
+    b.onclick = ()=>{
+      const s = SIM_SCENARIOS[Number(b.getAttribute('data-scn'))];
+      st.p = Object.assign(simClone(SIM_DEFAULT), s.over);
+      st.ghost = simClone(st.p);
+      st.hint = s.hint; st.hintTitle = 'シナリオ: ' + s.label;
+      simBuildUI();
+    };
+  });
+  root.querySelectorAll('[data-act]').forEach(b=>{
+    b.onclick = ()=>{
+      const act = b.getAttribute('data-act');
+      if(act === 'play'){ st.playing = !st.playing; simBuildUI(); return; }
+      if(act === 'pin'){ st.ghost = simClone(st.p); }
+      else if(act === 'unpin'){ st.ghost = null; }
+      else if(act === 'reset'){ st.p = simClone(SIM_DEFAULT); st.ghost = null; st.hint = ''; st.hintTitle = ''; }
+      simBuildUI();
+    };
+  });
+}
+
+// ---------- 描画 ----------
+function simPick(cands, v){
+  for(const c of cands){ if(v <= c) return c; }
+  return cands[cands.length - 1];
+}
+function simTicks(min, max){
+  const raw = (max - min)/4;
+  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const n = raw/mag;
+  const step = (n < 1.5 ? 1 : n < 3.5 ? 2 : n < 7.5 ? 5 : 10)*mag;
+  const out = [];
+  for(let v = Math.ceil(min/step - 1e-9)*step; v <= max + 1e-9; v += step) out.push(Math.round(v*100)/100);
+  return out;
+}
+
+function simChartSvg(cfg, cur, gh, bands, W, width, isLast, Tc, Tg){
+  const ml = 50, mr = 10, mt = 22, plotH = 98, mb = isLast ? 36 : 6;
+  const H = mt + plotH + mb;
+  const pw = width - ml - mr;
+  const x = t => ml + t/W*pw;
+  const pps = pw/W;
+  const y = v => mt + (cfg.max - v)/(cfg.max - cfg.min)*plotH;
+  const poly = arr => arr.map(pt => x(pt[0]).toFixed(1) + ',' + y(pt[1]).toFixed(1)).join(' ');
+  const cid = 'simclip-' + cfg.key;
+  let s = '<svg class="sim-svg" width="'+width+'" height="'+H+'" viewBox="0 0 '+width+' '+H+'" xmlns="http://www.w3.org/2000/svg">';
+  s += '<defs><clipPath id="'+cid+'"><rect x="'+ml+'" y="'+mt+'" width="'+pw+'" height="'+plotH+'"/></clipPath></defs>';
+  s += '<rect x="'+ml+'" y="'+mt+'" width="'+pw+'" height="'+plotH+'" style="fill:var(--panel-alt);"/>';
+  // 横グリッド + 縦軸ラベル
+  simTicks(cfg.min, cfg.max).forEach(v=>{
+    const yy = y(v).toFixed(1);
+    const strong = (cfg.zero && v === 0);
+    s += '<line x1="'+ml+'" x2="'+(ml+pw)+'" y1="'+yy+'" y2="'+yy+'" style="stroke:'+(strong ? 'var(--ink-3)' : 'var(--line)')+'; stroke-width:1;"/>';
+    s += '<text x="'+(ml-6)+'" y="'+(Number(yy)+3.5)+'" text-anchor="end" style="fill:var(--ink-3); font-size:10.5px;">'+v+'</text>';
+  });
+  // 縦グリッド(時間)
+  let tstep = W <= 12 ? 1 : 2;
+  while((W/tstep)*30 > pw) tstep *= 2;
+  for(let t = 0; t <= W + 1e-9; t += tstep){
+    const xx = x(t).toFixed(1);
+    s += '<line x1="'+xx+'" x2="'+xx+'" y1="'+mt+'" y2="'+(mt+plotH)+'" style="stroke:var(--line); stroke-width:1; opacity:.6;"/>';
+    if(isLast) s += '<text x="'+xx+'" y="'+(mt+plotH+14)+'" text-anchor="middle" style="fill:var(--ink-3); font-size:10.5px;">'+t+'</text>';
+  }
+  // 波形
+  s += '<g clip-path="url(#'+cid+')">';
+  s += '<g class="sim-scroll" data-t="'+Tc+'" data-pps="'+pps+'">';
+  bands.forEach(b=>{
+    s += '<rect x="'+x(b[0]).toFixed(1)+'" y="'+mt+'" width="'+(x(b[1]) - x(b[0])).toFixed(1)+'" height="'+plotH+'" style="fill:var(--teal); opacity:.08;"/>';
+  });
+  s += '<polyline points="'+poly(cur)+'" fill="none" stroke-linejoin="round" style="stroke:'+cfg.color+'; stroke-width:1.9;"/>';
+  s += '</g>';
+  if(gh) s += '<g class="sim-scroll" data-t="'+Tg+'" data-pps="'+pps+'"><polyline points="'+poly(gh)+'" fill="none" style="stroke:var(--ink-2); stroke-width:1.4; stroke-dasharray:5 4; opacity:.85;"/></g>';
+  s += '</g>';
+  // 枠・タイトル
+  s += '<rect x="'+ml+'" y="'+mt+'" width="'+pw+'" height="'+plotH+'" fill="none" style="stroke:var(--line-strong); stroke-width:1;"/>';
+  s += '<text x="'+ml+'" y="14" style="fill:var(--ink); font-size:12px; font-weight:500;">'+cfg.title+'<tspan style="fill:var(--ink-3); font-size:11px; font-weight:400;">  ('+cfg.unit+')  ↑</tspan></text>';
+  if(isLast) s += '<text x="'+(ml+pw)+'" y="'+(H-4)+'" text-anchor="end" style="fill:var(--ink-3); font-size:11px;">時間 (秒) →</text>';
+  s += '</svg>';
+  return s;
+}
+
+function simDrawCharts(cur, gh, W){
+  const el = document.getElementById('sim-charts');
+  if(!el) return;
+  const width = Math.max(280, Math.floor(el.clientWidth || 600));
+  const sc = simBuildSeries(cur, W + cur.T);
+  const gs = gh ? simBuildSeries(gh, W + gh.T) : null;
+  const pawMax = simPick([30,40,60,80,120], Math.max(cur.Ppeak, gh ? gh.Ppeak : 0)*1.05);
+  const fMax = simPick([60,100,150,200,300], Math.max(cur.qPeakI, gh ? gh.qPeakI : 0)*1.05);
+  const fMin = -simPick([30,60,100,150,200,300], -Math.min(cur.qPeakE, gh ? gh.qPeakE : 0)*1.05);
+  const vMax = simPick([600,1000,1500,2000], Math.max(cur.Vt, gh ? gh.Vt : 0)*1.05);
+  const cfgs = [
+    {key:'paw',  title:'気道内圧', unit:'cmH2O', color:'var(--amber)', min:0,    max:pawMax},
+    {key:'flow', title:'流量',     unit:'L/分',  color:'var(--teal)',  min:fMin, max:fMax, zero:true},
+    {key:'vol',  title:'換気量',   unit:'mL',    color:'var(--blue)',  min:0,    max:vMax}
+  ];
+  el.innerHTML = cfgs.map((c,i)=> simChartSvg(c, sc[c.key], gs ? gs[c.key] : null, sc.bands, W, width, i === cfgs.length - 1, cur.T, gh ? gh.T : 0)).join('');
+  simScrollTick();
+}
+
+function simDrawMetrics(cur, gh, p){
+  const el = document.getElementById('sim-metrics');
+  if(!el) return;
+  const pbw = simPBW(p.sex, p.height);
+  const pbwEl = document.getElementById('sim-pbw');
+  if(pbwEl) pbwEl.textContent = '予測体重(PBW): ' + pbw.toFixed(1) + ' kg';
+  const vtkg = cur.Vt/pbw;
+  const dp = cur.Pplat - p.peep;
+  const g = gh ? simAnalyzeLite(gh, simGet().ghost) : null;
+  const items = [
+    {label:'ピーク圧(Ppeak)', v:cur.Ppeak, d:1, unit:'cmH2O', gv:g && g.Ppeak},
+    {label:'プラトー圧(Pplat)', v:cur.Pplat, d:1, unit:'cmH2O', gv:g && g.Pplat, lv: cur.Pplat > 30 ? 'danger' : (cur.Pplat > 28 ? 'warn' : '')},
+    {label:'ドライビングプレッシャー(Pplat−設定PEEP)', v:dp, d:1, unit:'cmH2O', gv:g && g.dp, lv: dp > 15 ? 'warn' : ''},
+    {label:'1回換気量(Vt)', v:cur.Vt, d:0, unit:'mL', gv:g && g.Vt, sub: vtkg.toFixed(1) + ' mL/kg (PBW)', lv: (vtkg > 8 || vtkg < 4) ? 'warn' : ''},
+    {label:'分時換気量', v:cur.MV, d:1, unit:'L/分', gv:g && g.MV},
+    {label:'I:E比', text:'1 : ' + (cur.Te/cur.Ti).toFixed(1), gtext: g && ('1 : ' + g.ie.toFixed(1)), sub:'Ti ' + cur.Ti.toFixed(1) + '秒 / Te ' + cur.Te.toFixed(1) + '秒', lv: cur.Ti > cur.Te ? 'warn' : ''},
+    {label:'Auto-PEEP', v:cur.autoPEEP, d:1, unit:'cmH2O', gv:g && g.autoPEEP, sub:'Te/τ = ' + cur.teTau.toFixed(1), lv: cur.autoPEEP >= 1 ? 'warn' : ''},
+    {label:'最大吸気流量', v:cur.qPeakI, d:0, unit:'L/分', gv:g && g.qPeakI}
+  ];
+  el.innerHTML = items.map(it=>{
+    const val = it.text !== undefined ? it.text : (it.v.toFixed(it.d) + '<span class="sm-unit"> ' + it.unit + '</span>');
+    let sub = it.sub ? '<div class="sm-sub">'+it.sub+'</div>' : '';
+    if(it.gv !== undefined && it.gv !== null && it.gv !== false) sub += '<div class="sm-sub ghost">基準 ' + Number(it.gv).toFixed(it.d) + ' ' + it.unit + '</div>';
+    else if(it.gtext) sub += '<div class="sm-sub ghost">基準 ' + it.gtext + '</div>';
+    return '<div class="sim-metric '+(it.lv || '')+'"><div class="sm-label">'+it.label+'</div><div class="sm-val mono">'+val+'</div>'+sub+'</div>';
+  }).join('');
+}
+
+function simAnalyzeLite(sim, p){
+  return {Ppeak:sim.Ppeak, Pplat:sim.Pplat, dp:sim.Pplat - p.peep, Vt:sim.Vt, MV:sim.MV, ie:sim.Te/sim.Ti, autoPEEP:sim.autoPEEP, qPeakI:sim.qPeakI};
+}
+
+function simDrawComments(cur, p){
+  const el = document.getElementById('sim-comments');
+  if(!el) return;
+  const pbw = simPBW(p.sex, p.height);
+  const vtkg = cur.Vt/pbw;
+  const dp = cur.Pplat - p.peep;
+  const out = [];
+  if(cur.tiClamped) out.push({lv:'info', t:'吸気時間が呼吸周期に対して長すぎるため、呼気時間を最低0.2秒確保するよう自動調整して表示しています。'});
+  if(cur.autoPEEP >= 1) out.push({lv:'warn', t:'Auto-PEEP(オートピープ)が約' + cur.autoPEEP.toFixed(1) + 'cmH2O生じています。呼気流量がゼロに戻る前に次の吸気が始まっている状態です(呼気時間Teが時定数τの' + cur.teTau.toFixed(1) + '倍。一般にTeがτの3倍以上あると呼気はほぼ完了します)。一般的には、呼吸数を下げる・吸気時間を短くして呼気時間を延ばす、気道抵抗の原因(分泌物・気管支攣縮など)に対応する、といった方向で検討されます。'});
+  if(cur.Pplat > 30) out.push({lv:'warn', t:'プラトー圧が30cmH2Oを超えています。VCでは1回換気量、PCでは吸気圧を下げる方向が一般的です。肺が硬い(コンプライアンス低下)原因の評価も重要です。'});
+  if(dp > 15) out.push({lv:'warn', t:'ドライビングプレッシャー(Pplat−設定PEEP)が' + dp.toFixed(1) + 'cmH2Oで、15を超えています。換気量を下げると下がるのが一般的ですが、下げても高いままの場合は、肺そのものの状態(ARDSなど)を医師と評価します。'});
+  if(vtkg > 8) out.push({lv:'warn', t:'1回換気量が予測体重あたり' + vtkg.toFixed(1) + 'mL/kgで、8mL/kgを超えています。肺保護換気では6〜8mL/kg(ARDSでは6mL/kg前後)が一般的な目安です。'});
+  if(vtkg < 4) out.push({lv:'warn', t:'1回換気量が予測体重あたり' + vtkg.toFixed(1) + 'mL/kgと小さめです。分時換気量が不足してCO2が貯留する可能性があります(呼吸数や吸気圧との兼ね合いで評価します)。'});
+  if(p.mode === 'VC' && (cur.Ppeak - cur.Pplat) > 10) out.push({lv:'warn', t:'ピーク圧とプラトー圧の差が約' + (cur.Ppeak - cur.Pplat).toFixed(1) + 'cmH2Oと大きく、気道抵抗が高い所見です。分泌物の貯留、気管チューブや回路の屈曲・閉塞、気管支攣縮などを確認します(吸引・体位・回路確認、必要に応じて医師へ報告)。'});
+  if(p.mode === 'PC' && cur.qEndI > Math.max(5, 0.2*cur.qPeakI)) out.push({lv:'warn', t:'吸気の終わりでも流量がゼロに戻っていません。設定した吸気時間内に肺が圧に追いつけておらず、1回換気量が十分に入っていない可能性があります。一般的には吸気時間を延ばす、または吸気圧を上げると1回換気量が増えます(Auto-PEEPやピーク圧への影響もあわせて確認します)。'});
+  if(cur.Ti > cur.Te) out.push({lv:'warn', t:'吸気時間が呼気時間より長い設定(逆比換気)です。通常の設定ではないため意図した設定かを確認します。呼気時間が短くなるため、Auto-PEEPが生じやすくなります。'});
+  if(!out.some(o=> o.lv === 'warn')) out.push({lv:'ok', t:'この設定・肺モデルでは、目安から外れる所見は出ていません(シミュレーター上の簡易的な判断です)。'});
+  if(p.mode === 'PC') out.push({lv:'info', t:'従圧式(PC)は気道内圧が一定に保たれるため、換気量は肺の状態(気道抵抗・コンプライアンス)に応じて変動します。VCに切り替えて比べてみましょう。'});
+  else out.push({lv:'info', t:'従量式(VC)は換気量が一定に保たれるため、肺の状態が悪化すると気道内圧が上昇します。PCに切り替えて比べてみましょう。'});
+  el.innerHTML = out.map(o=> '<div class="sim-comment '+o.lv+'"><span class="sc-dot"></span><div>'+o.t+'</div></div>').join('');
+}
+
+function simUpdate(){
+  const root = document.getElementById('sim-root');
+  if(!root) return;
+  const st = simGet();
+  const cur = simulateVent(st.p);
+  const gh = st.ghost ? simulateVent(st.ghost) : null;
+  simDrawCharts(cur, gh, st.win);
+  simDrawMetrics(cur, gh, st.p);
+  simDrawComments(cur, st.p);
+  simAnimStart();
+  const lg = document.getElementById('sim-legend');
+  if(lg) lg.innerHTML = '<span class="lg-band"></span>薄い帯 = 吸気の時間(波形は右から左へ流れます)' + (gh ? '<span class="lg-dash"></span>破線 = 基準として固定した設定の波形' : '');
+}
+
+let simT0 = performance.now(), simPausedAt = null, simPausedTotal = 0, simAnimOn = false;
+function simElapsed(){
+  const st = simGet();
+  const now = performance.now();
+  if(!st.playing){ if(simPausedAt === null) simPausedAt = now; return (simPausedAt - simT0 - simPausedTotal)/1000; }
+  if(simPausedAt !== null){ simPausedTotal += now - simPausedAt; simPausedAt = null; }
+  return (now - simT0 - simPausedTotal)/1000;
+}
+function simScrollTick(){
+  const el = document.getElementById('sim-charts');
+  if(!el) return false;
+  const e = simElapsed();
+  el.querySelectorAll('.sim-scroll').forEach(g=>{
+    const T = Number(g.getAttribute('data-t')), pps = Number(g.getAttribute('data-pps'));
+    if(T > 0) g.setAttribute('transform', 'translate(' + (-(e % T)*pps).toFixed(2) + ',0)');
+  });
+  return true;
+}
+function simAnimLoop(){
+  if(!simScrollTick()){ simAnimOn = false; return; }
+  requestAnimationFrame(simAnimLoop);
+}
+function simAnimStart(){ if(!simAnimOn){ simAnimOn = true; requestAnimationFrame(simAnimLoop); } }
+
+(function(){
+  let raf = null;
+  window.addEventListener('resize', ()=>{
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(()=>{ if(document.getElementById('sim-charts')) simUpdate(); });
+  });
+})();
+
+(async function init(){
+  await loadData();
+  render();
+  animateWave();
+})();
+</script>
+</body>
+</html>

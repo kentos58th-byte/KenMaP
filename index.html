@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KenMaP</title>
+<meta name="description" content="呼吸ケアをはじめとする医療ケアの学習アプリをまとめた KenMaP">
+<meta name="theme-color" content="#0B1620">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="KenMaP">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B1620;
+    --panel:#12212C;
+    --panel-alt:#1A2C38;
+    --ink:#EAF2F5;
+    --ink-2:#9FB4C0;
+    --ink-3:#647A87;
+    --line:#223440;
+    --line-strong:#2E4552;
+    --teal:#4FD8C4;
+    --teal-dim:#1F4A44;
+    --amber:#F5B942;
+    --amber-dim:#4A3B1A;
+  }
+  *{box-sizing:border-box;}
+  ::selection{background:var(--teal-dim); color:var(--ink);}
+  html,body{margin:0; background:var(--bg); color:var(--ink);}
+  body{
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .wrap{max-width:960px; margin:0 auto; padding:0 16px;}
+
+  /* ---------- header ---------- */
+  .hero{padding:48px 0 32px; border-bottom:1px solid var(--line); position:relative; overflow:hidden;}
+  .brand{display:flex; align-items:center; gap:14px;}
+  .brand img{width:52px; height:52px; border-radius:13px; display:block;}
+  .brand h1{margin:0; font-size:30px; font-weight:700; letter-spacing:.02em; line-height:1.1;}
+  .brand h1 span{color:var(--teal);}
+  .brand p{margin:4px 0 0; font-size:13px; color:var(--ink-3); letter-spacing:.04em;}
+  .lead{margin:24px 0 0; max-width:560px; color:var(--ink-2); font-size:15px;}
+  #pulse{position:absolute; right:-10px; bottom:18px; opacity:.35; pointer-events:none;}
+
+  /* ---------- section ---------- */
+  .section-head{display:flex; align-items:baseline; justify-content:space-between; margin:36px 0 14px;}
+  .section-head h2{margin:0; font-size:15px; font-weight:700; letter-spacing:.06em; color:var(--ink-2);}
+  .section-head .count{font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--ink-3);}
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(270px, 1fr)); gap:14px;}
+
+  .card{
+    display:flex; flex-direction:column; gap:12px;
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:20px; color:inherit; text-decoration:none;
+    transition:border-color .15s, transform .15s, background .15s;
+    min-height:200px;
+  }
+  a.card:hover{border-color:var(--teal); background:var(--panel-alt); transform:translateY(-2px);}
+  a.card:focus-visible{outline:2px solid var(--teal); outline-offset:3px;}
+  .card-top{display:flex; align-items:center; gap:12px;}
+  .app-icon{
+    width:44px; height:44px; border-radius:11px; flex-shrink:0;
+    background:var(--bg); border:1px solid var(--line-strong);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .card h3{margin:0; font-size:17px; font-weight:700; line-height:1.3;}
+  .card .sub{font-size:12px; color:var(--ink-3);}
+  .card .desc{margin:0; font-size:13.5px; color:var(--ink-2); flex:1;}
+  .tags{display:flex; flex-wrap:wrap; gap:6px;}
+  .tag{font-size:11px; padding:2px 8px; border-radius:999px; background:var(--teal-dim); color:var(--teal);}
+  .open{font-size:13px; font-weight:500; color:var(--teal); display:flex; align-items:center; gap:4px;}
+
+  .card.soon{border-style:dashed; background:transparent; justify-content:center; align-items:center; text-align:center; color:var(--ink-3);}
+  .card.soon .plus{
+    width:40px; height:40px; border-radius:50%; border:1px dashed var(--line-strong);
+    display:flex; align-items:center; justify-content:center; font-size:22px; line-height:1;
+  }
+  .card.soon h3{font-size:14px; font-weight:500; color:var(--ink-2);}
+  .card.soon p{margin:0; font-size:12px;}
+
+  /* ---------- install ---------- */
+  .install{
+    margin-top:28px; padding:16px 18px; border-radius:12px;
+    background:var(--panel); border:1px solid var(--line);
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  }
+  .install p{margin:0; flex:1; min-width:200px; font-size:13px; color:var(--ink-2);}
+  .install strong{color:var(--ink);}
+  .btn{
+    font:inherit; font-size:13px; font-weight:700; cursor:pointer;
+    background:var(--teal); color:#062520; border:0; border-radius:8px; padding:9px 16px;
+  }
+  .btn:hover{filter:brightness(1.08);}
+
+  /* ---------- footer ---------- */
+  .notice{
+    margin:36px 0 0; padding:14px 16px; border-radius:10px;
+    background:var(--amber-dim); border:1px solid #6B5524; color:#F3DDA8; font-size:12.5px;
+  }
+  footer{padding:24px 0 40px; font-size:12px; color:var(--ink-3); display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+  .net{font-family:'JetBrains Mono', monospace;}
+  .net::before{content:""; display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--teal); margin-right:6px; vertical-align:1px;}
+  .net.off::before{background:var(--amber);}
+
+  @media (max-width:520px){
+    .hero{padding:32px 0 24px;}
+    .brand h1{font-size:26px;}
+    .lead{font-size:14px;}
+    #pulse{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="brand">
+      <img src="icons/icon-192.png" alt="">
+      <div>
+        <h1>Ken<span>MaP</span></h1>
+        <p>医療ケアの学習アプリ集</p>
+      </div>
+    </div>
+    <p class="lead">知りたい時に、学びたい時に。目的のアプリを選んでください。<br>一度開いたアプリは、電波のない場所でも使えます。</p>
+    <svg id="pulse" width="320" height="60" viewBox="0 0 320 60" aria-hidden="true">
+      <polyline fill="none" stroke="#4FD8C4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+        points="0,30 120,30 135,30 148,8 162,52 174,30 320,30"/>
+    </svg>
+  </header>
+
+  <div class="section-head">
+    <h2>アプリ一覧</h2>
+    <span class="count" id="app-count"></span>
+  </div>
+  <div class="grid" id="apps"></div>
+
+  <div class="install" id="install" hidden>
+    <p id="install-text"><strong>KenMaP をホーム画面に追加</strong>すると、アプリのように起動でき、オフラインでも使えます。</p>
+    <button class="btn" id="install-btn" hidden>インストール</button>
+  </div>
+
+  <div class="notice">
+    本アプリ集は学習・参考のためのものです。実際の患者ケアでは、必ず所属施設のプロトコル・マニュアルおよび医師の指示に従ってください。
+  </div>
+
+  <footer>
+    <span>&copy; KenMaP</span>
+    <span class="net" id="net">オンライン</span>
+  </footer>
+</div>
+
+<script>
+/*
+  アプリを追加するときは、この APPS に1件ずつ足していきます。
+  - path : アプリのフォルダ名 (例: "respiratory/")
+  - status: "ready" (公開中) / "soon" (準備中)
+*/
+const APPS = [
+  {
+    path: "respiratory/",
+    status: "ready",
+    title: "呼吸ケアマップ",
+    sub: "Respiratory Care Map",
+    desc: "酸素療法・人工呼吸器・気道管理・気管切開・アセスメントを網羅。計算ツールと人工呼吸管理シミュレーター付き。",
+    tags: ["酸素療法", "人工呼吸器", "計算ツール", "シミュレーター"],
+    icon: '<svg width="24" height="24" viewBox="0 0 18 18"><polyline points="1,10 4,10 6,4 9,15 11,10 17,10" fill="none" stroke="#4FD8C4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  }
+];
+
+function esc(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function renderApps(){
+  const ready = APPS.filter(a=>a.status==="ready");
+  let html = '';
+  APPS.forEach(a=>{
+    if(a.status==="ready"){
+      html += '<a class="card" href="'+esc(a.path)+'">'
+        + '<div class="card-top"><div class="app-icon">'+a.icon+'</div>'
+        + '<div><h3>'+esc(a.title)+'</h3><div class="sub">'+esc(a.sub||'')+'</div></div></div>'
+        + '<p class="desc">'+esc(a.desc)+'</p>'
+        + '<div class="tags">'+(a.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join('')+'</div>'
+        + '<span class="open">開く <span aria-hidden="true">&rarr;</span></span>'
+        + '</a>';
+    }else{
+      html += '<div class="card soon"><div class="plus" aria-hidden="true">'+(a.icon||'')+'</div>'
+        + '<h3>'+esc(a.title)+'</h3><p>準備中</p></div>';
+    }
+  });
+  html += '<div class="card soon"><div class="plus" aria-hidden="true">+</div>'
+    + '<h3>新しいアプリを追加予定</h3><p>シミュレーター・クイズなど</p></div>';
+  document.getElementById('apps').innerHTML = html;
+  document.getElementById('app-count').textContent = ready.length + ' apps';
+}
+renderApps();
+
+// オンライン / オフライン表示
+function updateNet(){
+  const el = document.getElementById('net');
+  el.textContent = navigator.onLine ? 'オンライン' : 'オフライン';
+  el.classList.toggle('off', !navigator.onLine);
+}
+window.addEventListener('online', updateNet);
+window.addEventListener('offline', updateNet);
+updateNet();
+
+// インストール案内 (すでにアプリとして開いているときは出さない)
+(function(){
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  if(standalone) return;
+  const box = document.getElementById('install');
+  const btn = document.getElementById('install-btn');
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if(isIOS){
+    document.getElementById('install-text').innerHTML = '<strong>KenMaP をホーム画面に追加</strong>するには、Safari の共有ボタン → 「ホーム画面に追加」を選んでください。';
+    box.hidden = false;
+  }
+  let deferred = null;
+  window.addEventListener('beforeinstallprompt', e=>{
+    e.preventDefault(); deferred = e; box.hidden = false; btn.hidden = false;
+  });
+  btn.addEventListener('click', async ()=>{
+    if(!deferred) return;
+    deferred.prompt();
+    await deferred.userChoice;
+    deferred = null; box.hidden = true;
+  });
+  window.addEventListener('appinstalled', ()=>{ box.hidden = true; });
+})();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{ navigator.serviceWorker.register('sw.js').catch(e=>console.warn('SW登録失敗', e)); });
+}
+</script>
+</body>
+</html>
