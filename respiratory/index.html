@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>呼吸ケアマップ</title>
-<meta name="theme-color" content="#0B1620">
+<meta name="theme-color" content="#0E1B25">
 <meta name="description" content="酸素療法・人工呼吸器・気道管理などの呼吸ケアをまとめた参照ツール">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
@@ -18,14 +18,14 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230B1620'/%3E%3Cpolyline points='4,17 9,17 12,8 16,24 19,17 28,17' fill='none' stroke='%234FD8C4' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
   :root{
-    --bg:#0B1620;
-    --panel:#12212C;
-    --panel-alt:#1A2C38;
-    --ink:#EAF2F5;
-    --ink-2:#9FB4C0;
-    --ink-3:#647A87;
-    --line:#223440;
-    --line-strong:#2E4552;
+    --bg:#0E1B25;
+    --panel:#15252F;
+    --panel-alt:#1D303C;
+    --ink:#F2F7F9;
+    --ink-2:#CAD8DF;
+    --ink-3:#98ADB9;
+    --line:#2B3F4C;
+    --line-strong:#3D5565;
     --teal:#4FD8C4;
     --teal-dim:#1F4A44;
     --amber:#F5B942;
@@ -57,7 +57,7 @@
     justify-content:space-between;
     gap:24px;
     position:sticky; top:0;
-    background:rgba(11,22,32,.92);
+    background:rgba(14,27,37,.95);
     backdrop-filter:blur(6px);
     z-index:5;
   }
@@ -74,7 +74,7 @@
     letter-spacing:.01em;
   }
   header .title-block p{
-    font-size:12px;
+    font-size:13px;
     color:var(--ink-3);
     margin:0;
     letter-spacing:.01em;
@@ -82,8 +82,30 @@
   #wave{ flex-shrink:0; }
   header a.brand-mark{text-decoration:none;}
   header a.brand-mark:hover{border-color:var(--teal);}
-  .hub-back{display:inline-block; font-size:11px; color:var(--ink-3); text-decoration:none; letter-spacing:.04em; margin-bottom:1px;}
-  .hub-back:hover{color:var(--teal);}
+  .hdr-actions{display:flex; gap:8px; margin-left:auto;}
+  .hdr-btn{
+    display:inline-flex; align-items:center; gap:6px; min-height:40px; padding:0 14px;
+    border-radius:10px; border:1px solid var(--line-strong); background:var(--panel-alt);
+    color:var(--ink); font:inherit; font-size:14px; font-weight:500; text-decoration:none; cursor:pointer;
+  }
+  .hdr-btn:hover{border-color:var(--teal);}
+  .hdr-btn.home{background:var(--teal); border-color:var(--teal); color:#062520; font-weight:700;}
+  .bottombar{display:none;}
+  @media (max-width:900px){
+    .hdr-actions{display:none;}
+    body{padding-bottom:calc(66px + env(safe-area-inset-bottom));}
+    .bottombar{
+      display:flex; position:fixed; left:0; right:0; bottom:0; z-index:20;
+      background:#08121A; border-top:1px solid var(--line-strong);
+      padding:0 6px env(safe-area-inset-bottom);
+    }
+    .bottombar button, .bottombar a{
+      flex:1; height:64px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+      background:none; border:0; color:var(--ink); font:inherit; font-size:12px; font-weight:500; text-decoration:none; cursor:pointer;
+    }
+    .bottombar svg{width:23px; height:23px;}
+    .bottombar .home{color:var(--teal); font-weight:700;}
+  }
 
   .layout{
     display:flex;
@@ -101,7 +123,7 @@
   }
   .cat-label{
     display:flex; align-items:center; gap:7px;
-    font-size:11.5px;
+    font-size:12.5px;
     color:var(--ink-2);
     letter-spacing:.05em;
     padding:9px 10px;
@@ -117,7 +139,7 @@
   .cat-label:first-of-type{margin-top:10px;}
   .cat-label svg{width:13px; height:13px; flex-shrink:0;}
   .cat-label .cat-count{
-    margin-left:auto; font-size:10.5px; color:var(--ink-3); background:var(--panel);
+    margin-left:auto; font-size:11.5px; color:var(--ink-3); background:var(--panel);
     border:1px solid var(--line); border-radius:20px; padding:1px 7px; text-transform:none; letter-spacing:0;
   }
   .cat-label .chevron{
@@ -135,7 +157,7 @@
     border:none;
     color:var(--ink-2);
     font-family:inherit;
-    font-size:13.5px;
+    font-size:14.5px;
     padding:8px 12px;
     border-radius:var(--radius-sm);
     cursor:pointer;
@@ -162,7 +184,7 @@
 
   /* overview */
   .overview-head h2{font-size:19px; margin:0 0 7px; font-weight:700;}
-  .overview-head p{color:var(--ink-2); font-size:13.5px; max-width:600px;}
+  .overview-head p{color:var(--ink-2); font-size:14.5px; max-width:600px;}
   .progress-row{
     display:flex; gap:12px; margin:24px 0 8px; flex-wrap:wrap;
   }
@@ -175,7 +197,7 @@
     flex:1;
   }
   .stat-card .num{font-size:25px; font-weight:700; letter-spacing:-.01em;}
-  .stat-card .lab{font-size:11.5px; color:var(--ink-3); margin-top:3px;}
+  .stat-card .lab{font-size:12.5px; color:var(--ink-3); margin-top:3px;}
   .bar-outer{
     height:7px; background:var(--panel); border-radius:4px; overflow:hidden; margin:18px 0 30px;
     border:1px solid var(--line);
@@ -186,7 +208,7 @@
   .cat-block{margin-bottom:26px;}
   .cat-block h3{
     display:flex; align-items:center; gap:8px;
-    font-size:12.5px; color:var(--ink-2); letter-spacing:.05em; margin:0 0 12px; text-transform:uppercase; font-weight:500;
+    font-size:13.5px; color:var(--ink-2); letter-spacing:.05em; margin:0 0 12px; text-transform:uppercase; font-weight:500;
   }
   .cat-block h3 svg{width:15px; height:15px;}
   .cat-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px;}
@@ -197,25 +219,25 @@
     transition:border-color .15s ease, transform .1s ease;
   }
   .mini-card:hover{border-color:var(--line-strong); border-left-color:var(--cat-color, var(--line-strong)); transform:translateY(-1px);}
-  .mini-card .mtitle{font-size:13.5px; font-weight:500; margin-bottom:8px; line-height:1.4;}
+  .mini-card .mtitle{font-size:14.5px; font-weight:500; margin-bottom:8px; line-height:1.4;}
   .mini-card .mstatus{
-    font-size:11px; color:var(--ink-3); display:inline-flex; align-items:center; gap:6px;
+    font-size:12px; color:var(--ink-3); display:inline-flex; align-items:center; gap:6px;
     padding:3px 9px; border-radius:20px; background:var(--panel-alt);
   }
 
   /* module detail */
   .breadcrumb{
     display:flex; align-items:center; gap:6px;
-    font-size:11.5px; color:var(--ink-3); margin-bottom:8px; letter-spacing:.03em;
+    font-size:12.5px; color:var(--ink-3); margin-bottom:8px; letter-spacing:.03em;
   }
   .breadcrumb svg{width:13px; height:13px; flex-shrink:0;}
   .mod-title{font-size:21px; font-weight:700; margin:0 0 5px; letter-spacing:-.005em;}
   .mod-goal{color:var(--ink-2); font-size:14px; margin:0 0 22px; max-width:620px;}
 
   .status-row{display:flex; align-items:center; gap:10px; margin-bottom:24px; flex-wrap:wrap;}
-  .status-row .lab{font-size:12px; color:var(--ink-3);}
+  .status-row .lab{font-size:13px; color:var(--ink-3);}
   .status-btn{
-    font-family:inherit; font-size:12.5px; padding:6px 13px; border-radius:20px;
+    font-family:inherit; font-size:13.5px; padding:6px 13px; border-radius:20px;
     border:1px solid var(--line); background:var(--panel); color:var(--ink-2); cursor:pointer;
     transition:all .12s ease;
   }
@@ -232,53 +254,53 @@
   .sim-grid{display:grid; grid-template-columns:300px minmax(0,1fr); gap:16px; align-items:start;}
   .sim-controls{display:flex; flex-direction:column; gap:14px;}
   .sim-panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-md); padding:14px 14px 10px;}
-  .sim-panel-title{font-size:12.5px; color:var(--ink-2); font-weight:500; margin-bottom:10px; letter-spacing:.04em;}
+  .sim-panel-title{font-size:13.5px; color:var(--ink-2); font-weight:500; margin-bottom:10px; letter-spacing:.04em;}
   .sim-chips{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;}
-  .sim-chip{font-family:inherit; font-size:12px; padding:5px 11px; border-radius:20px; border:1px solid var(--line); background:var(--panel-alt); color:var(--ink-2); cursor:pointer;}
+  .sim-chip{font-family:inherit; font-size:13px; padding:5px 11px; border-radius:20px; border:1px solid var(--line); background:var(--panel-alt); color:var(--ink-2); cursor:pointer;}
   .sim-chip:hover{border-color:var(--line-strong); color:var(--ink);}
   .sim-chip.active{border-color:var(--teal); color:var(--teal); background:var(--teal-dim);}
   .sim-chip.scn{border-style:dashed;}
-  .sim-hint{margin-top:2px; padding:11px 14px; border-left:3px solid var(--amber); background:var(--amber-dim); border-radius:0 8px 8px 0; font-size:13px; color:var(--ink); line-height:1.75;}
+  .sim-hint{margin-top:2px; padding:11px 14px; border-left:3px solid var(--amber); background:var(--amber-dim); border-radius:0 8px 8px 0; font-size:14px; color:var(--ink); line-height:1.75;}
   .sim-slider{margin-bottom:12px;}
-  .sim-slider-head{display:flex; justify-content:space-between; font-size:12.5px; color:var(--ink-2); margin-bottom:2px;}
-  .sim-slider-head .mono{color:var(--teal); font-size:12px;}
+  .sim-slider-head{display:flex; justify-content:space-between; font-size:13.5px; color:var(--ink-2); margin-bottom:2px;}
+  .sim-slider-head .mono{color:var(--teal); font-size:13px;}
   .sim-slider input[type=range]{width:100%; accent-color:var(--teal); margin:4px 0; padding:0; border:none; background:none; height:26px;}
   .sim-row2{display:flex; gap:10px; margin-bottom:8px;}
   .sim-row2 input, .sim-row2 select{width:100%; min-width:0;}
   .sim-row2 > div{flex:1;}
-  .sim-note{font-size:11.5px; color:var(--ink-3); line-height:1.7;}
+  .sim-note{font-size:12.5px; color:var(--ink-3); line-height:1.7;}
   .sim-toolbar{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-bottom:10px;}
   .sim-toolbar .sim-chip{margin:0;}
   .sim-toolbar-sp{flex:1;}
-  .sim-toolbar-lab{font-size:11.5px; color:var(--ink-3);}
-  .sim-btn{font-family:inherit; font-size:12px; padding:6px 12px; border-radius:6px; border:1px solid var(--line-strong); background:var(--panel); color:var(--ink); cursor:pointer;}
+  .sim-toolbar-lab{font-size:12.5px; color:var(--ink-3);}
+  .sim-btn{font-family:inherit; font-size:13px; padding:6px 12px; border-radius:6px; border:1px solid var(--line-strong); background:var(--panel); color:var(--ink); cursor:pointer;}
   .sim-btn:hover{border-color:var(--teal);}
   .sim-btn:disabled{opacity:.4; cursor:default; border-color:var(--line);}
   #sim-charts{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-md); padding:6px 4px; width:100%; overflow:hidden;}
   .sim-svg{display:block; max-width:100%;}
-  .sim-legend{font-size:11.5px; color:var(--ink-3); margin:8px 2px 12px; display:flex; flex-wrap:wrap; align-items:center; gap:6px;}
+  .sim-legend{font-size:12.5px; color:var(--ink-3); margin:8px 2px 12px; display:flex; flex-wrap:wrap; align-items:center; gap:6px;}
   .lg-band{display:inline-block; width:16px; height:10px; background:var(--teal); opacity:.25; border-radius:2px;}
   .lg-dash{display:inline-block; width:18px; border-top:2px dashed var(--ink-2); margin-left:14px;}
   .sim-metrics{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px; margin-bottom:16px;}
   .sim-metric{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:9px 11px;}
   .sim-metric.warn{border-color:var(--amber);}
   .sim-metric.danger{border-color:var(--coral);}
-  .sm-label{font-size:11px; color:var(--ink-3); line-height:1.4; min-height:30px;}
+  .sm-label{font-size:12px; color:var(--ink-3); line-height:1.4; min-height:30px;}
   .sm-val{font-size:19px; font-weight:500;}
-  .sm-unit{font-size:11px; color:var(--ink-3); font-family:'Zen Kaku Gothic New',sans-serif;}
-  .sm-sub{font-size:11px; color:var(--ink-3);}
+  .sm-unit{font-size:12px; color:var(--ink-3); font-family:'Zen Kaku Gothic New',sans-serif;}
+  .sm-sub{font-size:12px; color:var(--ink-3);}
   .sm-sub.ghost{color:var(--ink-2);}
-  .sim-comments-title{font-size:12.5px; color:var(--ink-2); font-weight:500; margin-bottom:8px;}
-  .sim-comment{display:flex; gap:10px; font-size:13px; color:var(--ink-2); line-height:1.75; padding:8px 12px; background:var(--panel); border:1px solid var(--line); border-radius:8px; margin-bottom:6px;}
+  .sim-comments-title{font-size:13.5px; color:var(--ink-2); font-weight:500; margin-bottom:8px;}
+  .sim-comment{display:flex; gap:10px; font-size:14px; color:var(--ink-2); line-height:1.75; padding:8px 12px; background:var(--panel); border:1px solid var(--line); border-radius:8px; margin-bottom:6px;}
   .sc-dot{width:8px; height:8px; border-radius:50%; background:var(--blue); flex-shrink:0; margin-top:9px;}
   .sim-comment.warn .sc-dot{background:var(--amber);}
   .sim-comment.ok .sc-dot{background:var(--teal);}
   @media (max-width:900px){ .sim-grid{grid-template-columns:1fr;} }
   .rdos-item{margin-bottom:16px;}
-  .rdos-label{font-size:13px; color:var(--ink); margin-bottom:7px; line-height:1.5;}
+  .rdos-label{font-size:14px; color:var(--ink); margin-bottom:7px; line-height:1.5;}
   .rdos-options{display:flex; gap:8px; flex-wrap:wrap;}
   .rdos-opt{
-    font-family:inherit; font-size:12.5px; padding:7px 13px; border-radius:20px;
+    font-family:inherit; font-size:13.5px; padding:7px 13px; border-radius:20px;
     border:1px solid var(--line); background:var(--panel-alt); color:var(--ink-2); cursor:pointer;
     transition:all .12s ease;
   }
@@ -289,7 +311,7 @@
   }
   .rdos-total-value{font-size:26px; font-weight:700; color:var(--teal);}
   .ref-cite{
-    font-size:11.5px; color:var(--ink-3); border-top:1px solid var(--line); margin-top:6px; padding-top:14px; line-height:1.7;
+    font-size:12.5px; color:var(--ink-3); border-top:1px solid var(--line); margin-top:6px; padding-top:14px; line-height:1.7;
   }
   .ref-cite a{color:var(--ink-3); text-decoration:underline;}
 
@@ -299,20 +321,20 @@
     display:flex; gap:12px; align-items:flex-start;
   }
   .disclaimer svg{flex-shrink:0; margin-top:2px;}
-  .disclaimer-text{font-size:12.5px; color:var(--ink-2); line-height:1.75;}
+  .disclaimer-text{font-size:13.5px; color:var(--ink-2); line-height:1.75;}
   .disclaimer-text strong{color:var(--amber); font-weight:600;}
 
   .section-block{
     background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-md);
     padding:19px 22px; margin-bottom:14px;
   }
-  .section-block h4{font-size:12.5px; color:var(--ink-2); margin:0 0 12px; letter-spacing:.04em; text-transform:uppercase; font-weight:500;}
+  .section-block h4{font-size:13.5px; color:var(--ink-2); margin:0 0 12px; letter-spacing:.04em; text-transform:uppercase; font-weight:500;}
   .section-block h4.sub-heading{font-size:14.5px; color:var(--ink); text-transform:none; letter-spacing:0; font-weight:500;}
   .section-block ul{margin:0; padding-left:18px;}
-  .section-block li{font-size:13.5px; margin-bottom:7px; color:var(--ink-2);}
+  .section-block li{font-size:14.5px; margin-bottom:7px; color:var(--ink-2);}
   .section-block li::marker{color:var(--ink-3);}
   .placeholder-note{
-    font-size:12.5px; color:var(--ink-3); border:1px dashed var(--line); border-radius:8px;
+    font-size:13.5px; color:var(--ink-3); border:1px dashed var(--line); border-radius:8px;
     padding:12px 14px; margin-top:4px; line-height:1.6;
   }
 
@@ -337,10 +359,10 @@
     transform-box:fill-box; transform-origin:50% 55%;
   }
   .lung-hero-info{flex:1; min-width:0;}
-  .lung-hero-title{font-size:13px; color:var(--ink-2); margin-bottom:2px;}
-  .lung-hero-sub{font-size:11px; color:var(--ink-3); margin-bottom:14px;}
+  .lung-hero-title{font-size:14px; color:var(--ink-2); margin-bottom:2px;}
+  .lung-hero-sub{font-size:12px; color:var(--ink-3); margin-bottom:14px;}
   .lung-values{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px 22px;}
-  .lung-value-item .lv-label{font-size:11px; color:var(--ink-3); margin-bottom:2px;}
+  .lung-value-item .lv-label{font-size:12px; color:var(--ink-3); margin-bottom:2px;}
   .lung-value-item .lv-num{font-size:15px; font-weight:600; color:var(--ink);}
   @media (max-width:760px){
     .lung-hero{flex-direction:column; align-items:flex-start; gap:16px;}
@@ -348,16 +370,16 @@
   }
   .wf-wrap{position:relative;}
   .wf-ylabel{
-    position:absolute; top:8px; left:12px; font-size:11px; color:var(--ink-3);
+    position:absolute; top:8px; left:12px; font-size:12px; color:var(--ink-3);
     pointer-events:none; letter-spacing:.01em;
   }
   .wf-xlabel{
-    position:absolute; right:10px; transform:translateY(-50%); font-size:11px; color:var(--ink-3);
+    position:absolute; right:10px; transform:translateY(-50%); font-size:12px; color:var(--ink-3);
     pointer-events:none; white-space:nowrap; background:var(--panel-alt); padding-left:4px;
   }
   .wf-chip-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;}
   .wf-chip{
-    font-family:inherit; font-size:12.5px; padding:6px 13px; border-radius:20px;
+    font-family:inherit; font-size:13.5px; padding:6px 13px; border-radius:20px;
     border:1px solid var(--line); background:var(--panel-alt); color:var(--ink-2); cursor:pointer;
     transition:all .12s ease;
   }
@@ -365,23 +387,23 @@
   .wf-chip.active{border-color:var(--teal); background:var(--teal-dim); color:var(--teal);}
 
   .table-wrap{overflow-x:auto; margin-top:10px; border-radius:8px; border:1px solid var(--line);}
-  table.ref-table{width:100%; border-collapse:collapse; font-size:13px; min-width:420px;}
+  table.ref-table{width:100%; border-collapse:collapse; font-size:14px; min-width:420px;}
   table.ref-table th, table.ref-table td{
     padding:9px 12px; text-align:left; border-bottom:1px solid var(--line);
   }
   table.ref-table th{
-    color:var(--ink-3); font-weight:500; font-size:11px; letter-spacing:.03em;
+    color:var(--ink-3); font-weight:500; font-size:12px; letter-spacing:.03em;
     text-transform:uppercase; background:var(--panel-alt);
   }
   table.ref-table tbody tr:last-child td{border-bottom:none;}
   table.ref-table tbody tr:nth-child(even){background:rgba(255,255,255,.015);}
   table.ref-table tbody tr:hover{background:var(--panel-alt);}
 
-  .field-label{display:block; font-size:11.5px; color:var(--ink-3); margin-bottom:5px;}
+  .field-label{display:block; font-size:12.5px; color:var(--ink-3); margin-bottom:5px;}
   .calc-row{display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:14px;}
   .calc-input, .calc-select, select, input[type="number"], input[type="text"]{
     background:var(--bg); color:var(--ink); border:1px solid var(--line); border-radius:var(--radius-sm);
-    padding:8px 11px; font-family:inherit; font-size:13px; width:100px;
+    padding:8px 11px; font-family:inherit; font-size:14px; width:100px;
     transition:border-color .12s ease, box-shadow .12s ease;
   }
   .calc-select, select{width:auto; min-width:130px;}
@@ -396,7 +418,7 @@
   textarea.memo{
     width:100%; min-height:80px; background:var(--bg); color:var(--ink);
     border:1px solid var(--line); border-radius:8px; padding:10px 12px;
-    font-family:inherit; font-size:13px; resize:vertical;
+    font-family:inherit; font-size:14px; resize:vertical;
   }
 
   @media (min-width: 761px) and (max-width: 1024px){
@@ -405,6 +427,11 @@
     header{padding:16px 20px 13px;}
     .cat-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));}
   }
+
+  /* 表などが広くても、ページ全体が横にはみ出さないようにする */
+  .layout > main{min-width:0;}
+  @media (max-width: 760px){ .layout{align-items:stretch;} .layout > main{width:100%;} .section-block, .mod-goal, .breadcrumb{overflow-wrap:anywhere;} }
+  .table-wrap{max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;}
 
   @media (max-width: 760px){
     header{padding:14px 16px 12px; flex-wrap:wrap;}
@@ -432,10 +459,13 @@
       <svg width="18" height="18" viewBox="0 0 18 18"><polyline points="1,10 4,10 6,4 9,15 11,10 17,10" fill="none" stroke="#4FD8C4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
     <div>
-      <a class="hub-back" href="../">&larr; KenMaP</a>
       <h1>呼吸ケアマップ</h1>
       <p>呼吸ケアを、知りたい時に　学びたい時に　学びたいだけ</p>
     </div>
+  </div>
+  <div class="hdr-actions">
+    <button type="button" class="hdr-btn" data-nav="back" aria-label="前の画面に戻る"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>戻る</button>
+    <a class="hdr-btn home" href="../" aria-label="KenMaP のホームへ"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7"/><path d="M5 9v11h14V9"/></svg>KenMaP ホーム</a>
   </div>
   <svg id="wave" width="140" height="34" viewBox="0 0 140 34">
 
@@ -447,6 +477,12 @@
 <div class="layout">
   <nav id="nav"></nav>
   <main id="main"></main>
+</div>
+
+<div class="bottombar" role="navigation" aria-label="移動">
+  <button type="button" data-nav="back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>戻る</button>
+  <button type="button" data-nav="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>全体</button>
+  <a href="../" class="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7"/><path d="M5 9v11h14V9"/></svg>KenMaP ホーム</a>
 </div>
 
 <script>
@@ -1364,8 +1400,8 @@ function rdosBlock(){
     });
     html += '</div></div>';
   });
-  html += '<div class="rdos-total-row"><span style="color:var(--ink-2); font-size:13px;">合計スコア</span>'
-    + '<span class="rdos-total-value mono" id="rdos-total">0</span><span style="color:var(--ink-3); font-size:12px;">/ 16点</span></div>';
+  html += '<div class="rdos-total-row"><span style="color:var(--ink-2); font-size:14px;">合計スコア</span>'
+    + '<span class="rdos-total-value mono" id="rdos-total">0</span><span style="color:var(--ink-3); font-size:13px;">/ 16点</span></div>';
   html += '<div class="placeholder-note" id="rdos-interp" style="margin-top:10px;">各項目を選択するとスコアが表示されます。</div>';
   html += '</div>';
   return html;
@@ -1570,16 +1606,38 @@ let moduleData = {};
 let currentId = null;
 let expandedCats = new Set();
 
-function selectModule(id){
+/* 画面の移動は履歴に残す (「戻る」ボタンやスマホの戻る操作で前の画面に戻れる) */
+function showScreen(id, mode){
   currentId = id;
-  const m = MODULES.find(x=>x.id===id);
+  const m = id ? MODULES.find(x=>x.id===id) : null;
   if(m) expandedCats.add(m.cat);
+  const url = id ? '#/m/' + id : '#/';
+  const depth = (history.state && history.state.depth) || 0;
+  if(mode === 'push' && location.hash !== url) history.pushState({id: id, depth: depth + 1}, '', url);
+  else if(mode === 'replace') history.replaceState({id: id, depth: depth}, '', url);
   render();
+  window.scrollTo(0, 0);
+  const mainEl = document.getElementById('main'); if(mainEl) mainEl.scrollTop = 0;
 }
-function selectOverview(){
-  currentId = null;
-  render();
+function selectModule(id){ showScreen(id, 'push'); }
+function selectOverview(){ showScreen(null, 'push'); }
+function goBack(){
+  const depth = (history.state && history.state.depth) || 0;
+  if(depth > 0) history.back();
+  else if(currentId !== null) showScreen(null, 'replace');
+  else location.href = '../';
 }
+function idFromHash(){
+  const mm = location.hash.match(/^#\/m\/(.+)$/);
+  const id = mm ? decodeURIComponent(mm[1]) : null;
+  return id && MODULES.some(x=>x.id===id) ? id : null;
+}
+window.addEventListener('popstate', ()=>{ showScreen(idFromHash(), 'none'); });
+document.addEventListener('click', e=>{
+  const b = e.target.closest('[data-nav]'); if(!b) return;
+  if(b.dataset.nav === 'back') goBack();
+  else if(b.dataset.nav === 'overview') selectOverview();
+});
 function toggleCat(cat){
   if(expandedCats.has(cat)) expandedCats.delete(cat);
   else expandedCats.add(cat);
@@ -1694,7 +1752,7 @@ function renderOverview(){
 
   Object.keys(CAT_LABELS).forEach(cat=>{
     const catMods = MODULES.filter(m=>m.cat===cat);
-    html += '<div class="cat-block"><h3>'+catIcon(cat)+'<span>'+CAT_LABELS[cat]+'</span><span class="mono" style="color:var(--ink-3); font-size:11px; font-weight:400; text-transform:none;">&nbsp;'+catMods.length+'項目</span></h3><div class="cat-grid">';
+    html += '<div class="cat-block"><h3>'+catIcon(cat)+'<span>'+CAT_LABELS[cat]+'</span><span class="mono" style="color:var(--ink-3); font-size:12px; font-weight:400; text-transform:none;">&nbsp;'+catMods.length+'項目</span></h3><div class="cat-grid">';
     catMods.forEach(m=>{
       const st = moduleData[m.id].status;
       html += '<div class="mini-card" data-id="'+m.id+'" style="--cat-color:'+CAT_COLORS[cat]+'">';
@@ -1751,7 +1809,7 @@ function renderModule(){
         html += '</tbody></table></div>';
       }
       if(sub.careNotes){
-        html += '<div style="margin-top:14px; padding-top:12px; border-top:1px solid var(--line);"><div style="color:var(--ink-3); font-weight:500; font-size:11px; letter-spacing:.04em; text-transform:uppercase;">ケアのポイント</div><ul style="margin-top:8px;">';
+        html += '<div style="margin-top:14px; padding-top:12px; border-top:1px solid var(--line);"><div style="color:var(--ink-3); font-weight:500; font-size:12px; letter-spacing:.04em; text-transform:uppercase;">ケアのポイント</div><ul style="margin-top:8px;">';
         sub.careNotes.forEach(p=>{ html += '<li>'+p+'</li>'; });
         html += '</ul></div>';
       }
@@ -1773,7 +1831,7 @@ function renderModule(){
   if(m.formula){
     html += '<div class="section-block"><h4>計算方法</h4>';
     html += '<ul>';
-    m.formula.steps.forEach(s=>{ html += '<li class="mono" style="font-size:13px;">'+s+'</li>'; });
+    m.formula.steps.forEach(s=>{ html += '<li class="mono" style="font-size:14px;">'+s+'</li>'; });
     html += '</ul>';
     html += '<div class="placeholder-note" style="white-space:pre-line; margin-top:10px;">'+m.formula.example+'</div>';
     html += '</div>';
@@ -1792,7 +1850,7 @@ function renderModule(){
       const gid = 'wf-'+m.id+'-'+i;
       html += '<div>';
       html += waveformBlock(gid, d.cycle, 50, 70, {yLabel: d.yLabel});
-      html += '<div style="font-size:12px; color:var(--ink-3); margin-top:6px;">'+d.label+'</div>';
+      html += '<div style="font-size:13px; color:var(--ink-3); margin-top:6px;">'+d.label+'</div>';
       html += '</div>';
     });
     html += '</div></div>';
@@ -1832,7 +1890,7 @@ function renderModule(){
   }
 
   if(m.ref){
-    html += '<div class="section-block"><h4>基準値・目安</h4><div style="font-size:13.5px; color:var(--ink-2);">'+m.ref+'</div></div>';
+    html += '<div class="section-block"><h4>基準値・目安</h4><div style="font-size:14.5px; color:var(--ink-2);">'+m.ref+'</div></div>';
   }
 
   if(m.calc && CALC_DEFS[m.calc]){
@@ -1851,7 +1909,7 @@ function renderModule(){
     });
     html += '</div>';
     html += '<div class="calc-result-row"><span id="gc-main-label" class="calc-result-label"></span><span id="gc-main-value" class="mono calc-result-value">--</span></div>';
-    html += '<div id="gc-sub" style="font-size:13px; color:var(--ink-2); margin-bottom:8px;"></div>';
+    html += '<div id="gc-sub" style="font-size:14px; color:var(--ink-2); margin-bottom:8px;"></div>';
     html += '<div id="gc-interp" class="placeholder-note"></div>';
     html += '</div>';
   }
@@ -1885,7 +1943,7 @@ function renderModule(){
     html += '</div>';
     html += '<div class="calc-result-row"><span class="calc-result-label">酸素残量:</span><span id="cyl-remain" class="mono" style="font-size:16px; font-weight:500;">--</span><span class="calc-result-label">L</span></div>';
     html += '<div class="calc-result-row"><span class="calc-result-label">使用可能時間:</span><span id="cyl-time" class="mono calc-result-value">--</span></div>';
-    html += '<div style="font-size:13px; color:var(--amber); margin-top:8px;">安全域の目安(計算値の80%): <span id="cyl-safe" class="mono">--</span></div>';
+    html += '<div style="font-size:14px; color:var(--amber); margin-top:8px;">安全域の目安(計算値の80%): <span id="cyl-safe" class="mono">--</span></div>';
     html += '</div>';
   }
 
@@ -2020,7 +2078,7 @@ function renderModule(){
       g.diagrams.forEach((d,i)=>{
         const gid = 'wf-'+m.id+'-'+key+'-'+i;
         inner += '<div>'+waveformBlock(gid, d.cycle, 50, 70, {yLabel:d.yLabel})
-          + '<div style="font-size:12px; color:var(--ink-3); margin-top:6px;">'+d.label+'</div></div>';
+          + '<div style="font-size:13px; color:var(--ink-3); margin-top:6px;">'+d.label+'</div></div>';
       });
       container.innerHTML = inner;
       main.querySelectorAll('[data-gkey]').forEach(c=> c.classList.toggle('active', c.getAttribute('data-gkey')===key));
@@ -2438,7 +2496,7 @@ function simChartSvg(cfg, cur, gh, bands, W, width, isLast, Tc, Tg){
     const yy = y(v).toFixed(1);
     const strong = (cfg.zero && v === 0);
     s += '<line x1="'+ml+'" x2="'+(ml+pw)+'" y1="'+yy+'" y2="'+yy+'" style="stroke:'+(strong ? 'var(--ink-3)' : 'var(--line)')+'; stroke-width:1;"/>';
-    s += '<text x="'+(ml-6)+'" y="'+(Number(yy)+3.5)+'" text-anchor="end" style="fill:var(--ink-3); font-size:10.5px;">'+v+'</text>';
+    s += '<text x="'+(ml-6)+'" y="'+(Number(yy)+3.5)+'" text-anchor="end" style="fill:var(--ink-3); font-size:11.5px;">'+v+'</text>';
   });
   // 縦グリッド(時間)
   let tstep = W <= 12 ? 1 : 2;
@@ -2446,7 +2504,7 @@ function simChartSvg(cfg, cur, gh, bands, W, width, isLast, Tc, Tg){
   for(let t = 0; t <= W + 1e-9; t += tstep){
     const xx = x(t).toFixed(1);
     s += '<line x1="'+xx+'" x2="'+xx+'" y1="'+mt+'" y2="'+(mt+plotH)+'" style="stroke:var(--line); stroke-width:1; opacity:.6;"/>';
-    if(isLast) s += '<text x="'+xx+'" y="'+(mt+plotH+14)+'" text-anchor="middle" style="fill:var(--ink-3); font-size:10.5px;">'+t+'</text>';
+    if(isLast) s += '<text x="'+xx+'" y="'+(mt+plotH+14)+'" text-anchor="middle" style="fill:var(--ink-3); font-size:11.5px;">'+t+'</text>';
   }
   // 波形
   s += '<g clip-path="url(#'+cid+')">';
@@ -2460,8 +2518,8 @@ function simChartSvg(cfg, cur, gh, bands, W, width, isLast, Tc, Tg){
   s += '</g>';
   // 枠・タイトル
   s += '<rect x="'+ml+'" y="'+mt+'" width="'+pw+'" height="'+plotH+'" fill="none" style="stroke:var(--line-strong); stroke-width:1;"/>';
-  s += '<text x="'+ml+'" y="14" style="fill:var(--ink); font-size:12px; font-weight:500;">'+cfg.title+'<tspan style="fill:var(--ink-3); font-size:11px; font-weight:400;">  ('+cfg.unit+')  ↑</tspan></text>';
-  if(isLast) s += '<text x="'+(ml+pw)+'" y="'+(H-4)+'" text-anchor="end" style="fill:var(--ink-3); font-size:11px;">時間 (秒) →</text>';
+  s += '<text x="'+ml+'" y="14" style="fill:var(--ink); font-size:13px; font-weight:500;">'+cfg.title+'<tspan style="fill:var(--ink-3); font-size:12px; font-weight:400;">  ('+cfg.unit+')  ↑</tspan></text>';
+  if(isLast) s += '<text x="'+(ml+pw)+'" y="'+(H-4)+'" text-anchor="end" style="fill:var(--ink-3); font-size:12px;">時間 (秒) →</text>';
   s += '</svg>';
   return s;
 }
@@ -2587,6 +2645,9 @@ function simAnimStart(){ if(!simAnimOn){ simAnimOn = true; requestAnimationFrame
 
 (async function init(){
   await loadData();
+  currentId = idFromHash();
+  if(currentId){ const m = MODULES.find(x=>x.id===currentId); if(m) expandedCats.add(m.cat); }
+  history.replaceState({id: currentId, depth: 0}, '', currentId ? '#/m/' + currentId : location.pathname + location.search);
   render();
   animateWave();
 })();

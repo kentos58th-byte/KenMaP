@@ -10,7 +10,7 @@
   const BELTS = [
     { id: 'shiro',  name: '白帯', sub: '心電図の基礎',         obi: '#FFFFFF', topics: '刺激伝導系・P/QRS/Tの意味・記録紙の読み方・心拍数の計算', ready: true },
     { id: 'cha',    name: '茶帯', sub: '基本の不整脈',         obi: '#7A4A2A', topics: '洞調律・洞性頻脈/徐脈・AF・AFL・PAC・PVC', ready: true },
-    { id: 'kuro',   name: '黒帯', sub: '致死性不整脈とブロック', obi: '#1E1B18', topics: 'VT・VF・PEA・心静止・房室ブロック1〜3度', ready: false },
+    { id: 'kuro',   name: '黒帯', sub: '致死性不整脈とブロック', obi: '#1E1B18', topics: 'VT・VF・PEA・心静止・房室ブロック1〜3度', ready: true },
     { id: 'shihan', name: '師範', sub: '応用',                 obi: '#C23B22', topics: 'ST変化と責任冠動脈・高K血症・QT延長・ペースメーカー', ready: false }
   ];
   const beltById = id => BELTS.find(b => b.id === id);
@@ -100,9 +100,11 @@
       setHR(hr) { m.setHR(hr); hrEl.textContent = hr; canvas.setAttribute('aria-label', '心電図モニター 心拍数' + hr + '回/分'); if (range) range.value = hr; },
       setRhythm(spec) {
         m.setRhythm(spec);
-        const hr = m.gen.hr, irregular = spec.type === 'af';
-        hrEl.textContent = (irregular ? '~' : '') + hr;
-        canvas.setAttribute('aria-label', '心電図モニター 心拍数' + hr + '回/分');
+        const hr = m.gen.hr, irregular = spec.type === 'af' || spec.type === 'wenck' || spec.type === 'mobitz';
+        const noRate = spec.type === 'vf' || spec.type === 'asystole';
+        hrEl.textContent = noRate ? '---' : (irregular ? '~' : '') + hr;
+        $('.hud', root).classList.toggle('alarm', noRate);
+        canvas.setAttribute('aria-label', noRate ? '心電図モニター 心拍数測定不能' : '心電図モニター 心拍数' + hr + '回/分');
       }
     };
     if (o.spec) api.setRhythm(o.spec);

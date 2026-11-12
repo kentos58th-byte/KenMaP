@@ -58,21 +58,32 @@
 
   const ALARM_RHYTHMS = ['vf', 'asystole'];
 
-  /* ---------- 拍の種類ごとの形 (どの拍も「開始から0.195秒」にR波の頂点が来る) ---------- */
+  /* ---------- 拍の形 ----------
+     1拍 = { start, p: P波の種類, v: 心室波の種類, d: 心室の遅れ(PR延長分), rr }
+     どの拍も「start + 0.195秒 + d」にR波の頂点が来る */
   const R_AT = 0.195;
-  function shapeOf(kind, tau, rr) {
+  function pWave(kind, tau) {
+    if (tau < -0.05 || tau > 0.2) return 0;
+    if (kind === 'pac') return g(tau, 0.05, 0.02, 0.14) + g(tau, 0.1, 0.014, -0.06);
+    return g(tau, 0.06, 0.022, 0.15);
+  }
+  function vWave(kind, tau, rr) {
     if (tau < -0.05 || tau > 0.95) return 0;
-    if (kind === 'n') return beatShape(tau, rr);
-    if (kind === 'np') return beatShape(tau, rr) - g(tau, 0.06, 0.022, 0.15);          // P波なし (AF)
-    if (kind === 'fl') {                                                               // P波なし・T波はF波に埋もれる (AFL)
-      const T = timing(rr);
-      return beatShape(tau, rr) - g(tau, 0.06, 0.022, 0.15) - g(tau, T.tPeak, 0.042, 0.22);
-    }
-    if (kind === 'pac') return beatShape(tau, rr) - g(tau, 0.06, 0.022, 0.15)          // 形の違うP波
-      + g(tau, 0.05, 0.02, 0.14) + g(tau, 0.1, 0.014, -0.06);
-    if (kind === 'pvc') return g(tau, 0.185, 0.034, 1.05) + g(tau, 0.265, 0.03, -0.5)  // 幅広いQRS
-      + g(tau, 0.47, 0.065, -0.36);                                                    // 逆向きのT波
+    const T = timing(rr);
+    const qrsT = g(tau, T.qrsOn + 0.012, 0.007, -0.10) + g(tau, T.rPeak, 0.009, 1.10) + g(tau, T.qrsOn + 0.057, 0.009, -0.28);
+    if (kind === 'n') return qrsT + g(tau, T.tPeak, 0.042, 0.32);
+    if (kind === 'fl') return qrsT + g(tau, T.tPeak, 0.042, 0.10);                   // T波はF波に埋もれる
+    if (kind === 'pvc') return g(tau, 0.185, 0.034, 1.05) + g(tau, 0.265, 0.03, -0.5) + g(tau, 0.47, 0.065, -0.36);
+    if (kind === 'esc') return g(tau, 0.18, 0.034, 0.85) + g(tau, 0.265, 0.03, -0.3) + g(tau, 0.48, 0.055, -0.12); // 心室補充調律
+    if (kind === 'vt') return g(tau, 0.17, 0.05, 1.0) + g(tau, 0.3, 0.055, -0.75);   // 幅広い単形性VT
     return 0;
+  }
+  function beatValue(b, t) {
+    const tau = t - b.start;
+    let v = 0;
+    if (b.p) v += pWave(b.p, tau);
+    if (b.v) v += vWave(b.v, tau - (b.d || 0), b.rr);
+    return v;
   }
 
   /* 乱数 (同じ seed なら毎回同じ波形になる) */
@@ -82,7 +93,10 @@
   }
 
   /* ---------- リズム生成器 ----------
-     spec = { type: 'sinus' | 'af' | 'afl' | 'pac' | 'pvc' | 'vf' | 'asystole', hr, ratio(AFLの伝導比), every(期外収縮の間隔) }
+     spec.type:
+       sinus 洞調律 / af 心房細動 / afl 心房粗動(ratio) / pac / pvc (every)
+       vt 心室頻拍 / vf 心室細動 / asystole 心静止 / pea 無脈性電気活動
+       avb1 1度 / wenck 2度ウェンケバッハ / mobitz 2度モビッツII型(ratio) / avb3 3度(完全)房室ブロック
      時間は増える方向にだけ問い合わせる (モニターも静止図も左から順に描くため) */
   class Rhythm {
     constructor(spec, opts) {
@@ -90,36 +104,66 @@
       this.rand = rng(opts.seed || 11);
       this.beats = []; this.rIdx = 0;
       this.nextStart = opts.t0 != null ? opts.t0 : 0;
-      this.sinceEct = 0; this.ectNext = false; this.lastNormal = this.nextStart;
+      this.nextV = this.nextStart + 0.37;      // 3度房室ブロックの心室側
+      this.sinceEct = 0; this.ectNext = false; this.lastNormal = this.nextStart; this.cycle = 0;
       this.set(spec);
     }
     set(spec) {
+      const prevType = this.spec && this.spec.type;
       this.spec = Object.assign({ type: 'sinus', hr: 75 }, typeof spec === 'string' ? { type: spec } : spec);
-      if (this.spec.type === 'afl') this.spec.hr = Math.round(300 / (this.spec.ratio || 4));
-      this.nextEct = (this.spec.every || 4) + Math.floor(this.rand() * 2);
+      const s = this.spec;
+      if (s.type === 'afl') s.hr = Math.round(300 / (s.ratio || 4));
+      if (s.type === 'avb3') { s.atrial = s.atrial || 80; s.hr = s.hr || 38; }
+      if (s.type === 'wenck' || s.type === 'mobitz') { s.atrial = s.atrial || 80; }
+      this.nextEct = (s.every || 4) + Math.floor(this.rand() * 2);
       this.ectNext = false;
+      if (prevType !== s.type) this.cycle = 0;
     }
-    get hr() { return this.spec.hr; }
+    get hr() {
+      const s = this.spec;
+      if (s.type === 'wenck') return Math.round(s.atrial * 3 / 4);
+      if (s.type === 'mobitz') { const r = s.ratio || 3; return Math.round(s.atrial * (r - 1) / r); }
+      return s.hr;
+    }
+    _add(b) { this.beats.push(b); }
     _push() {
-      const s = this.spec, base = 60 / s.hr;
-      const start = this.nextStart;
-      if (s.type === 'af') {
-        const rr = base * (0.55 + 0.9 * this.rand());           // 絶対性不整
-        this.beats.push({ start, kind: 'np', rr: base }); this.nextStart = start + rr; return;
+      const s = this.spec, start = this.nextStart, base = 60 / (s.hr || 75);
+      switch (s.type) {
+        case 'af': {
+          this._add({ start, v: 'n', rr: base });
+          this.nextStart = start + base * (0.55 + 0.9 * this.rand()); return;   // 絶対性不整
+        }
+        case 'afl': {
+          const rr = 0.2 * (s.ratio || 4);
+          this._add({ start, v: 'fl', rr }); this.nextStart = start + rr; return;
+        }
+        case 'vt': { this._add({ start, v: 'vt', rr: base }); this.nextStart = start + base; return; }
+        case 'avb1': { this._add({ start, p: 'n', v: 'n', d: 0.14, rr: base }); this.nextStart = start + base; return; }  // PR 約0.29秒
+        case 'wenck': {                                                        // PRが延びて、4拍目のQRSが抜ける
+          const pp = 60 / s.atrial, prs = [0.16, 0.26, 0.32], i = this.cycle % 4;
+          this._add(i < 3 ? { start, p: 'n', v: 'n', d: prs[i] - 0.15, rr: pp } : { start, p: 'n', rr: pp });
+          this.cycle++; this.nextStart = start + pp; return;
+        }
+        case 'mobitz': {                                                       // PRは一定のまま、突然QRSが抜ける
+          const pp = 60 / s.atrial, r = s.ratio || 3, i = this.cycle % r;
+          this._add(i < r - 1 ? { start, p: 'n', v: 'n', d: 0.03, rr: pp } : { start, p: 'n', rr: pp });
+          this.cycle++; this.nextStart = start + pp; return;
+        }
+        case 'avb3': {                                                         // 心房と心室がバラバラに動く
+          const pp = 60 / s.atrial, vv = 60 / s.hr;
+          if (this.nextV < start) { this._add({ start: this.nextV, v: 'esc', rr: vv }); this.nextV += vv; return; }
+          this._add({ start, p: 'n', rr: pp }); this.nextStart = start + pp; return;
+        }
       }
-      if (s.type === 'afl') {
-        const rr = 0.2 * (s.ratio || 4);                          // 粗動波 300/分 の整数倍
-        this.beats.push({ start, kind: 'fl', rr }); this.nextStart = start + rr; return;
-      }
-      if (this.ectNext) {                                        // 期外収縮
-        this.beats.push({ start, kind: s.type, rr: base });
-        this.nextStart = s.type === 'pac' ? start + base * 1.04  // PAC: 洞結節がリセットされる
-                                          : this.lastNormal + 2 * base; // PVC: 代償性休止
+      // sinus / pea / pac / pvc
+      if (this.ectNext) {
+        this._add(s.type === 'pac' ? { start, p: 'pac', v: 'n', rr: base } : { start, v: 'pvc', rr: base });
+        this.nextStart = s.type === 'pac' ? start + base * 1.04 : this.lastNormal + 2 * base; // PACはリセット、PVCは代償性休止
         this.ectNext = false; this.sinceEct = 0;
         this.nextEct = (s.every || 4) + Math.floor(this.rand() * 2);
         return;
       }
-      this.beats.push({ start, kind: 'n', rr: base });
+      this._add({ start, p: 'n', v: 'n', rr: base });
       this.lastNormal = start; this.sinceEct++;
       if ((s.type === 'pac' || s.type === 'pvc') && this.sinceEct >= this.nextEct) {
         this.ectNext = true;
@@ -138,20 +182,28 @@
     }
     value(t, onR) {
       const ty = this.spec.type;
-      if (ty === 'vf' || ty === 'asystole') { this.nextStart = Math.max(this.nextStart, t); this.rIdx = this.beats.length; return ty === 'vf' ? vfAt(t) : asystoleAt(t); }
-      if (this.nextStart < t - 1) this.nextStart = t;               // 長く止まっていたら追いつく
-      while (this.nextStart <= t + 0.05) this._push();
-      while (this.rIdx < this.beats.length && this.beats[this.rIdx].start + R_AT <= t) { this.rIdx++; if (onR) onR(); }
+      if (ty === 'vf' || ty === 'asystole') {
+        this.nextStart = Math.max(this.nextStart, t); this.nextV = Math.max(this.nextV, t); this.rIdx = this.beats.length;
+        return ty === 'vf' ? vfAt(t) : asystoleAt(t);
+      }
+      if (this.nextStart < t - 1) { this.nextStart = t; this.nextV = Math.max(this.nextV, t); }  // 長く止まっていたら追いつく
+      while (Math.min(this.nextStart, ty === 'avb3' ? this.nextV : Infinity) <= t + 0.05) this._push();
+      while (this.rIdx < this.beats.length) {
+        const b = this.beats[this.rIdx];
+        if (b.v && b.start + R_AT + (b.d || 0) > t) break;
+        this.rIdx++;
+        if (b.v && onR) onR();
+      }
       let v = this.atrial(t);
       for (let i = this.beats.length - 1; i >= 0; i--) {
         const b = this.beats[i];
-        if (b.start < t - 1.0) break;
-        v += shapeOf(b.kind, t - b.start, b.rr);
+        if (b.start < t - 1.3) break;
+        v += beatValue(b, t);
       }
       if (this.beats.length > 60) { this.beats.splice(0, 30); this.rIdx = Math.max(0, this.rIdx - 30); }
       return v;
     }
-    rTimes() { return this.beats.map(b => b.start + R_AT); }
+    rTimes() { return this.beats.filter(b => b.v).map(b => b.start + R_AT + (b.d || 0)); }
   }
 
   /* =========================================================
