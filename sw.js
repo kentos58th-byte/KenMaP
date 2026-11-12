@@ -1,6 +1,6 @@
 // KenMaP Service Worker (ハブと全アプリ共通)
 // 内容を更新したら VERSION を上げると、利用者の端末のキャッシュが新しくなります。
-const VERSION = 'v5';
+const VERSION = 'v6';
 const CACHE = 'kenmap-' + VERSION;
 
 // オフラインで使えるようにするファイル。アプリを追加したらここにも足す。
@@ -20,7 +20,8 @@ const ASSETS = [
   './ECG-dojo/ecg.js',
   './ECG-dojo/data/shiro.json',
   './ECG-dojo/data/cha.json',
-  './ECG-dojo/data/kuro.json'
+  './ECG-dojo/data/kuro.json',
+  './ECG-dojo/data/shihan.json'
 ];
 
 self.addEventListener('install', event => {

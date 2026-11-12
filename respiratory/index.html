@@ -231,6 +231,8 @@
     font-size:12.5px; color:var(--ink-3); margin-bottom:8px; letter-spacing:.03em;
   }
   .breadcrumb svg{width:13px; height:13px; flex-shrink:0;}
+  .crumb-btn{background:var(--panel-alt); border:1px solid var(--line-strong); border-radius:999px; padding:5px 12px; font:inherit; cursor:pointer;}
+  .crumb-btn:hover{border-color:var(--teal);}
   .mod-title{font-size:21px; font-weight:700; margin:0 0 5px; letter-spacing:-.005em;}
   .mod-goal{color:var(--ink-2); font-size:14px; margin:0 0 22px; max-width:620px;}
 
@@ -426,6 +428,73 @@
     main{padding:26px 28px 50px; max-width:none;}
     header{padding:16px 20px 13px;}
     .cat-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));}
+  }
+
+
+  /* ---------- トップ画面・分野画面 ---------- */
+  .ov-hero{margin:0 0 22px;}
+  .ov-hero h2{font-size:24px; margin:0 0 4px; font-weight:700; letter-spacing:.02em;}
+  .ov-hero p{margin:0 0 14px; color:var(--ink-2); font-size:15px;}
+  .ov-search{display:flex; align-items:center; gap:10px; background:var(--panel-alt); border:1.5px solid var(--line-strong); border-radius:14px; padding:0 14px; color:var(--ink-3);}
+  .ov-search:focus-within{border-color:var(--teal); color:var(--teal);}
+  .ov-search input{flex:1; min-width:0; height:52px; background:none; border:0; outline:none; color:var(--ink); font:inherit; font-size:16px;}
+  .ov-search input::placeholder{color:var(--ink-3);}
+  .ov-title{font-size:16px; font-weight:700; margin:26px 0 12px; color:var(--ink);}
+  .ov-count{font-size:13px; color:var(--ink-3); margin:0 0 8px;}
+  .ov-empty{padding:18px; text-align:center; color:var(--ink-2); background:var(--panel); border:1px dashed var(--line-strong); border-radius:12px;}
+  .cat-tiles{display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:12px;}
+  .cat-tile{
+    display:grid; grid-template-columns:auto 1fr; grid-template-rows:auto auto auto; column-gap:12px; row-gap:2px; align-items:center;
+    text-align:left; padding:16px; border-radius:16px; cursor:pointer; font:inherit; color:var(--ink);
+    background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--cat-color);
+    transition:transform .12s, border-color .12s, background .12s;
+  }
+  .cat-tile:hover{background:var(--panel-alt); transform:translateY(-1px);}
+  .cat-tile:active{transform:scale(.985);}
+  .ct-icon{grid-row:1 / span 3; width:48px; height:48px; border-radius:13px; display:flex; align-items:center; justify-content:center; background:color-mix(in srgb, var(--cat-color) 16%, transparent);}
+  .ct-icon.big{width:56px; height:56px; border-radius:15px; flex-shrink:0;}
+  .ct-name{font-size:17px; font-weight:700; line-height:1.35;}
+  .ct-desc{font-size:13px; color:var(--ink-2); line-height:1.5;}
+  .ct-count{font-size:12.5px; color:var(--cat-color); font-weight:700;}
+  .tool-chips{display:flex; flex-wrap:wrap; gap:8px;}
+  .tool-chip{display:inline-flex; align-items:center; gap:7px; min-height:44px; padding:0 14px; border-radius:999px; border:1px solid var(--line-strong); background:var(--panel); color:var(--ink); font:inherit; font-size:14px; cursor:pointer;}
+  .tool-chip:hover{border-color:var(--cat-color);}
+  .lung-hero{margin-top:26px;}
+  .edit-progress{margin-top:18px; color:var(--ink-3); font-size:13px;}
+  .edit-progress summary{cursor:pointer; padding:6px 0;}
+  .edit-progress .progress-row{margin-top:10px;}
+  .cat-head{display:flex; align-items:center; gap:14px; margin:0 0 18px; padding-bottom:16px; border-bottom:1px solid var(--line);}
+  .cat-head h2{margin:0; font-size:22px; font-weight:700;}
+  .cat-head p{margin:2px 0 0; color:var(--ink-2); font-size:14px;}
+  .mod-list{display:flex; flex-direction:column; gap:10px;}
+  .mod-row{
+    display:flex; align-items:center; gap:12px; width:100%; text-align:left; cursor:pointer;
+    padding:14px 14px 14px 16px; border-radius:14px; font:inherit; color:var(--ink);
+    background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--cat-color);
+  }
+  .mod-row:hover{background:var(--panel-alt);}
+  .mod-row:active{transform:scale(.99);}
+  .mr-body{flex:1; min-width:0; display:flex; flex-direction:column; gap:3px;}
+  .mr-title{font-size:16px; font-weight:700; line-height:1.4;}
+  .mr-goal{font-size:13.5px; color:var(--ink-2); line-height:1.55; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+  .mr-badges{display:flex; gap:6px; flex-wrap:wrap;}
+  .mr-badges:empty{display:none;}
+  .badge-s{font-size:11.5px; font-weight:700; padding:1px 8px; border-radius:999px;}
+  .badge-s.tool{background:rgba(183,156,237,.18); color:#D3C2F7;}
+  .badge-s.sim{background:rgba(91,155,217,.2); color:#A9CBF0;}
+  .badge-s.wip{background:rgba(152,173,185,.16); color:var(--ink-3);}
+  .mr-arrow{font-size:26px; color:var(--ink-3); line-height:1;}
+  @media (max-width: 760px){
+    #nav{display:none;}
+    #wave{display:none;}
+    header{padding:10px 16px !important;}
+    header .title-block p{display:none;}
+    .cat-tiles{grid-template-columns:1fr 1fr; gap:10px;}
+    .cat-tile{grid-template-columns:1fr; padding:14px; row-gap:4px;}
+    .ct-icon{grid-row:auto; width:44px; height:44px; margin-bottom:4px;}
+    .ct-name{font-size:16px;}
+    .ct-desc{font-size:12.5px;}
+    .ov-hero h2{font-size:22px;}
   }
 
   /* 表などが広くても、ページ全体が横にはみ出さないようにする */
@@ -1611,7 +1680,7 @@ function showScreen(id, mode){
   currentId = id;
   const m = id ? MODULES.find(x=>x.id===id) : null;
   if(m) expandedCats.add(m.cat);
-  const url = id ? '#/m/' + id : '#/';
+  const url = !id ? '#/' : id.startsWith('c:') ? '#/c/' + id.slice(2) : '#/m/' + id;
   const depth = (history.state && history.state.depth) || 0;
   if(mode === 'push' && location.hash !== url) history.pushState({id: id, depth: depth + 1}, '', url);
   else if(mode === 'replace') history.replaceState({id: id, depth: depth}, '', url);
@@ -1621,6 +1690,7 @@ function showScreen(id, mode){
 }
 function selectModule(id){ showScreen(id, 'push'); }
 function selectOverview(){ showScreen(null, 'push'); }
+function selectCategory(cat){ showScreen('c:' + cat, 'push'); }
 function goBack(){
   const depth = (history.state && history.state.depth) || 0;
   if(depth > 0) history.back();
@@ -1628,6 +1698,8 @@ function goBack(){
   else location.href = '../';
 }
 function idFromHash(){
+  const cm = location.hash.match(/^#\/c\/(.+)$/);
+  if(cm && CAT_LABELS[cm[1]]) return 'c:' + cm[1];
   const mm = location.hash.match(/^#\/m\/(.+)$/);
   const id = mm ? decodeURIComponent(mm[1]) : null;
   return id && MODULES.some(x=>x.id===id) ? id : null;
@@ -1711,62 +1783,124 @@ function lungIllustration(){
     + '</g></svg>';
 }
 
+const CAT_DESC = {
+  oxygen:"デバイスの選び方、FiO2の目安、ボンベ・流量の計算",
+  vent:"モード・設定・波形・非同調、ウィーニング、NPPV",
+  calc:"P/F比・A-aDO2・コンプライアンスなどの計算ツール",
+  airway:"エアウェイ・BVM・ジャクソンリース、チューブ固定",
+  tracheo:"術後の急性期ケア、デバイス、トラブル対応",
+  care:"呼吸リハビリ、吸引、去痰薬",
+  assess:"呼吸困難・聴診・努力呼吸・触診の評価"
+};
+function isTool(m){ return !!(m.calc || m.simulator || m.id === 'o2-totalflow'); }
+function modBadges(m){
+  let b = '';
+  if(m.simulator) b += '<span class="badge-s sim">シミュレーター</span>';
+  else if(isTool(m)) b += '<span class="badge-s tool">計算</span>';
+  if(!m.sample) b += '<span class="badge-s wip">準備中</span>';
+  return b;
+}
+function modRow(m){
+  return '<button type="button" class="mod-row" data-id="'+m.id+'" style="--cat-color:'+CAT_COLORS[m.cat]+'">'
+    + '<span class="mr-body"><span class="mr-title">'+m.title+'</span>'
+    + (m.goal ? '<span class="mr-goal">'+m.goal+'</span>' : '')
+    + '<span class="mr-badges">'+modBadges(m)+'</span></span>'
+    + '<span class="mr-arrow" aria-hidden="true">&rsaquo;</span></button>';
+}
+function bindRows(root){
+  root.querySelectorAll('.mod-row').forEach(el=>{ el.onclick = ()=> selectModule(el.getAttribute('data-id')); });
+}
+function catTileIcon(cat, size){
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 18 18" fill="none" stroke="'+CAT_COLORS[cat]+'" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">'+CAT_ICONS[cat]+'</svg>';
+}
+
 function renderOverview(){
   const main = document.getElementById('main');
-  const total = MODULES.length;
-  const done = MODULES.filter(m=>moduleData[m.id].status==="完成").length;
-  const draft = MODULES.filter(m=>moduleData[m.id].status==="下書き").length;
-  const todo = total - done - draft;
-  const pct = Math.round((done/total)*100);
-
   let html = '';
-  html += '<div class="disclaimer">';
-  html += '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2.5L1.5 15h15L9 2.5z"/><path d="M9 7v4"/><circle cx="9" cy="13.2" r="0.4" fill="var(--amber)" stroke="none"/></svg>';
-  html += '<div class="disclaimer-text"><strong>ご利用にあたっての注意</strong><br>本アプリの内容は、学習・参考のための一般的な情報として作成したものであり、特定の患者への臨床判断や治療方針を保証するものではありません。数値・基準値は教科書的な目安を含みます。実際のケア・治療にあたっては、必ず<strong>所属施設のプロトコル・マニュアル、および担当医の指示を優先</strong>してください。内容は今後も更新・見直しを行っていきます。</div>';
+  html += '<section class="ov-hero">'
+    + '<h2>何を調べますか？</h2>'
+    + '<p>分野を選ぶか、キーワードで探してください。</p>'
+    + '<label class="ov-search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>'
+    + '<input type="search" id="ov-q" placeholder="例：P/F比、吸引、NPPV、PEEP" autocomplete="off" aria-label="項目を検索"></label>'
+    + '</section>';
+  html += '<div id="ov-results" class="mod-list" hidden></div>';
+  html += '<div id="ov-body">';
+
+  html += '<h3 class="ov-title">分野から選ぶ</h3><div class="cat-tiles">';
+  Object.keys(CAT_LABELS).forEach(cat=>{
+    const n = MODULES.filter(m=>m.cat===cat).length;
+    html += '<button type="button" class="cat-tile" data-cat="'+cat+'" style="--cat-color:'+CAT_COLORS[cat]+'">'
+      + '<span class="ct-icon">'+catTileIcon(cat, 26)+'</span>'
+      + '<span class="ct-name">'+CAT_LABELS[cat]+'</span>'
+      + '<span class="ct-desc">'+CAT_DESC[cat]+'</span>'
+      + '<span class="ct-count">'+n+'項目</span></button>';
+  });
   html += '</div>';
 
-  html += '<div class="overview-head">';
-  html += '<h2>呼吸ケアマップ</h2>';
-  html += '<p>酸素療法・人工呼吸器・気道管理に関する内容をモジュール単位で整理しています。左のメニューから各モジュールを選ぶと、扱う予定の内容とステータスを確認・編集できます。</p>';
+  const tools = MODULES.filter(isTool);
+  html += '<h3 class="ov-title">すぐ使えるツール</h3><div class="tool-chips">';
+  tools.forEach(m=>{
+    html += '<button type="button" class="tool-chip" data-id="'+m.id+'" style="--cat-color:'+CAT_COLORS[m.cat]+'">'
+      + catTileIcon(m.cat, 16) + '<span>'+m.title.replace(/\(.*?\)/g,'')+'</span></button>';
+  });
   html += '</div>';
 
   html += '<div class="lung-hero">';
   html += '<div class="lung-svg-wrap">'+lungIllustration()+'</div>';
   html += '<div class="lung-hero-info">';
-  html += '<div class="lung-hero-title">安静時の呼吸(吸気1秒:呼気2秒)</div>';
-  html += '<div class="lung-hero-sub">成人の主な正常値の目安</div>';
+  html += '<div class="lung-hero-title">成人の正常値の目安（安静時）</div>';
   html += '<div class="lung-values">';
   html += '<div class="lung-value-item"><div class="lv-label">呼吸数</div><div class="lv-num mono">12〜20 回/分</div></div>';
-  html += '<div class="lung-value-item"><div class="lv-label">1回換気量(TV)・男性目安</div><div class="lv-num mono">約400〜500 mL</div></div>';
-  html += '<div class="lung-value-item"><div class="lv-label">1回換気量(TV)・女性目安</div><div class="lv-num mono">約300〜400 mL</div></div>';
+  html += '<div class="lung-value-item"><div class="lv-label">1回換気量・男性</div><div class="lv-num mono">約400〜500 mL</div></div>';
+  html += '<div class="lung-value-item"><div class="lv-label">1回換気量・女性</div><div class="lv-num mono">約300〜400 mL</div></div>';
   html += '<div class="lung-value-item"><div class="lv-label">生理的PEEP</div><div class="lv-num mono">約3〜5 cmH2O</div></div>';
   html += '</div></div></div>';
 
-  html += '<div class="progress-row">';
-  html += '<div class="stat-card"><div class="num mono">'+total+'</div><div class="lab">モジュール数</div></div>';
-  html += '<div class="stat-card"><div class="num mono" style="color:var(--teal)">'+done+'</div><div class="lab">完成</div></div>';
-  html += '<div class="stat-card"><div class="num mono" style="color:var(--amber)">'+draft+'</div><div class="lab">下書き</div></div>';
-  html += '<div class="stat-card"><div class="num mono" style="color:var(--ink-3)">'+todo+'</div><div class="lab">未着手</div></div>';
+  html += '<div class="disclaimer">';
+  html += '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2.5L1.5 15h15L9 2.5z"/><path d="M9 7v4"/><circle cx="9" cy="13.2" r="0.4" fill="var(--amber)" stroke="none"/></svg>';
+  html += '<div class="disclaimer-text"><strong>ご利用にあたっての注意</strong><br>本アプリの内容は学習・参考のための一般的な情報です。数値・基準値は教科書的な目安を含みます。実際のケア・治療では、必ず<strong>所属施設のプロトコル・マニュアル、および担当医の指示を優先</strong>してください。</div>';
   html += '</div>';
-  html += '<div class="bar-outer"><div class="bar-inner" style="width:'+pct+'%"></div></div>';
 
-  Object.keys(CAT_LABELS).forEach(cat=>{
-    const catMods = MODULES.filter(m=>m.cat===cat);
-    html += '<div class="cat-block"><h3>'+catIcon(cat)+'<span>'+CAT_LABELS[cat]+'</span><span class="mono" style="color:var(--ink-3); font-size:12px; font-weight:400; text-transform:none;">&nbsp;'+catMods.length+'項目</span></h3><div class="cat-grid">';
-    catMods.forEach(m=>{
-      const st = moduleData[m.id].status;
-      html += '<div class="mini-card" data-id="'+m.id+'" style="--cat-color:'+CAT_COLORS[cat]+'">';
-      html += '<div class="mtitle">'+m.title+'</div>';
-      html += '<div class="mstatus"><span class="dot '+statusClass(st)+'"></span>'+st+'</div>';
-      html += '</div>';
-    });
-    html += '</div></div>';
-  });
+  const total = MODULES.length;
+  const done = MODULES.filter(m=>moduleData[m.id].status==="完成").length;
+  const draft = MODULES.filter(m=>moduleData[m.id].status==="下書き").length;
+  html += '<details class="edit-progress"><summary>編集の進み具合（作成者向け）</summary>'
+    + '<div class="progress-row">'
+    + '<div class="stat-card"><div class="num mono">'+total+'</div><div class="lab">項目数</div></div>'
+    + '<div class="stat-card"><div class="num mono" style="color:var(--teal)">'+done+'</div><div class="lab">完成</div></div>'
+    + '<div class="stat-card"><div class="num mono" style="color:var(--amber)">'+draft+'</div><div class="lab">下書き</div></div>'
+    + '<div class="stat-card"><div class="num mono" style="color:var(--ink-3)">'+(total-done-draft)+'</div><div class="lab">未着手</div></div>'
+    + '</div></details>';
+  html += '</div>';
 
   main.innerHTML = html;
-  main.querySelectorAll('.mini-card').forEach(el=>{
-    el.onclick = ()=> selectModule(el.getAttribute('data-id'));
+  main.querySelectorAll('.cat-tile').forEach(el=>{ el.onclick = ()=> selectCategory(el.getAttribute('data-cat')); });
+  main.querySelectorAll('.tool-chip').forEach(el=>{ el.onclick = ()=> selectModule(el.getAttribute('data-id')); });
+
+  const q = document.getElementById('ov-q'), results = document.getElementById('ov-results'), body = document.getElementById('ov-body');
+  q.addEventListener('input', ()=>{
+    const term = q.value.trim().toLowerCase();
+    if(!term){ results.hidden = true; body.hidden = false; return; }
+    const hit = MODULES.filter(m=>{
+      const text = [m.title, m.goal || '', CAT_LABELS[m.cat]].concat(m.points || []).join(' ').toLowerCase();
+      return term.split(/\s+/).every(w=>text.includes(w));
+    });
+    results.innerHTML = hit.length ? '<div class="ov-count">'+hit.length+'件</div>' + hit.map(modRow).join('')
+      : '<div class="ov-empty">見つかりませんでした。別の言葉で試してください。</div>';
+    bindRows(results);
+    results.hidden = false; body.hidden = true;
   });
+}
+
+function renderCategory(cat){
+  const main = document.getElementById('main');
+  const mods = MODULES.filter(m=>m.cat===cat);
+  let html = '<div class="cat-head" style="--cat-color:'+CAT_COLORS[cat]+'">'
+    + '<span class="ct-icon big">'+catTileIcon(cat, 30)+'</span>'
+    + '<div><h2>'+CAT_LABELS[cat]+'</h2><p>'+CAT_DESC[cat]+'</p></div></div>';
+  html += '<div class="mod-list">' + mods.map(modRow).join('') + '</div>';
+  main.innerHTML = html;
+  bindRows(main);
 }
 
 function renderModule(){
@@ -1775,7 +1909,7 @@ function renderModule(){
   const data = moduleData[m.id];
 
   let html = '';
-  html += '<div class="breadcrumb">'+catIcon(m.cat)+'<span>'+CAT_LABELS[m.cat]+'</span></div>';
+  html += '<button type="button" class="breadcrumb crumb-btn" onclick="selectCategory(\''+m.cat+'\')">'+catIcon(m.cat)+'<span>'+CAT_LABELS[m.cat]+'</span><span aria-hidden="true">&rsaquo; 一覧</span></button>';
   html += '<h2 class="mod-title">'+m.title+'</h2>';
   html += '<p class="mod-goal">'+m.goal+'</p>';
 
@@ -2155,7 +2289,9 @@ function render(){
   renderNav();
   const cm = currentId===null ? null : MODULES.find(x=>x.id===currentId);
   document.getElementById('main').classList.toggle('wide', !!(cm && cm.simulator));
-  if(currentId===null){ renderOverview(); } else { renderModule(); }
+  if(currentId===null){ renderOverview(); }
+  else if(currentId.startsWith('c:')){ renderCategory(currentId.slice(2)); }
+  else { renderModule(); }
 }
 
 function animateWave(){
@@ -2647,7 +2783,7 @@ function simAnimStart(){ if(!simAnimOn){ simAnimOn = true; requestAnimationFrame
   await loadData();
   currentId = idFromHash();
   if(currentId){ const m = MODULES.find(x=>x.id===currentId); if(m) expandedCats.add(m.cat); }
-  history.replaceState({id: currentId, depth: 0}, '', currentId ? '#/m/' + currentId : location.pathname + location.search);
+  history.replaceState({id: currentId, depth: 0}, '', !currentId ? location.pathname + location.search : currentId.startsWith('c:') ? '#/c/' + currentId.slice(2) : '#/m/' + currentId);
   render();
   animateWave();
 })();

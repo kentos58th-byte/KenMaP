@@ -4,14 +4,14 @@
    ========================================================= */
 (function () {
   'use strict';
-  const { Monitor, Sound, svgPath, gridDefs, sinusAt, timing, beatShape, Rhythm, R_AT } = window.ECG;
+  const { Monitor, Sound, svgPath, gridDefs, sinusAt, timing, beatShape, Rhythm, R_AT, LEADS, leadBeat } = window.ECG;
 
   /* ---------- 段位 ---------- */
   const BELTS = [
     { id: 'shiro',  name: '白帯', sub: '心電図の基礎',         obi: '#FFFFFF', topics: '刺激伝導系・P/QRS/Tの意味・記録紙の読み方・心拍数の計算', ready: true },
     { id: 'cha',    name: '茶帯', sub: '基本の不整脈',         obi: '#7A4A2A', topics: '洞調律・洞性頻脈/徐脈・AF・AFL・PAC・PVC', ready: true },
     { id: 'kuro',   name: '黒帯', sub: '致死性不整脈とブロック', obi: '#1E1B18', topics: 'VT・VF・PEA・心静止・房室ブロック1〜3度', ready: true },
-    { id: 'shihan', name: '師範', sub: '応用',                 obi: '#C23B22', topics: 'ST変化と責任冠動脈・高K血症・QT延長・ペースメーカー', ready: false }
+    { id: 'shihan', name: '師範', sub: '応用',                 obi: '#C23B22', topics: 'ST変化と責任冠動脈・高K血症・QT延長とTdP・ペースメーカー', ready: true }
   ];
   const beltById = id => BELTS.find(b => b.id === id);
 
@@ -100,7 +100,7 @@
       setHR(hr) { m.setHR(hr); hrEl.textContent = hr; canvas.setAttribute('aria-label', '心電図モニター 心拍数' + hr + '回/分'); if (range) range.value = hr; },
       setRhythm(spec) {
         m.setRhythm(spec);
-        const hr = m.gen.hr, irregular = spec.type === 'af' || spec.type === 'wenck' || spec.type === 'mobitz';
+        const hr = m.gen.hr, irregular = spec.type === 'af' || spec.type === 'wenck' || spec.type === 'mobitz' || spec.type === 'tdp';
         const noRate = spec.type === 'vf' || spec.type === 'asystole';
         hrEl.textContent = noRate ? '---' : (irregular ? '~' : '') + hr;
         $('.hud', root).classList.toggle('alarm', noRate);
@@ -126,6 +126,8 @@
     const d = svgPath(t => rhythm.value(t), { t0: 0, t1: seconds, pxPerSec, baseline, pxPerMv });
     const rs = rhythm.rTimes().filter(t => t >= 0 && t < seconds);
     let extra = '';
+    const sp = rhythm.spikesIn(0, seconds);
+    if (sp.length) extra += '<path d="' + sp.map(t => 'M' + (t * pxPerSec).toFixed(1) + ' ' + (baseline + pxPerMm) + 'V' + (baseline - 0.9 * pxPerMv).toFixed(1)).join('') + '" stroke="#1E1B18" stroke-width="' + Math.max(1, pxPerMm * 0.3) + '"/>';
     if (opts.markR) rs.forEach(t => { extra += '<circle cx="' + (t * pxPerSec).toFixed(1) + '" cy="' + (baseline - 1.1 * pxPerMv - 6) + '" r="' + Math.max(2.5, pxPerMm * 0.7) + '" fill="#C23B22"/>'; });
     if (opts.bracket && rs.length > 1) {
       const x1 = rs[0] * pxPerSec, x2 = rs[1] * pxPerSec, y = H - pxPerMm * 2;
@@ -138,6 +140,42 @@
         + '<path d="' + d + '" fill="none" stroke="#1E1B18" stroke-width="' + Math.max(1.4, pxPerMm * 0.35) + '" stroke-linejoin="round"/>' + extra + '</svg>',
       rCount6: rs.filter(t => t < 6).length
     };
+  }
+
+  /* ---------- 12誘導 (SVG) ----------
+     mods = { elev: [ST上昇の誘導], dep: [ST低下の誘導], st: 上昇の大きさ(mV) } */
+  function twelveSVG(mods, pxPerMm) {
+    mods = mods || {};
+    const s = pxPerMm || 3, secs = 1.1, cw = Math.round(secs * 25 * s), ch = 22 * s;
+    const W = cw * 4, H = ch * 3, grid = gridDefs(s);
+    const order = [['I', 'II', 'III'], ['aVR', 'aVL', 'aVF'], ['V1', 'V2', 'V3'], ['V4', 'V5', 'V6']];
+    let body = '';
+    order.forEach((col, ci) => col.forEach((lead, ri) => {
+      const st = (mods.elev || []).includes(lead) ? (mods.st || 0.32) : (mods.dep || []).includes(lead) ? -(mods.depth || 0.15) : 0;
+      const x0 = ci * cw, base = ri * ch + Math.round(ch * 0.62 / (s * 5)) * s * 5;
+      const d = svgPath(t => leadBeat(lead, t, st), { t0: -0.18, t1: secs - 0.18, pxPerSec: 25 * s, baseline: base, pxPerMv: 10 * s, x0 });
+      const hl = st > 0 ? '#C23B22' : st < 0 ? '#2F5E8C' : '#1E1B18';
+      body += '<path d="' + d + '" fill="none" stroke="' + hl + '" stroke-width="' + (st ? 1.8 : 1.3) + '" stroke-linejoin="round"/>'
+        + '<text x="' + (x0 + 4) + '" y="' + (ri * ch + 12) + '" font-size="11" font-weight="800" fill="' + hl + '">' + lead + '</text>';
+    }));
+    let sep = '';
+    for (let i = 1; i < 4; i++) sep += '<line x1="' + i * cw + '" y1="0" x2="' + i * cw + '" y2="' + H + '" stroke="#1E1B18" stroke-width=".8" opacity=".35"/>';
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="12誘導心電図">' + grid.defs
+      + '<rect width="' + W + '" height="' + H + '" fill="#FFF8F1"/><rect width="' + W + '" height="' + H + '" fill="url(#' + grid.id + ')"/>' + sep + body + '</svg>';
+  }
+  /* 冠動脈の模式図。artery = 'RCA' | 'LAD' | 'LCX' | 'ALL' */
+  function coronarySVG(artery) {
+    const on = a => artery === a || artery === 'ALL';
+    const col = a => on(a) ? '#C23B22' : '#857B6E', w = a => on(a) ? 5 : 3;
+    return '<svg viewBox="0 0 240 200" role="img" aria-label="冠動脈の模式図">'
+      + '<path d="M120 30 C70 20 34 60 40 110 C46 150 90 180 124 192 C160 176 204 146 206 104 C208 58 168 22 120 30Z" fill="#FBF0E6" stroke="#1E1B18" stroke-width="2"/>'
+      + '<path d="M108 34 C92 50 70 70 60 100 C52 126 62 150 92 172" fill="none" stroke="' + col('RCA') + '" stroke-width="' + w('RCA') + '" stroke-linecap="round"/>'
+      + '<path d="M128 34 C130 70 128 120 122 186" fill="none" stroke="' + col('LAD') + '" stroke-width="' + w('LAD') + '" stroke-linecap="round"/>'
+      + '<path d="M130 36 C160 44 186 66 194 100 C198 120 192 140 180 156" fill="none" stroke="' + col('LCX') + '" stroke-width="' + w('LCX') + '" stroke-linecap="round"/>'
+      + '<text x="14" y="96" font-size="12" font-weight="800" fill="' + col('RCA') + '">RCA</text>'
+      + '<text x="106" y="120" font-size="12" font-weight="800" fill="' + col('LAD') + '" transform="rotate(-88 112 120)">LAD</text>'
+      + '<text x="200" y="76" font-size="12" font-weight="800" fill="' + col('LCX') + '">LCX</text>'
+      + '<text x="120" y="16" text-anchor="middle" font-size="10" fill="#857B6E">※ 模式図（正面から見た心臓）</text></svg>';
   }
 
   /* =========================================================
@@ -410,6 +448,22 @@
       return { select(k) { const p = lesson.parts.find(x => x.id === k); if (p) show(p); } };
     },
 
+    /* 12誘導図: 冠動脈の模式図 + 12誘導 + 見分け表 (師範) */
+    twelve(root, lesson) {
+      const first = lesson.parts[0];
+      root.innerHTML = '<div class="figure" id="tw-cor" style="max-width:300px;margin:0 auto 12px"></div><div class="figure" style="padding:6px" id="tw-12"></div>'
+        + '<div style="font-size:11.5px;color:#857B6E;margin:-6px 4px 10px">朱＝ST上昇、藍＝ST低下（模式的な波形です）</div><div class="calc" id="tw-check"></div>';
+      const cor = $('#tw-cor', root), tw = $('#tw-12', root), check = $('#tw-check', root);
+      function show(part) {
+        cor.innerHTML = coronarySVG(part.artery || '');
+        tw.innerHTML = twelveSVG(part.leads || {});
+        const c = part.check || {};
+        check.innerHTML = Object.keys(c).map(k => '<div class="row"><span class="k">' + esc(k) + '</span><span class="f" style="color:var(--sumi)">' + esc(c[k]) + '</span></div>').join('');
+      }
+      setTimeout(() => root.dispatchEvent(new CustomEvent('ecgpick', { detail: first.id })), 0);
+      return { select(k) { const p = lesson.parts.find(x => x.id === k); if (p) show(p); } };
+    },
+
     /* 其の肆: 心拍数の計算 */
     rate(root) {
       let hr = 75;
@@ -464,6 +518,7 @@
     const q = item.q;
     let html = '<div class="q-head"><span>' + no + ' / ' + total + '</span><div class="dots">' + dots + '</div></div>';
     html += '<div class="q-card"><div class="qno">第' + no + '問</div><p class="qtext">' + nl(q.question) + '</p>';
+    if (q.twelve) html += twelveSVG(q.twelve);
     if (q.strip) html += stripSVG(q.strip, q.strip.seconds || 3, q.strip.seconds > 4 ? 4 : 5, 20, { seed: q.strip.seed || hashStr(q.id) }).svg;
     html += '</div><div class="choices">';
     item.order.forEach((orig, i) => {
@@ -503,7 +558,7 @@
         + '<button type="button" class="btn" id="next">' + (i + 1 < items.length ? '次の問題へ' : '結果を見る') + '</button>';
       $('.q-head .dots', view).innerHTML = (i++, dots());
       $('#next', view).addEventListener('click', show);
-      setTimeout(() => $('#fb', view).scrollIntoView({ behavior: 'smooth', block: 'nearest' }), ok ? 700 : 50);
+      setTimeout(() => { const fb = $('#fb', view); if (fb) fb.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, ok ? 700 : 50);
     }
     function finish() {
       const score = results.filter(Boolean).length;

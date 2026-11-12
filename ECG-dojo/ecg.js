@@ -65,6 +65,7 @@
   function pWave(kind, tau) {
     if (tau < -0.05 || tau > 0.2) return 0;
     if (kind === 'pac') return g(tau, 0.05, 0.02, 0.14) + g(tau, 0.1, 0.014, -0.06);
+    if (kind === 'small') return g(tau, 0.06, 0.026, 0.06);                         // 平低化したP波 (高K血症)
     return g(tau, 0.06, 0.022, 0.15);
   }
   function vWave(kind, tau, rr) {
@@ -76,13 +77,19 @@
     if (kind === 'pvc') return g(tau, 0.185, 0.034, 1.05) + g(tau, 0.265, 0.03, -0.5) + g(tau, 0.47, 0.065, -0.36);
     if (kind === 'esc') return g(tau, 0.18, 0.034, 0.85) + g(tau, 0.265, 0.03, -0.3) + g(tau, 0.48, 0.055, -0.12); // 心室補充調律
     if (kind === 'vt') return g(tau, 0.17, 0.05, 1.0) + g(tau, 0.3, 0.055, -0.75);   // 幅広い単形性VT
+    if (kind === 'tdp') return g(tau, 0.17, 0.042, 1.0) + g(tau, 0.27, 0.045, -0.85); // TdP (振幅は拍ごとに変える)
+    if (kind === 'tent') return qrsT + g(tau, T.tPeak - 0.02, 0.03, 0.85);           // テント状T波 (高K血症)
+    if (kind === 'hk2') return g(tau, 0.2, 0.024, 0.8) + g(tau, 0.27, 0.032, -0.35) + g(tau, T.tPeak + 0.02, 0.036, 0.75); // QRS拡大+尖ったT
+    if (kind === 'sine') return g(tau, 0.2, 0.075, 0.85) + g(tau, 0.44, 0.085, -0.7); // サインカーブ様
+    if (kind === 'lqt') return qrsT + g(tau, T.qrsOn + 0.5, 0.065, 0.28);            // QT延長 (T波が遅く幅広い)
+    if (kind === 'pv') return g(tau, 0.2, 0.034, -0.35) + g(tau, 0.26, 0.04, 0.9) + g(tau, 0.5, 0.07, -0.3);   // 心室ペーシング波形
     return 0;
   }
   function beatValue(b, t) {
     const tau = t - b.start;
     let v = 0;
     if (b.p) v += pWave(b.p, tau);
-    if (b.v) v += vWave(b.v, tau - (b.d || 0), b.rr);
+    if (b.v) v += vWave(b.v, tau - (b.d || 0), b.rr) * (b.amp == null ? 1 : b.amp);
     return v;
   }
 
@@ -138,6 +145,28 @@
           this._add({ start, v: 'fl', rr }); this.nextStart = start + rr; return;
         }
         case 'vt': { this._add({ start, v: 'vt', rr: base }); this.nextStart = start + base; return; }
+        case 'tdp': {                                                          // QRSの向きと大きさがねじれるように変わる
+          const amp = Math.cos(2 * Math.PI * 0.32 * start) * 1.05;
+          this._add({ start, v: 'tdp', rr: base, amp: Math.abs(amp) < 0.18 ? Math.sign(amp || 1) * 0.18 : amp });
+          this.nextStart = start + base * (0.92 + 0.16 * this.rand()); return;
+        }
+        case 'hk1': { this._add({ start, p: 'n', v: 'tent', rr: base }); this.nextStart = start + base; return; }
+        case 'hk2': { this._add({ start, p: 'small', v: 'hk2', d: 0.06, rr: base }); this.nextStart = start + base; return; }
+        case 'hk3': { this._add({ start, v: 'sine', rr: base }); this.nextStart = start + base; return; }
+        case 'lqt': { this._add({ start, p: 'n', v: 'lqt', rr: base }); this.nextStart = start + base; return; }
+        case 'paceA': { this._add({ start, p: 'n', v: 'n', rr: base, sp: [0.0] }); this.nextStart = start + base; return; }       // 心房ペーシング
+        case 'paceV': { this._add({ start, v: 'pv', rr: base, sp: [0.165] }); this.nextStart = start + base; return; }            // 心室ペーシング
+        case 'paceD': { this._add({ start, p: 'n', v: 'pv', rr: base, sp: [0.0, 0.165] }); this.nextStart = start + base; return; } // DDD
+        case 'failcap': {                                                      // スパイクの後にQRSが続かない (捕捉不全)
+          const i = this.cycle % 4; this.cycle++;
+          this._add(i === 2 ? { start, rr: base, sp: [0.165] } : { start, v: 'pv', rr: base, sp: [0.165] });
+          this.nextStart = start + base; return;
+        }
+        case 'failsense': {                                                    // 自己脈を感知せず一定間隔でスパイク (センシング不全)
+          const vv = 60 / (s.pace || 60);
+          if (this.nextV < start) { this._add({ start: this.nextV, rr: vv, sp: [0] }); this.nextV += vv; return; }
+          this._add({ start, p: 'n', v: 'n', rr: base }); this.nextStart = start + base; return;
+        }
         case 'avb1': { this._add({ start, p: 'n', v: 'n', d: 0.14, rr: base }); this.nextStart = start + base; return; }  // PR 約0.29秒
         case 'wenck': {                                                        // PRが延びて、4拍目のQRSが抜ける
           const pp = 60 / s.atrial, prs = [0.16, 0.26, 0.32], i = this.cycle % 4;
@@ -187,7 +216,7 @@
         return ty === 'vf' ? vfAt(t) : asystoleAt(t);
       }
       if (this.nextStart < t - 1) { this.nextStart = t; this.nextV = Math.max(this.nextV, t); }  // 長く止まっていたら追いつく
-      while (Math.min(this.nextStart, ty === 'avb3' ? this.nextV : Infinity) <= t + 0.05) this._push();
+      while (Math.min(this.nextStart, (ty === 'avb3' || ty === 'failsense') ? this.nextV : Infinity) <= t + 0.05) this._push();
       while (this.rIdx < this.beats.length) {
         const b = this.beats[this.rIdx];
         if (b.v && b.start + R_AT + (b.d || 0) > t) break;
@@ -204,6 +233,16 @@
       return v;
     }
     rTimes() { return this.beats.filter(b => b.v).map(b => b.start + R_AT + (b.d || 0)); }
+    /* ペーシングスパイクの時刻 (a < 時刻 <= b)。スパイクは細すぎて点で拾えないため、線として別に描く */
+    spikesIn(a, b) {
+      const out = [];
+      for (let i = this.beats.length - 1; i >= 0; i--) {
+        const bt = this.beats[i];
+        if (bt.start < a - 0.5) break;
+        if (bt.sp) bt.sp.forEach(o => { const x = bt.start + o; if (x > a && x <= b) out.push(x); });
+      }
+      return out;
+    }
   }
 
   /* =========================================================
@@ -314,7 +353,12 @@
       while (px > 0) {
         const d = Math.min(step, px); px -= d;
         this.simT += d / this.pxPerSec;
+        const prevT = this.simT - d / this.pxPerSec;
         const v = this.gen.value(this.simT, () => { Sound.beep(); if (this.onBeat) this.onBeat(); });
+        this.gen.spikesIn(prevT, this.simT).forEach(st => {
+          const sx = this.x + (st - prevT) * this.pxPerSec;
+          c.save(); c.lineWidth = 1.5; c.beginPath(); c.moveTo(sx, this.baseline + 4); c.lineTo(sx, this.baseline - 0.9 * this.pxPerMv); c.stroke(); c.restore();
+        });
         const y = this.baseline - v * this.pxPerMv;
         const nx = this.x + d;
         // 描いた先を少し消す (スイープの消去帯)
@@ -365,5 +409,30 @@
     };
   }
 
-  global.ECG = { timing, beatShape, sinusAt, vfAt, asystoleAt, Rhythm, R_AT, Monitor, Sound, svgPath, gridDefs, ALARM_RHYTHMS };
+  /* ---------- 12誘導 (静止図用) ----------
+     mods = { st: ST の上下(mV), recip: 対側性のST低下 } */
+  const LEADS = ['I', 'II', 'III', 'aVR', 'aVL', 'aVF', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6'];
+  const LEAD_SHAPE = {                     // [Rの高さ, Sの深さ, Tの高さ, 全体の向き]
+    I: [0.7, -0.15, 0.25, 1], II: [1.1, -0.25, 0.32, 1], III: [0.55, -0.2, 0.15, 1],
+    aVR: [0.8, -0.2, 0.25, -1], aVL: [0.45, -0.15, 0.15, 1], aVF: [0.8, -0.2, 0.22, 1],
+    V1: [0.2, -0.9, 0.1, 1], V2: [0.35, -1.0, 0.35, 1], V3: [0.7, -0.6, 0.38, 1],
+    V4: [1.1, -0.35, 0.38, 1], V5: [1.0, -0.2, 0.32, 1], V6: [0.8, -0.12, 0.25, 1]
+  };
+  function leadBeat(lead, tau, st) {
+    const L = LEAD_SHAPE[lead], T = timing(1), dir = L[3];
+    let v = g(tau, T.pPeak, 0.022, 0.12)
+      + g(tau, T.rPeak, 0.009, L[0]) + g(tau, T.qrsOn + 0.057, 0.01, L[1])
+      + g(tau, T.tPeak, 0.042, L[2]);
+    v *= dir;
+    if (st) {                              // J点からT波にかけてSTを持ち上げる/下げる
+      const a = T.qrsOff - 0.005, b = T.tPeak;
+      if (tau > a) {
+        const k = tau < b ? Math.min(1, (tau - a) / 0.02) : Math.exp(-Math.pow((tau - b) / 0.06, 2));
+        v += st * k;
+      }
+    }
+    return v;
+  }
+
+  global.ECG = { timing, beatShape, sinusAt, vfAt, asystoleAt, Rhythm, R_AT, LEADS, leadBeat, Monitor, Sound, svgPath, gridDefs, ALARM_RHYTHMS };
 })(window);
