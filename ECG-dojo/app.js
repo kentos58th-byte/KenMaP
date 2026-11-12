@@ -4,12 +4,12 @@
    ========================================================= */
 (function () {
   'use strict';
-  const { Monitor, Sound, svgPath, gridDefs, sinusAt, timing, beatShape } = window.ECG;
+  const { Monitor, Sound, svgPath, gridDefs, sinusAt, timing, beatShape, Rhythm, R_AT } = window.ECG;
 
   /* ---------- 段位 ---------- */
   const BELTS = [
     { id: 'shiro',  name: '白帯', sub: '心電図の基礎',         obi: '#FFFFFF', topics: '刺激伝導系・P/QRS/Tの意味・記録紙の読み方・心拍数の計算', ready: true },
-    { id: 'cha',    name: '茶帯', sub: '基本の不整脈',         obi: '#7A4A2A', topics: '洞調律・洞性頻脈/徐脈・AF・AFL・PAC・PVC', ready: false },
+    { id: 'cha',    name: '茶帯', sub: '基本の不整脈',         obi: '#7A4A2A', topics: '洞調律・洞性頻脈/徐脈・AF・AFL・PAC・PVC', ready: true },
     { id: 'kuro',   name: '黒帯', sub: '致死性不整脈とブロック', obi: '#1E1B18', topics: 'VT・VF・PEA・心静止・房室ブロック1〜3度', ready: false },
     { id: 'shihan', name: '師範', sub: '応用',                 obi: '#C23B22', topics: 'ST変化と責任冠動脈・高K血症・QT延長・ペースメーカー', ready: false }
   ];
@@ -45,6 +45,7 @@
   const nl = s => esc(s).replace(/\n/g, '<br>');
   const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const MARKS = ['壱', '弐', '参', '肆'];
+  const hashStr = str => { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
   const vibrate = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} };
 
   let cleanups = [];
@@ -88,7 +89,7 @@
   function mountMonitor(root, o) {
     const canvas = $('canvas', root), heart = $('.heart', root), hrEl = $('.hr', root);
     const m = new Monitor(canvas, {
-      hr: o.hr, rhythm: o.rhythm || 'sinus', seconds: o.seconds || 4,
+      hr: o.hr, rhythm: o.rhythm || 'sinus', spec: o.spec, seconds: o.seconds || 4,
       onBeat: () => { heart.classList.add('beat'); setTimeout(() => heart.classList.remove('beat'), 120); }
     });
     m.start();
@@ -96,26 +97,33 @@
     const range = $('input[type=range]', root);
     const api = {
       monitor: m,
-      setHR(hr) { m.setHR(hr); hrEl.textContent = hr; canvas.setAttribute('aria-label', '心電図モニター 心拍数' + hr + '回/分'); if (range) range.value = hr; }
+      setHR(hr) { m.setHR(hr); hrEl.textContent = hr; canvas.setAttribute('aria-label', '心電図モニター 心拍数' + hr + '回/分'); if (range) range.value = hr; },
+      setRhythm(spec) {
+        m.setRhythm(spec);
+        const hr = m.gen.hr, irregular = spec.type === 'af';
+        hrEl.textContent = (irregular ? '~' : '') + hr;
+        canvas.setAttribute('aria-label', '心電図モニター 心拍数' + hr + '回/分');
+      }
     };
+    if (o.spec) api.setRhythm(o.spec);
     if (range) range.addEventListener('input', () => { api.setHR(+range.value); if (o.onHR) o.onHR(+range.value); });
     paintSound();
     return api;
   }
 
-  /* ---------- 記録紙の心電図 (SVG) ---------- */
-  function stripSVG(hr, seconds, pxPerMm, heightMm, opts) {
+  /* ---------- 記録紙の心電図 (SVG) ----------
+     spec: { type, hr, ratio, every } または心拍数の数字。最初のR波を太い線(0.4秒)に合わせる */
+  function stripSVG(spec, seconds, pxPerMm, heightMm, opts) {
     opts = opts || {};
+    if (typeof spec === 'number') spec = { type: 'sinus', hr: spec };
     const pxPerSec = 25 * pxPerMm, pxPerMv = 10 * pxPerMm;
     const W = Math.round(seconds * pxPerSec), H = heightMm * pxPerMm;
     const baseline = Math.round(H * 0.7 / (pxPerMm * 5)) * pxPerMm * 5; // 太い線の上に基線
-    const rr = 60 / hr, firstR = 0.4; // 最初のR波を太い線(0.4秒=大マス2個)に合わせる
-    const offset = firstR - timing(rr).rPeak;
+    const rhythm = new Rhythm(spec, { t0: 0.4 - R_AT, seed: opts.seed || 7 });
     const grid = gridDefs(pxPerMm);
-    const d = svgPath(t => sinusAt(t, hr, offset), { t0: 0, t1: seconds, pxPerSec, baseline, pxPerMv });
+    const d = svgPath(t => rhythm.value(t), { t0: 0, t1: seconds, pxPerSec, baseline, pxPerMv });
+    const rs = rhythm.rTimes().filter(t => t >= 0 && t < seconds);
     let extra = '';
-    const rs = [];
-    for (let t = firstR; t < seconds; t += rr) rs.push(t);
     if (opts.markR) rs.forEach(t => { extra += '<circle cx="' + (t * pxPerSec).toFixed(1) + '" cy="' + (baseline - 1.1 * pxPerMv - 6) + '" r="' + Math.max(2.5, pxPerMm * 0.7) + '" fill="#C23B22"/>'; });
     if (opts.bracket && rs.length > 1) {
       const x1 = rs[0] * pxPerSec, x2 = rs[1] * pxPerSec, y = H - pxPerMm * 2;
@@ -205,7 +213,8 @@
     view.innerHTML = html;
 
     const body = $('#lesson-body', view);
-    const fig = LESSON_FIGURES[lesson.id] ? LESSON_FIGURES[lesson.id](body) : { select() {} };
+    const figKey = lesson.figure || lesson.id;
+    const fig = LESSON_FIGURES[figKey] ? LESSON_FIGURES[figKey](body, lesson) : { select() {} };
     const explain = $('#explain', view);
     function select(pid) {
       const p = lesson.parts.find(x => x.id === pid); if (!p) return;
@@ -377,6 +386,28 @@
       return { select(k) { hl.innerHTML = draw[k] || ''; } };
     },
 
+    /* リズム図: モニター + 6秒の記録紙 + 見分け表 (茶帯以降で使う) */
+    rhythm(root, lesson) {
+      const first = lesson.parts[0];
+      root.innerHTML = '<div id="rh-mon"></div><div class="figure" style="padding:6px" id="rh-strip"></div><div class="calc" id="rh-check"></div>';
+      const mon = $('#rh-mon', root);
+      mon.innerHTML = monitorHTML({ hr: (first.rhythm && first.rhythm.hr) || 75 });
+      $('.ctrl span', mon).id = 'rh-name';
+      const m = mountMonitor($('.monitor', mon), { hr: 75, spec: first.rhythm || { type: 'sinus', hr: 75 } });
+      const stripEl = $('#rh-strip', root), check = $('#rh-check', root), nameEl = $('#rh-name', root);
+      function show(part) {
+        const spec = part.rhythm || { type: 'sinus', hr: 75 };
+        m.setRhythm(spec);
+        nameEl.textContent = part.label;
+        stripEl.innerHTML = stripSVG(spec, 6, 4, 20, { seed: hashStr(lesson.id + part.id) }).svg
+          + '<div style="font-size:11.5px;color:#857B6E;padding:4px 4px 0">6秒間の記録（紙送り25mm/秒）</div>';
+        const c = part.check || {};
+        check.innerHTML = Object.keys(c).map(k => '<div class="row"><span class="k">' + esc(k) + '</span><span class="f" style="color:var(--sumi)">' + esc(c[k]) + '</span></div>').join('');
+      }
+      setTimeout(() => root.dispatchEvent(new CustomEvent('ecgpick', { detail: first.id })), 0);
+      return { select(k) { const p = lesson.parts.find(x => x.id === k); if (p) show(p); } };
+    },
+
     /* 其の肆: 心拍数の計算 */
     rate(root) {
       let hr = 75;
@@ -431,7 +462,7 @@
     const q = item.q;
     let html = '<div class="q-head"><span>' + no + ' / ' + total + '</span><div class="dots">' + dots + '</div></div>';
     html += '<div class="q-card"><div class="qno">第' + no + '問</div><p class="qtext">' + nl(q.question) + '</p>';
-    if (q.strip) html += stripSVG(q.strip.hr, q.strip.seconds || 3, 5, 20).svg;
+    if (q.strip) html += stripSVG(q.strip, q.strip.seconds || 3, q.strip.seconds > 4 ? 4 : 5, 20, { seed: q.strip.seed || hashStr(q.id) }).svg;
     html += '</div><div class="choices">';
     item.order.forEach((orig, i) => {
       html += '<button type="button" class="choice" data-i="' + i + '"><span class="mark">' + MARKS[i] + '</span><span>' + esc(q.choices[orig]) + '</span></button>';

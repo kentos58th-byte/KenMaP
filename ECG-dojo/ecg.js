@@ -58,30 +58,100 @@
 
   const ALARM_RHYTHMS = ['vf', 'asystole'];
 
-  /* ---------- 連続生成器 (モニター用・心拍数を途中で変えても途切れない) ---------- */
-  class Generator {
-    constructor(hr, rhythm) {
-      this.hr = hr; this.rhythm = rhythm || 'sinus';
-      this.beatStart = 0; this.rr = 60 / hr;
-      this.prevStart = -10; this.prevRR = this.rr;
-      this.rFired = false;
+  /* ---------- 拍の種類ごとの形 (どの拍も「開始から0.195秒」にR波の頂点が来る) ---------- */
+  const R_AT = 0.195;
+  function shapeOf(kind, tau, rr) {
+    if (tau < -0.05 || tau > 0.95) return 0;
+    if (kind === 'n') return beatShape(tau, rr);
+    if (kind === 'np') return beatShape(tau, rr) - g(tau, 0.06, 0.022, 0.15);          // P波なし (AF)
+    if (kind === 'fl') {                                                               // P波なし・T波はF波に埋もれる (AFL)
+      const T = timing(rr);
+      return beatShape(tau, rr) - g(tau, 0.06, 0.022, 0.15) - g(tau, T.tPeak, 0.042, 0.22);
     }
-    setHR(hr) { this.hr = hr; }
-    setRhythm(r) { this.rhythm = r; }
-    /* t(秒) の電位を返す。R波を通過したら onR を呼ぶ */
-    sample(t, onR) {
-      if (this.rhythm === 'vf') return vfAt(t);
-      if (this.rhythm === 'asystole') return asystoleAt(t);
-      while (t >= this.beatStart + this.rr) {
-        this.prevStart = this.beatStart; this.prevRR = this.rr;
-        this.beatStart += this.rr;
-        this.rr = 60 / this.hr;
-        this.rFired = false;
+    if (kind === 'pac') return beatShape(tau, rr) - g(tau, 0.06, 0.022, 0.15)          // 形の違うP波
+      + g(tau, 0.05, 0.02, 0.14) + g(tau, 0.1, 0.014, -0.06);
+    if (kind === 'pvc') return g(tau, 0.185, 0.034, 1.05) + g(tau, 0.265, 0.03, -0.5)  // 幅広いQRS
+      + g(tau, 0.47, 0.065, -0.36);                                                    // 逆向きのT波
+    return 0;
+  }
+
+  /* 乱数 (同じ seed なら毎回同じ波形になる) */
+  function rng(seed) {
+    let a = (seed >>> 0) || 1;
+    return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+
+  /* ---------- リズム生成器 ----------
+     spec = { type: 'sinus' | 'af' | 'afl' | 'pac' | 'pvc' | 'vf' | 'asystole', hr, ratio(AFLの伝導比), every(期外収縮の間隔) }
+     時間は増える方向にだけ問い合わせる (モニターも静止図も左から順に描くため) */
+  class Rhythm {
+    constructor(spec, opts) {
+      opts = opts || {};
+      this.rand = rng(opts.seed || 11);
+      this.beats = []; this.rIdx = 0;
+      this.nextStart = opts.t0 != null ? opts.t0 : 0;
+      this.sinceEct = 0; this.ectNext = false; this.lastNormal = this.nextStart;
+      this.set(spec);
+    }
+    set(spec) {
+      this.spec = Object.assign({ type: 'sinus', hr: 75 }, typeof spec === 'string' ? { type: spec } : spec);
+      if (this.spec.type === 'afl') this.spec.hr = Math.round(300 / (this.spec.ratio || 4));
+      this.nextEct = (this.spec.every || 4) + Math.floor(this.rand() * 2);
+      this.ectNext = false;
+    }
+    get hr() { return this.spec.hr; }
+    _push() {
+      const s = this.spec, base = 60 / s.hr;
+      const start = this.nextStart;
+      if (s.type === 'af') {
+        const rr = base * (0.55 + 0.9 * this.rand());           // 絶対性不整
+        this.beats.push({ start, kind: 'np', rr: base }); this.nextStart = start + rr; return;
       }
-      const tau = t - this.beatStart;
-      if (!this.rFired && tau >= timing(this.rr).rPeak) { this.rFired = true; if (onR) onR(); }
-      return beatShape(tau, this.rr) + beatShape(t - this.prevStart, this.prevRR);
+      if (s.type === 'afl') {
+        const rr = 0.2 * (s.ratio || 4);                          // 粗動波 300/分 の整数倍
+        this.beats.push({ start, kind: 'fl', rr }); this.nextStart = start + rr; return;
+      }
+      if (this.ectNext) {                                        // 期外収縮
+        this.beats.push({ start, kind: s.type, rr: base });
+        this.nextStart = s.type === 'pac' ? start + base * 1.04  // PAC: 洞結節がリセットされる
+                                          : this.lastNormal + 2 * base; // PVC: 代償性休止
+        this.ectNext = false; this.sinceEct = 0;
+        this.nextEct = (s.every || 4) + Math.floor(this.rand() * 2);
+        return;
+      }
+      this.beats.push({ start, kind: 'n', rr: base });
+      this.lastNormal = start; this.sinceEct++;
+      if ((s.type === 'pac' || s.type === 'pvc') && this.sinceEct >= this.nextEct) {
+        this.ectNext = true;
+        this.nextStart = start + base * (s.type === 'pac' ? 0.62 : 0.56);
+      } else this.nextStart = start + base;
     }
+    atrial(t) {
+      const ty = this.spec.type;
+      if (ty === 'af') return 0.05 * (Math.sin(2 * Math.PI * 5.7 * t + Math.sin(2 * Math.PI * 0.7 * t))
+        + 0.7 * Math.sin(2 * Math.PI * 7.9 * t + 1.1) + 0.5 * Math.sin(2 * Math.PI * 4.3 * t + 2.0));
+      if (ty === 'afl') {                                          // 鋸歯状波 (5Hz = 300/分)
+        const ph = ((t * 5) % 1 + 1) % 1;
+        return ph < 0.8 ? 0.13 - 0.33 * (ph / 0.8) : -0.2 + 0.33 * ((ph - 0.8) / 0.2);
+      }
+      return 0;
+    }
+    value(t, onR) {
+      const ty = this.spec.type;
+      if (ty === 'vf' || ty === 'asystole') { this.nextStart = Math.max(this.nextStart, t); this.rIdx = this.beats.length; return ty === 'vf' ? vfAt(t) : asystoleAt(t); }
+      if (this.nextStart < t - 1) this.nextStart = t;               // 長く止まっていたら追いつく
+      while (this.nextStart <= t + 0.05) this._push();
+      while (this.rIdx < this.beats.length && this.beats[this.rIdx].start + R_AT <= t) { this.rIdx++; if (onR) onR(); }
+      let v = this.atrial(t);
+      for (let i = this.beats.length - 1; i >= 0; i--) {
+        const b = this.beats[i];
+        if (b.start < t - 1.0) break;
+        v += shapeOf(b.kind, t - b.start, b.rr);
+      }
+      if (this.beats.length > 60) { this.beats.splice(0, 30); this.rIdx = Math.max(0, this.rIdx - 30); }
+      return v;
+    }
+    rTimes() { return this.beats.map(b => b.start + R_AT); }
   }
 
   /* =========================================================
@@ -137,7 +207,7 @@
     constructor(canvas, opts) {
       opts = opts || {};
       this.canvas = canvas; this.ctx = canvas.getContext('2d');
-      this.gen = new Generator(opts.hr || 75, opts.rhythm || 'sinus');
+      this.gen = new Rhythm(Object.assign({ type: opts.rhythm || 'sinus', hr: opts.hr || 75 }, opts.spec || {}));
       this.secondsOnScreen = opts.seconds || 4;
       this.onBeat = opts.onBeat || null;
       this.color = '#3DFF8E';
@@ -165,11 +235,11 @@
       this.ctx.fillStyle = '#000'; this.ctx.fillRect(0, 0, this.w, this.h);
       this.x = 0; this.lastY = null;
     }
-    setHR(hr) { this.gen.setHR(hr); }
-    setRhythm(r) { this.gen.setRhythm(r); this._updateAlarm(); }
+    setHR(hr) { this.gen.set(Object.assign({}, this.gen.spec, { hr: hr })); }
+    setRhythm(spec) { this.gen.set(spec); this._updateAlarm(); }
     _updateAlarm() {
-      if (ALARM_RHYTHMS.includes(this.gen.rhythm) && this.running) Sound.alarmStart();
-      else if (![...monitors].some(m => m.running && ALARM_RHYTHMS.includes(m.gen.rhythm))) Sound.alarmStop();
+      if (ALARM_RHYTHMS.includes(this.gen.spec.type) && this.running) Sound.alarmStart();
+      else if (![...monitors].some(m => m.running && ALARM_RHYTHMS.includes(m.gen.spec.type))) Sound.alarmStop();
     }
     start() { if (this.running) return; this.running = true; this.lastFrame = null; this._kick(); this._updateAlarm(); }
     stop() { this.running = false; this._updateAlarm(); }
@@ -192,7 +262,7 @@
       while (px > 0) {
         const d = Math.min(step, px); px -= d;
         this.simT += d / this.pxPerSec;
-        const v = this.gen.sample(this.simT, () => { Sound.beep(); if (this.onBeat) this.onBeat(); });
+        const v = this.gen.value(this.simT, () => { Sound.beep(); if (this.onBeat) this.onBeat(); });
         const y = this.baseline - v * this.pxPerMv;
         const nx = this.x + d;
         // 描いた先を少し消す (スイープの消去帯)
@@ -243,5 +313,5 @@
     };
   }
 
-  global.ECG = { timing, beatShape, sinusAt, vfAt, asystoleAt, Generator, Monitor, Sound, svgPath, gridDefs, ALARM_RHYTHMS };
+  global.ECG = { timing, beatShape, sinusAt, vfAt, asystoleAt, Rhythm, R_AT, Monitor, Sound, svgPath, gridDefs, ALARM_RHYTHMS };
 })(window);

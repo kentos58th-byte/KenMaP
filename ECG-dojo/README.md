@@ -8,9 +8,10 @@ KenMaP の中のアプリです。急性期の看護師向けの、段位制の�
 | `index.html` | 画面の見た目 |
 | `app.js` | 画面の切り替え・クイズ・進み具合の保存 |
 | `ecg.js` | 波形を計算で描く仕組み・モニター・音 |
-| `data/shiro.json` | **白帯の問題・解説・稽古の説明文（監修はここだけ）** |
+| `data/shiro.json` | **白帯の問題・解説・稽古の説明文（監修用）** |
+| `data/cha.json` | **茶帯の問題・解説・稽古の説明文（監修用）** |
 
-## 監修のしかた（data/shiro.json）
+## 監修のしかた（data/shiro.json・data/cha.json）
 - `lessons` … 稽古の説明文。`parts` の `text` が、タップしたときに出る解説です。
 - `questions` … 試合・昇段試験の問題。
   - `question` 問題文 / `choices` 選択肢（4つ）/ `answer` 正解の番号（**0から数える**。1つ目が0）
