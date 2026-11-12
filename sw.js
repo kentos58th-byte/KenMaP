@@ -1,6 +1,6 @@
 // KenMaP Service Worker (ハブと全アプリ共通)
 // 内容を更新したら VERSION を上げると、利用者の端末のキャッシュが新しくなります。
-const VERSION = 'v3';
+const VERSION = 'v4';
 const CACHE = 'kenmap-' + VERSION;
 
 // オフラインで使えるようにするファイル。アプリを追加したらここにも足す。
